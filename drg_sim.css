@@ -1,0 +1,72 @@
+.actionGroup {
+    display: flex;
+    flex-wrap: wrap;
+    /*border: solid 2px rgb(128, 128, 128);*/
+    /*border-radius: 10px;*/
+    margin-right: 10px;
+    margin-bottom: 10px;
+    /*background-color: rgb(120,120,120);*/
+    /*margin: auto;*/
+}
+
+#actions {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #CCC;
+}
+
+#rotation {
+    background-color: #555;
+    position: relative;
+    height: auto;
+}
+
+.action {
+    margin-left: 2px;
+    margin-right: 2px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    height: 40px;
+    width: 40px;
+    border-radius: 6px;
+    box-shadow: 1px 1px 4px black;
+}
+
+.action:hover {
+    box-shadow: 0px 0px 4px white;
+    border: solid 1px white;
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+table {
+    background-color: #CCC;
+    /*border-radius: 10px;*/
+    /*position: relative;*/
+}
+
+.scrollable{
+    height: 400px;
+    overflow: auto;
+    position: relative;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

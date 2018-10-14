@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="drg_sim.css">
+    <link rel="shortcut icon" href="images/favicon.ico" />
+    <title>XIV DRG Sim</title>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <th>Time</th>
+            <th>Action</th>
+            <th>Effects</th>
+            <th>Cooldowns</th>
+            <th>DPS</th>
+        </tr>
+    </table>
+    <div class="scrollable">
+        <table>
+            <tr>
+                <td id="timeline" width="36px"></td>
+                <td id="rotation" width="46px" class="dropper"></td>
+                <td id="effects" width="48px"></td>
+                <td id="cds" width="76px"></td>
+                <td id="dps" width="31px"></td>
+            </tr>
+        </table>
+    </div>
+    <div id="actions">
+        <div id="weaponskills" class="actionGroup">
+        </div>
+        <div id="abilities" class="actionGroup">
+        </div>
+    </div>
+
+    <script src="jquery.js"></script>
+    <script src="data.js"></script>
+    <script src="drg_sim.js"></script>
+</body>
+
+</html>
