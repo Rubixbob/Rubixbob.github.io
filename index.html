@@ -9,10 +9,11 @@
 </head>
 
 <body>
+    <button id="clearRotation">Clear rotation</button>
     <table>
         <tr>
             <th>Time</th>
-            <th>Action</th>
+            <th width="74px">Action</th>
             <th>Effects</th>
             <th>Cooldowns</th>
             <th>DPS</th>
@@ -22,7 +23,7 @@
         <table>
             <tr>
                 <td id="timeline" width="36px"></td>
-                <td id="rotation" width="46px" class="dropper"></td>
+                <td id="rotation" width="74px" class="dropper"></td>
                 <td id="effects" width="48px"></td>
                 <td id="cds" width="76px"></td>
                 <td id="dps" width="31px"></td>
@@ -30,9 +31,49 @@
         </table>
     </div>
     <div id="actions">
-        <div id="weaponskills" class="actionGroup">
+        <div id="combo1" class="actionGroup">
         </div>
-        <div id="abilities" class="actionGroup">
+        <div id="combo2" class="actionGroup">
+        </div>
+        <div id="miscgcd" class="actionGroup">
+        </div>
+        <div id="buff" class="actionGroup">
+        </div>
+        <div id="ogcd" class="actionGroup">
+        </div>
+        <div id="crossrole" class="actionGroup">
+        </div>
+        <div id="other" class="actionGroup">
+        </div>
+    </div>
+    <div id="progress">
+        <div>
+            DONE:
+            <ul>
+                <li>Automatic read of actions from data.js + add to "action group"</li>
+                <li>Clear rotation button</li>
+                <li>Time extends when needed</li>
+                <li>Animation lock + GCD vs anim lock priority</li>
+                <li>Offset oGCDs a bit to the right</li>
+                <li>Option to delay oGCDs, will be reworked later</li>
+                <li>Animation lock indicator</li>
+            </ul>
+        </div>
+        <div>
+            TODO:
+            <ul>
+                <li>Delete actions</li>
+                <li>Move actions (+ add possible slots, and rework Delay)</li>
+                <li>Pre-pull actions</li>
+                <li>Add vertical time grid</li>
+                <li>Effects display</li>
+                <li>Cooldowns display</li>
+                <li>Make it work on phone</li>
+                <li>Lib (Actual DPS calculator, too much to do, will be detailed later)</li>
+                <li>Actions suggestions</li>
+                <li>Should work on making the website look pretty around this time</li>
+                <li>Combo and CD indicator in hotbar based on current end time</li>
+            </ul>
         </div>
     </div>
 

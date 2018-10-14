@@ -13,6 +13,8 @@
     display: flex;
     flex-wrap: wrap;
     background-color: #CCC;
+    padding-left: 10px;
+    padding-top: 10px;
 }
 
 #rotation {
@@ -30,6 +32,7 @@
     width: 40px;
     border-radius: 6px;
     box-shadow: 1px 1px 4px black;
+    background-color: cyan;
 }
 
 .action:hover {
@@ -41,6 +44,12 @@
     margin-bottom: 1px;
 }
 
+.actionImage {
+    height: 40px;
+    width: 40px;
+    border-radius: 6px;
+}
+
 table {
     background-color: #CCC;
     /*border-radius: 10px;*/
@@ -48,7 +57,7 @@ table {
 }
 
 .scrollable{
-    height: 400px;
+    height: 500px;
     overflow: auto;
     position: relative;
 }
@@ -69,4 +78,9 @@ table {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+#progress {
+    display: flex;
+    flex-wrap: wrap;
 }
