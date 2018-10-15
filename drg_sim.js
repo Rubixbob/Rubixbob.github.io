@@ -195,18 +195,36 @@ $("#clearRotation").click(function(){
     addTimeUntil(20);
 });
 
+function openerAddAction(actionName) {
+    var action = actions.find(ac => actionName === ac.name);
+    $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).click();
+}
+
 $("#opener").click(function(){
     $("#rotation").empty();
     $("#timeline").empty();
     addTimeUntil(20);
-    var action = actions.find(ac => "Impulse Drive" === ac.name);
-    $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).click();
-    action = actions.find(ac => "Life Surge" === ac.name);
-    $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).click();
-    action = actions.find(ac => "Life Surge" === ac.name);
-    $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).click();
-    action = actions.find(ac => "Impulse Drive" === ac.name);
-    $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).click();
-    action = actions.find(ac => "Life Surge" === ac.name);
-    $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).click();
+    openerAddAction("Heavy Thrust");
+    openerAddAction("Blood of the Dragon");
+    openerAddAction("Battle Litany");
+    openerAddAction("Impulse Drive");
+    openerAddAction("Dragon Sight");
+    openerAddAction("Blood for Blood");
+    openerAddAction("Disembowel");
+    openerAddAction("Potion");
+    openerAddAction("Chaos Thrust");
+    openerAddAction("Jump");
+    openerAddAction("Wheeling Thrust");
+    openerAddAction("Mirage Dive");
+    openerAddAction("Geirskogul");
+    openerAddAction("Fang and Claw");
+    openerAddAction("Dragonfire Dive");
+    openerAddAction("True Thrust");
+    openerAddAction("Spineshatter Dive");
+    openerAddAction("Vorpal Thrust");
+    openerAddAction("Mirage Dive");
+    openerAddAction("Life Surge");
+    openerAddAction("Full Thrust");
+    openerAddAction("Fang and Claw");
+    openerAddAction("Wheeling Thrust");
 });
