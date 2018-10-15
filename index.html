@@ -10,6 +10,23 @@
 
 <body>
     <button id="clearRotation">Clear rotation</button>
+    <button id="opener">Recommended opener</button>
+    <div id="actions">
+        <div id="combo1" class="actionGroup">
+        </div>
+        <div id="combo2" class="actionGroup">
+        </div>
+        <div id="miscgcd" class="actionGroup">
+        </div>
+        <div id="buff" class="actionGroup">
+        </div>
+        <div id="ogcd" class="actionGroup">
+        </div>
+        <div id="crossrole" class="actionGroup">
+        </div>
+        <div id="other" class="actionGroup">
+        </div>
+    </div>
     <table>
         <tr>
             <th>Time</th>
@@ -30,25 +47,9 @@
             </tr>
         </table>
     </div>
-    <div id="actions">
-        <div id="combo1" class="actionGroup">
-        </div>
-        <div id="combo2" class="actionGroup">
-        </div>
-        <div id="miscgcd" class="actionGroup">
-        </div>
-        <div id="buff" class="actionGroup">
-        </div>
-        <div id="ogcd" class="actionGroup">
-        </div>
-        <div id="crossrole" class="actionGroup">
-        </div>
-        <div id="other" class="actionGroup">
-        </div>
-    </div>
     <div id="progress">
         <div>
-            DONE:
+            <strong>DONE:</strong>
             <ul>
                 <li>Automatic read of actions from data.js + add to "action group"</li>
                 <li>Clear rotation button</li>
@@ -58,22 +59,27 @@
                 <li>Option to delay oGCDs, will be reworked later</li>
                 <li>Animation lock indicator</li>
                 <li>Delete actions</li>
+                <li>Move actions</li>
             </ul>
         </div>
         <div>
-            TODO:
+            <strong>TODO:</strong>
             <ul>
-                <li>Move actions (+ add possible slots, and rework Delay)</li>
-                <li>Variable GCD</li>
+                <li>Auto scroll</li>
+                <li>Variable GCD and latency</li>
+                <li>Rework Delay</li>
                 <li>Pre-pull actions</li>
-                <li>Add vertical time grid</li>
+                <li>Add vertical time grid + precise time of actions</li>
+                <li>Action info on mouseover</li>
                 <li>Effects display</li>
                 <li>Cooldowns display</li>
                 <li>Make it work on phone</li>
                 <li>Lib (Actual DPS calculator, too much to do, will be detailed later)</li>
                 <li>Actions suggestions</li>
-                <li>Should work on making the website look pretty around this time</li>
+                <li>Should work on making the website look pretty around this time<br/>
+                    (JQuery UI animations, cursor: pointer; cursor: hand; cursor: move; cursor: n-resize)</li>
                 <li>Combo and CD indicator in hotbar based on current end time</li>
+                <li>Save rotations (can't go public before that)</li>
             </ul>
         </div>
     </div>

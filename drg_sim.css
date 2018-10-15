@@ -10,11 +10,14 @@
 }
 
 #actions {
+    float: left;
     display: flex;
     flex-wrap: wrap;
-    background-color: #CCC;
+    background-color: #F0F0F0;
     padding-left: 10px;
     padding-top: 10px;
+    width: 186px;
+    border-radius: 16px;
 }
 
 #rotation {
@@ -57,7 +60,7 @@ table {
 }
 
 .scrollable{
-    height: 500px;
+    height: 800px;
     overflow: auto;
     position: relative;
 }
