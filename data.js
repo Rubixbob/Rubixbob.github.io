@@ -233,4 +233,5 @@ var actions = [
 	  group: "other"}
 ];
 
-var defaultAnimLock = 0.7;
+var defaultAnimLock = 0.65;
+var scale = 60;

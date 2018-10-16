@@ -32,6 +32,8 @@ actions.forEach(function (ac) {
                 var clonedElement = target.cloneNode(true);
                 dndHandler.applyRotationEvents(clonedElement);
                 addActionAtIndex(clonedElement, $("#rotation").children().length);
+                var scrollValue = parseInt($("#rotation").children().last().css("top"), 10) - 200;
+                $(".scrollable").animate({scrollTop:scrollValue}, 50, "linear");
             });
         },
 
@@ -127,23 +129,20 @@ actions.forEach(function (ac) {
     $(".dropper").each(function(index) { dndHandler.applyDropEvents(this); });
 })();
 
-var scale = 60;
-var gcd = 2.5;
-
 function addActionAtIndex(element, idx) {
     var time = 0;
     if (idx > 0) {
         var timeGcd = 0;
         var gcds = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
         if ($(element).hasClass("Weaponskill") && gcds.length > 0)
-            timeGcd = (Number(gcds.last().attr("time")) * 100 + gcd * 100) / 100;
+            timeGcd = (Number(gcds.last().attr("time")) * 100 + Number($("#GCD").val()) * 100) / 100;
         //animlock
         var previousAc = $("#rotation").children().filter(function(index) {return index < idx;}).last();
         var incr = getAnimationLock(previousAc.attr("name"));
         // if (lastAc.name === "Delay") // TODO : Delay
         //     incr = Number($("#rotation").children(".Weaponskill").last().attr("time"))
-        time = (Number(previousAc.attr("time")) * 100 + incr * 100) / 100;
-        time = Math.max(time, timeGcd);
+        var animLockTime = (Number(previousAc.attr("time")) * 100 + incr * 100) / 100;
+        time = Math.max(animLockTime, timeGcd);
     }
 
     var position = time * scale;
@@ -184,7 +183,7 @@ function getAnimationLock(actionName) {
     var action = actions.find(ac => actionName === ac.name);
     if (action.hasOwnProperty("animLock"))
         animLock = action.animLock;
-    return animLock;
+    return Number($("#Latency").val()) / 1000 + Number(animLock);
 }
 
 addTimeUntil(20);
@@ -203,7 +202,6 @@ function openerAddAction(actionName) {
 $("#opener").click(function(){
     $("#rotation").empty();
     $("#timeline").empty();
-    addTimeUntil(20);
     openerAddAction("Heavy Thrust");
     openerAddAction("Blood of the Dragon");
     openerAddAction("Battle Litany");
@@ -228,3 +226,6 @@ $("#opener").click(function(){
     openerAddAction("Fang and Claw");
     openerAddAction("Wheeling Thrust");
 });
+
+$("#GCD").blur(function(){updateRotationAfterIndex(0);});
+$("#Latency").blur(function(){updateRotationAfterIndex(0);});
