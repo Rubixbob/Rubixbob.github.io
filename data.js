@@ -228,7 +228,7 @@ var actions = [
 
 	{ name: "Delay",
 	  shortName: "Delay",
-	  animLock: 1.1,
+	  animLock: 1.05,
 	  type: "Ability",
 	  group: "other"}
 ];

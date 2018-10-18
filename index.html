@@ -12,7 +12,7 @@
     <button id="clearRotation">Clear rotation</button>
     <button id="opener">Recommended opener</button>
     <label for="GCD">GCD</label>
-    <input id="GCD" value="2.5" maxlength=4 size="3"></input>
+    <input id="GCD" value="2.5" maxlength=4 size="3" min="1.5" max="2.5"></input>
     <label for="Latency">Latency</label>
     <input id="Latency" value="50" maxlength=3 size="3"></input>
     <div id="actions">
@@ -60,19 +60,20 @@
                 <li>Time extends when needed</li>
                 <li>Animation lock + GCD vs anim lock priority</li>
                 <li>Offset oGCDs a bit to the right</li>
-                <li>Option to delay oGCDs, will be reworked later</li>
+                <li>Option to delay oGCDs<strike>, will be reworked later</strike></li>
                 <li>Animation lock indicator</li>
                 <li>Delete actions</li>
                 <li>Move actions</li>
                 <li>Recommended opener button</li>
                 <li>Auto scroll</li>
                 <li>Variable GCD and latency</li>
+                <li>Delay reworked, works through drag and drop now<br/>
+                    The "Delay" action will be used later to simulate downtime</li>
             </ul>
         </div>
         <div>
             <strong>TODO:</strong>
             <ul>
-                <li>Rework Delay</li>
                 <li>Pre-pull actions</li>
                 <li>Add vertical time grid + precise time of actions</li>
                 <li>Action info on mouseover</li>

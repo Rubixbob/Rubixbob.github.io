@@ -20,7 +20,7 @@ actions.forEach(function (ac) {
                     target = target.parentNode;
                 }
                 dndHandler.draggedElement = target.cloneNode(true);
-                // dndHandler.clone = dndHandler.draggedElement.cloneNode(true);
+                dndHandler.applyRotationEvents(dndHandler.draggedElement);
                 e.dataTransfer.setData('text/plain', '');
             });
 
@@ -46,7 +46,8 @@ actions.forEach(function (ac) {
                 while (target.className.indexOf('dropper') == -1) {
                     target = target.parentNode;
                 }
-                // this.className = 'dropper drop_hover';
+
+                // Move action to spot below pointer
                 var curIdx = $("#rotation").children().index(dndHandler.draggedElement);
                 if (curIdx === -1)
                     curIdx = $("#rotation").children().length;
@@ -56,45 +57,47 @@ actions.forEach(function (ac) {
                     return Number($(this).attr("time")) + getAnimationLock($(this).attr("name")) / 2 <= time
                         && index != curIdx;
                 }).length;
-                // console.log(idx);
-                if (idx === curIdx)
-                    return;
-                else if (idx > curIdx) {
+                if (idx > curIdx) {
                     addActionAtIndex($("#rotation").children().eq(idx), idx-1);
                     addActionAtIndex(dndHandler.draggedElement, idx);
-                } else {
+                    updateRotationAfterIndex(idx + 1);
+                } else if (idx < curIdx) {
                     addActionAtIndex(dndHandler.draggedElement, idx);
                     addActionAtIndex($("#rotation").children().eq(idx+1), idx+1);
+                    updateRotationAfterIndex(idx + 1);
                 }
-                updateRotationAfterIndex(idx + 1);
+
+                // Snap to previous or next action
+                if ($(dndHandler.draggedElement).hasClass("Weaponskill") || idx === 0 || idx === $("#rotation").children().length)
+                    return;
+                var prevAc = $(dndHandler.draggedElement).prev();
+                var minTime = Number(prevAc.attr("time")) + getAnimationLock(prevAc.attr("name"));
+                var nextAc = $(dndHandler.draggedElement).next();
+                var maxTime = Number(nextAc.attr("time"));
+                var midTime = (minTime + maxTime) / 2;
+                var delayed = $(dndHandler.draggedElement).attr("delayed")
+                if (time <= midTime) {
+                    if (delayed === "true" || delayed === undefined) {
+                        $(dndHandler.draggedElement).attr("delayed", "false");
+                        addActionAtIndex(dndHandler.draggedElement, idx);
+                    }
+                } else {
+                    if (delayed === "false" || delayed === undefined) {
+                        $(dndHandler.draggedElement).attr("delayed", "true");
+                        addActionAtIndex(dndHandler.draggedElement, idx);
+                    }
+                }
             });
 
             dropper.addEventListener('dragleave', function(e) {
                 if (!e.currentTarget.contains(e.relatedTarget)) {
                     var tempClone = dndHandler.draggedElement.cloneNode(true);
+                    dndHandler.applyRotationEvents(tempClone);
                     var idx = $("#rotation").children().index(dndHandler.draggedElement);
                     $(dndHandler.draggedElement).remove();
                     updateRotationAfterIndex(idx);
                     dndHandler.draggedElement = tempClone;
                 }
-                // this.className = 'dropper';
-            });
-
-            dropper.addEventListener('drop', function(e) {
-                var target = e.target,
-                    draggedElement = dndHandler.draggedElement,
-                    clonedElement = draggedElement.cloneNode(true);
-
-                while (target.className.indexOf('dropper') == -1) {
-                    target = target.parentNode;
-                }
-
-                // target.className = 'dropper';
-
-                dndHandler.applyRotationEvents(dndHandler.draggedElement);
-                // addActionAtIndex(clonedElement, $("#rotation").children().length);
-                // if (draggedElement.parentNode.id === "rotation")
-                // 	draggedElement.parentNode.removeChild(draggedElement);
             });
         },
 
@@ -109,7 +112,6 @@ actions.forEach(function (ac) {
                     target = target.parentNode;
                 }
                 dndHandler.draggedElement = target;
-                // dndHandler.clone = dndHandler.draggedElement.cloneNode(true);
                 e.dataTransfer.setData('text/plain', '');
             });
 
@@ -130,32 +132,70 @@ actions.forEach(function (ac) {
 })();
 
 function addActionAtIndex(element, idx) {
+    // Re-adjusts previous delayed abilities
+    var ogcdsToDelay = null,
+        delayList = [];
+    var previousGcds = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
+    if (previousGcds.length > 0) {
+        lastGcdIdx = $("#rotation").children().index(previousGcds.last());
+        ogcdsToDelay = $("#rotation").children().filter(function(index) {return index < idx && index > lastGcdIdx;});
+        ogcdsToDelay.each(function(index) {
+            var ret = $(this).attr("delayed");
+            $(this).attr("delayed", "false");
+            if (ret != undefined) {
+                delayList.push(ret);
+            } else {
+                delayList.push("false");
+            }
+        }).toArray();
+        ogcdsToDelay.each(function(index) {addActionAtIndex(this, lastGcdIdx + (index + 1));});
+    }
+
     var time = 0;
     if (idx > 0) {
+        // GCD
         var timeGcd = 0;
         var gcds = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
         if ($(element).hasClass("Weaponskill") && gcds.length > 0)
             timeGcd = (Number(gcds.last().attr("time")) * 100 + Number($("#GCD").val()) * 100) / 100;
-        //animlock
+        // Anim lock
         var previousAc = $("#rotation").children().filter(function(index) {return index < idx;}).last();
         var incr = getAnimationLock(previousAc.attr("name"));
-        // if (lastAc.name === "Delay") // TODO : Delay
-        //     incr = Number($("#rotation").children(".Weaponskill").last().attr("time"))
         var animLockTime = (Number(previousAc.attr("time")) * 100 + incr * 100) / 100;
         time = Math.max(animLockTime, timeGcd);
     }
 
+    // Delayed ability
+    if ($(element).attr("delayed") === "true" && idx != $("#rotation").children().length) {
+        var delayTime = 0;
+        if ($("#rotation").children().index(element) == idx) {
+            delayTime = (Number($(element).next().attr("time")) * 100 - getAnimationLock($(element).attr("name")) * 100) / 100;
+        } else {
+            delayTime = (Number( $("#rotation").children().eq(idx).attr("time")) * 100 - getAnimationLock($(element).attr("name")) * 100) / 100;
+        }
+        time = Math.max(time, delayTime);
+    }
+
+    // Display position
     var position = time * scale;
     var offset = 1;
     if ($(element).hasClass("Ability"))
         offset += 30;
     var animLockHeight = scale * getAnimationLock($(element).attr("name"));
     var addedElt = $(element).attr("time", `${time}`).css({"position": "absolute", "top": `${position}px`, "left": `${offset}px`, "height": `${animLockHeight}px`});
+
+    // Adding action
     if (idx > 0)
         $("#rotation").children().eq(idx-1).after(addedElt);
     else
         $("#rotation").prepend(addedElt);
     addTimeUntil(time + 5);
+
+    // Re-adjusts previous delayed abilities
+    if (previousGcds.length > 0) {
+        ogcdsToDelay.each(function(index) {$(this).attr("delayed", delayList[index]);});
+        $(ogcdsToDelay.get().reverse()).each(function(index) {addActionAtIndex(this, idx - (index + 1));});
+    }
 }
 
 function updateRotationAfterIndex(idx) {
@@ -199,17 +239,23 @@ function openerAddAction(actionName) {
     $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).click();
 }
 
+function openerAddDelayedAction(actionName) {
+    openerAddAction(actionName);
+    $("#rotation").children().last().attr("delayed", "true");
+}
+
 $("#opener").click(function(){
+    jQuery.fx.off = true;
     $("#rotation").empty();
     $("#timeline").empty();
     openerAddAction("Heavy Thrust");
     openerAddAction("Blood of the Dragon");
-    openerAddAction("Battle Litany");
+    openerAddDelayedAction("Battle Litany");
     openerAddAction("Impulse Drive");
-    openerAddAction("Dragon Sight");
-    openerAddAction("Blood for Blood");
+    openerAddDelayedAction("Dragon Sight");
+    openerAddDelayedAction("Blood for Blood");
     openerAddAction("Disembowel");
-    openerAddAction("Potion");
+    openerAddDelayedAction("Potion");
     openerAddAction("Chaos Thrust");
     openerAddAction("Jump");
     openerAddAction("Wheeling Thrust");
@@ -225,6 +271,8 @@ $("#opener").click(function(){
     openerAddAction("Full Thrust");
     openerAddAction("Fang and Claw");
     openerAddAction("Wheeling Thrust");
+    $(".scrollable").scrollTop(0);
+    jQuery.fx.off = false;
 });
 
 $("#GCD").blur(function(){updateRotationAfterIndex(0);});
