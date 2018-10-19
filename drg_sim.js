@@ -275,5 +275,19 @@ $("#opener").click(function(){
     jQuery.fx.off = false;
 });
 
-$("#GCD").blur(function(){updateRotationAfterIndex(0);});
-$("#Latency").blur(function(){updateRotationAfterIndex(0);});
+$("#GCD").blur(function(){
+    if(Number($("#GCD").val()) < Number($("#GCD").attr("min")))
+        $("#GCD").val($("#GCD").attr("min"));
+    if(Number($("#GCD").val()) > Number($("#GCD").attr("max")))
+        $("#GCD").val($("#GCD").attr("max"));
+    $("#GCD").val(Math.trunc($("#GCD").val() * 100) / 100);
+    updateRotationAfterIndex(0);
+});
+$("#Latency").blur(function(){
+    if(Number($("#Latency").val()) < Number($("#Latency").attr("min")))
+        $("#Latency").val($("#Latency").attr("min"));
+    if(Number($("#Latency").val()) > Number($("#Latency").attr("max")))
+        $("#Latency").val($("#Latency").attr("max"));
+    $("#Latency").val(Math.trunc($("#Latency").val()));
+    updateRotationAfterIndex(0);
+});
