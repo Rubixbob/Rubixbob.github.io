@@ -52,7 +52,8 @@ actions.forEach(function (ac) {
                 if (curIdx === -1)
                     curIdx = $("#rotation").children().length;
                 addActionAtIndex(dndHandler.draggedElement, curIdx);
-                var time = (e.clientY-target.getBoundingClientRect().top) / scale;
+                var minTime = Number($("#timeline").children().first().attr("time"));
+                var time = (e.clientY-target.getBoundingClientRect().top) / scale + minTime;
                 var idx = $("#rotation").children().filter(function(index) {
                     return Number($(this).attr("time")) + getAnimationLock($(this).attr("name")) / 2 <= time
                         && index != curIdx;
@@ -93,9 +94,7 @@ actions.forEach(function (ac) {
                 if (!e.currentTarget.contains(e.relatedTarget)) {
                     var tempClone = dndHandler.draggedElement.cloneNode(true);
                     dndHandler.applyRotationEvents(tempClone);
-                    var idx = $("#rotation").children().index(dndHandler.draggedElement);
-                    $(dndHandler.draggedElement).remove();
-                    updateRotationAfterIndex(idx);
+                    removeAction(dndHandler.draggedElement);
                     dndHandler.draggedElement = tempClone;
                 }
             });
@@ -120,9 +119,7 @@ actions.forEach(function (ac) {
                 while (target.parentNode.className.indexOf('draggable') != -1) {
                     target = target.parentNode;
                 }
-                var idx = $("#rotation").children().index(target);
-                $(target).remove();
-                updateRotationAfterIndex(idx);
+                removeAction(target);
             });
         }
     };
@@ -151,10 +148,10 @@ function addActionAtIndex(element, idx) {
         ogcdsToDelay.each(function(index) {addActionAtIndex(this, lastGcdIdx + (index + 1));});
     }
 
-    var time = 0;
+    var time = startTime;
     if (idx > 0) {
         // GCD
-        var timeGcd = 0;
+        var timeGcd = startTime;
         var gcds = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
         if ($(element).hasClass("Weaponskill") && gcds.length > 0)
             timeGcd = (Number(gcds.last().attr("time")) * 100 + Number($("#GCD").val()) * 100) / 100;
@@ -166,8 +163,8 @@ function addActionAtIndex(element, idx) {
     }
 
     // Delayed ability
-    if ($(element).attr("delayed") === "true" && idx != $("#rotation").children().length) {
-        var delayTime = 0;
+    if ($(element).attr("delayed") === "true" && idx < $("#rotation").children().length - 1) {
+        var delayTime = startTime;
         if ($("#rotation").children().index(element) == idx) {
             delayTime = (Number($(element).next().attr("time")) * 100 - getAnimationLock($(element).attr("name")) * 100) / 100;
         } else {
@@ -176,8 +173,25 @@ function addActionAtIndex(element, idx) {
         time = Math.max(time, delayTime);
     }
 
+    // Pre pull
+    if (time <= 0 && getPotency($(element).attr("name")) == 0 && $("#rotation").children().filter(function(index) {return $(this).attr("time") < 0;}).index(element) == -1) {
+        // prePullActions = $("#rotation").children().filter(function(index) {return $(this).attr("time") < 0;});
+        // var curIdx = prePullActions.index(element);
+        // if (curIdx != -1) {
+        //     console.log("already pre pull");
+        // } else {
+            console.log("not pre pull");
+            startTime -= getAnimationLock($(element).attr("name"));
+            setMinTime(Math.floor(startTime));
+            time -= getAnimationLock($(element).attr("name"));
+            updateRotationBeforeIndex(idx);
+        // }
+
+        // time = -getAnimationLock($(element).attr("name"));
+    }
+
     // Display position
-    var position = time * scale;
+    var position = (time - minTime) * scale;
     var offset = 1;
     if ($(element).hasClass("Ability"))
         offset += 30;
@@ -198,14 +212,33 @@ function addActionAtIndex(element, idx) {
     }
 }
 
+function removeAction(element) {
+    var idx = $("#rotation").children().index(element);
+    if (Number($(element).attr("time")) < 0) {
+        console.log(startTime);
+        startTime += getAnimationLock($(element).attr("name"));
+        console.log(startTime);
+        setMinTime(Math.floor(startTime));
+        console.log(minTime);
+        idx = 0;
+    }
+    $(element).remove();
+    updateRotationAfterIndex(idx);
+}
+
 function updateRotationAfterIndex(idx) {
     $("#rotation").children().filter(function(index) {return index >= idx;}).each(function(index) {
         addActionAtIndex(this, index + idx);
     });
 }
 
+function updateRotationBeforeIndex(idx) {
+    $("#rotation").children().filter(function(index) {return index < idx;}).each(function(index) {
+        addActionAtIndex(this, index);
+    });
+}
+
 function addTime(time) {
-	var position = time * scale + document.getElementById("timeline").getBoundingClientRect().top;
     $("#timeline").append($(`<div>${time}</div>`).attr("time", `${time}`).css("height", `${scale}px`).get());
 }
 
@@ -223,15 +256,23 @@ function getAnimationLock(actionName) {
     var action = actions.find(ac => actionName === ac.name);
     if (action.hasOwnProperty("animLock"))
         animLock = action.animLock;
-    return Number($("#Latency").val()) / 1000 + Number(animLock);
+    return (Number($("#Latency").val()) + Number(animLock) * 1000) / 1000;
 }
 
-addTimeUntil(20);
+function getPotency(actionName) {
+    var potency = 0;
+    var action = actions.find(ac => actionName === ac.name);
+    if (action.hasOwnProperty("potency"))
+        potency = action.potency;
+    return Number(potency);
+}
 
 $("#clearRotation").click(function(){
     $("#rotation").empty();
     $("#timeline").empty();
     addTimeUntil(20);
+    startTime = 0;
+    minTime = 0;
 });
 
 function openerAddAction(actionName) {
@@ -248,8 +289,12 @@ $("#opener").click(function(){
     jQuery.fx.off = true;
     $("#rotation").empty();
     $("#timeline").empty();
-    openerAddAction("Heavy Thrust");
+    startTime = 0;
+    minTime = 0;
     openerAddAction("Blood of the Dragon");
+    openerAddAction("Elusive Jump");
+    openerAddAction("Heavy Thrust");
+    openerAddAction("Diversion");
     openerAddDelayedAction("Battle Litany");
     openerAddAction("Impulse Drive");
     openerAddDelayedAction("Dragon Sight");
@@ -291,3 +336,20 @@ $("#Latency").blur(function(){
     $("#Latency").val(Math.trunc($("#Latency").val()));
     updateRotationAfterIndex(0);
 });
+
+function setMinTime(value) {
+    if (value < minTime) {
+        for (var i = 0; i < minTime - value; i++) {
+            $("#timeline").prepend($(`<div>${minTime - i - 1}</div>`).attr("time", `${minTime - i - 1}`).css("height", `${scale}px`).get());
+        }
+    } else {
+        for (var i = 0; i < value - minTime; i++) {
+            $("#timeline").children().first().remove();
+        }
+    }
+    minTime = value;
+}
+
+addTimeUntil(20);
+var startTime = 0;
+var minTime = 0;
