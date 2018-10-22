@@ -52,8 +52,8 @@ actions.forEach(function (ac) {
                 if (curIdx === -1)
                     curIdx = $("#rotation").children().length;
                 addActionAtIndex(dndHandler.draggedElement, curIdx);
-                var minTime = Number($("#timeline").children().first().attr("time"));
-                var time = (e.clientY-target.getBoundingClientRect().top) / scale + minTime;
+                var startTime = Number($("#timeline").children().first().attr("time"));
+                var time = (e.clientY-target.getBoundingClientRect().top) / scale + startTime;
                 var idx = $("#rotation").children().filter(function(index) {
                     return Number($(this).attr("time")) + getAnimationLock($(this).attr("name")) / 2 <= time
                         && index != curIdx;
@@ -174,24 +174,30 @@ function addActionAtIndex(element, idx) {
     }
 
     // Pre pull
-    if (time <= 0 && getPotency($(element).attr("name")) == 0 && $("#rotation").children().filter(function(index) {return $(this).attr("time") < 0;}).index(element) == -1) {
-        // prePullActions = $("#rotation").children().filter(function(index) {return $(this).attr("time") < 0;});
-        // var curIdx = prePullActions.index(element);
-        // if (curIdx != -1) {
-        //     console.log("already pre pull");
-        // } else {
-            console.log("not pre pull");
-            startTime -= getAnimationLock($(element).attr("name"));
-            setMinTime(Math.floor(startTime));
-            time -= getAnimationLock($(element).attr("name"));
-            updateRotationBeforeIndex(idx);
-        // }
-
-        // time = -getAnimationLock($(element).attr("name"));
+    if (time <= 0) {
+		if (getPotency($(element).attr("name")) == 0) {
+			if ($("#rotation").children().filter(function(index) {return $(this).attr("time") < 0;}).index(element) == -1) {
+				console.log("not pre pull");
+				var acAnimLock = getAnimationLock($(element).attr("name"));
+				setStartTime(startTime - acAnimLock);
+				time -= acAnimLock;
+				updateRotationBeforeIndex(idx);
+			}
+		} else {
+			time = 0;
+		}
     }
+	if (time > 0 && getPotency($(element).attr("name")) == 0 && Number($(element).attr("time")) < 0) {
+            console.log("pre pull");
+        console.log(startTime);
+        setStartTime(startTime + getAnimationLock($(element).attr("name")));
+        console.log(startTime);
+        console.log(time);
+		updateRotationBeforeIndex(idx);
+	}
 
     // Display position
-    var position = (time - minTime) * scale;
+    var position = (time - startTime) * scale;
     var offset = 1;
     if ($(element).hasClass("Ability"))
         offset += 30;
@@ -216,10 +222,8 @@ function removeAction(element) {
     var idx = $("#rotation").children().index(element);
     if (Number($(element).attr("time")) < 0) {
         console.log(startTime);
-        startTime += getAnimationLock($(element).attr("name"));
+        setStartTime(startTime + getAnimationLock($(element).attr("name")));
         console.log(startTime);
-        setMinTime(Math.floor(startTime));
-        console.log(minTime);
         idx = 0;
     }
     $(element).remove();
@@ -244,7 +248,7 @@ function addTime(time) {
 
 function addTimeUntil(time) {
     var currentMax = -1;
-    if ($("#timeline").children().length > 0)
+    if ($("#timeline").children().length > 1)
         currentMax = Number($("#timeline").children().last().attr("time"));
     for (i = currentMax + 1; i <= time; i++) {
         addTime(i);
@@ -267,13 +271,15 @@ function getPotency(actionName) {
     return Number(potency);
 }
 
-$("#clearRotation").click(function(){
-    $("#rotation").empty();
+function clearRotation() {
+	$("#rotation").empty();
     $("#timeline").empty();
+	$("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px").get());
     addTimeUntil(20);
     startTime = 0;
-    minTime = 0;
-});
+}
+
+$("#clearRotation").click(function(){ clearRotation(); });
 
 function openerAddAction(actionName) {
     var action = actions.find(ac => actionName === ac.name);
@@ -287,10 +293,7 @@ function openerAddDelayedAction(actionName) {
 
 $("#opener").click(function(){
     jQuery.fx.off = true;
-    $("#rotation").empty();
-    $("#timeline").empty();
-    startTime = 0;
-    minTime = 0;
+    clearRotation();
     openerAddAction("Blood of the Dragon");
     openerAddAction("Elusive Jump");
     openerAddAction("Heavy Thrust");
@@ -337,19 +340,19 @@ $("#Latency").blur(function(){
     updateRotationAfterIndex(0);
 });
 
-function setMinTime(value) {
-    if (value < minTime) {
-        for (var i = 0; i < minTime - value; i++) {
-            $("#timeline").prepend($(`<div>${minTime - i - 1}</div>`).attr("time", `${minTime - i - 1}`).css("height", `${scale}px`).get());
+function setStartTime(value) {
+    if (value < startTime) {
+        for (var i = 0; i < Math.ceil(startTime) - Math.ceil(value); i++) {
+            $("#timeline").children().eq(0).after($(`<div>${Math.ceil(startTime) - i - 1}</div>`).attr("time", `${Math.ceil(startTime) - i - 1}`).css("height", `${scale}px`).get());
         }
     } else {
-        for (var i = 0; i < value - minTime; i++) {
-            $("#timeline").children().first().remove();
+        for (var i = 0; i < Math.ceil(value) - Math.ceil(startTime); i++) {
+            $("#timeline").children().eq(1).remove();
         }
     }
-    minTime = value;
+	$("#timeline").children().eq(0).attr("time", `${value}`).css("height", `${(Math.ceil(value)-value) * scale}px`);
+    startTime = value;
 }
 
-addTimeUntil(20);
 var startTime = 0;
-var minTime = 0;
+clearRotation();
