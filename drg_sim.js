@@ -202,7 +202,7 @@ function addActionAtIndex(element, idx) {
     if ($(element).hasClass("Ability"))
         offset += 30;
     var animLockHeight = scale * getAnimationLock($(element).attr("name"));
-    var addedElt = $(element).attr("time", `${time}`).css({"position": "absolute", "top": `${position}px`, "left": `${offset}px`, "height": `${animLockHeight}px`});
+    var addedElt = $(element).attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "top": `${position}px`, "left": `${offset}px`, "height": `${animLockHeight}px`});
 
     // Adding action
     if (idx > 0)
@@ -242,8 +242,8 @@ function updateRotationBeforeIndex(idx) {
     });
 }
 
-function addTime(time) {
-    $("#timeline").append($(`<div>${time}</div>`).attr("time", `${time}`).css("height", `${scale}px`).get());
+function timeDiv(time) {
+    return $(`<div>${time}</div>`).attr("time", `${time.toFixed(3)}`).css("height", `${scale}px`).get();
 }
 
 function addTimeUntil(time) {
@@ -251,7 +251,7 @@ function addTimeUntil(time) {
     if ($("#timeline").children().length > 1)
         currentMax = Number($("#timeline").children().last().attr("time"));
     for (i = currentMax + 1; i <= time; i++) {
-        addTime(i);
+        $("#timeline").append(timeDiv(i));
     }
 }
 
@@ -337,21 +337,28 @@ $("#Latency").blur(function(){
     if(Number($("#Latency").val()) > Number($("#Latency").attr("max")))
         $("#Latency").val($("#Latency").attr("max"));
     $("#Latency").val(Math.trunc($("#Latency").val()));
+	updateStartTime();
     updateRotationAfterIndex(0);
 });
 
 function setStartTime(value) {
     if (value < startTime) {
         for (var i = 0; i < Math.ceil(startTime) - Math.ceil(value); i++) {
-            $("#timeline").children().eq(0).after($(`<div>${Math.ceil(startTime) - i - 1}</div>`).attr("time", `${Math.ceil(startTime) - i - 1}`).css("height", `${scale}px`).get());
+			$("#timeline").children().eq(0).after(timeDiv(Math.ceil(startTime) - i - 1));
         }
     } else {
         for (var i = 0; i < Math.ceil(value) - Math.ceil(startTime); i++) {
             $("#timeline").children().eq(1).remove();
         }
     }
-	$("#timeline").children().eq(0).attr("time", `${value}`).css("height", `${(Math.ceil(value)-value) * scale}px`);
+	$("#timeline").children().eq(0).attr("time", `${value.toFixed(3)}`).css("height", `${(Math.ceil(value)-value) * scale}px`);
     startTime = value;
+}
+
+function updateStartTime() {
+	var prePullTime = 0;
+	$("#rotation").children().filter(function(index) {return $(this).attr("time") < 0;}).each(function(index) {prePullTime -= getAnimationLock($(this).attr("name"));});
+	setStartTime(prePullTime);
 }
 
 var startTime = 0;
