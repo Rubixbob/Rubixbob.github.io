@@ -36,6 +36,7 @@
     border-radius: 6px;
     box-shadow: 1px 1px 4px black;
     background-color: cyan;
+	z-index: 2;
 }
 
 .action:hover {

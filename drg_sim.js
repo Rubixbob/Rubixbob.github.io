@@ -202,7 +202,7 @@ function addActionAtIndex(element, idx) {
     if ($(element).hasClass("Ability"))
         offset += 30;
     var animLockHeight = scale * getAnimationLock($(element).attr("name"));
-    var addedElt = $(element).attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "top": `${position}px`, "left": `${offset}px`, "height": `${animLockHeight}px`});
+    var addedElt = $(element).attr({"time": `${time.toFixed(3)}`, "title": `${time.toFixed(3)}`}).css({"position": "absolute", "top": `${position}px`, "left": `${offset}px`, "height": `${animLockHeight}px`});
 
     // Adding action
     if (idx > 0)
@@ -243,7 +243,9 @@ function updateRotationBeforeIndex(idx) {
 }
 
 function timeDiv(time) {
-    return $(`<div>${time}</div>`).attr("time", `${time.toFixed(3)}`).css("height", `${scale}px`).get();
+	var tDiv = $(`<div>${time}</div>`).attr("time", `${time.toFixed(3)}`).css("height", `${scale}px`);
+	tDiv.prepend($("<div></div>").css({"position": "absolute", "height": "1px", "width": "200px", "background-color": "black", "z-index": "1"}));
+    return tDiv;
 }
 
 function addTimeUntil(time) {
@@ -274,7 +276,7 @@ function getPotency(actionName) {
 function clearRotation() {
 	$("#rotation").empty();
     $("#timeline").empty();
-	$("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px").get());
+	$("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
     addTimeUntil(20);
     startTime = 0;
 }
