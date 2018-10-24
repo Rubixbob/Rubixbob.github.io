@@ -244,7 +244,8 @@ function updateRotationBeforeIndex(idx) {
 
 function timeDiv(time) {
 	var tDiv = $(`<div>${time}</div>`).attr("time", `${time.toFixed(3)}`).css("height", `${scale}px`);
-	tDiv.prepend($("<div></div>").css({"position": "absolute", "height": "1px", "width": "200px", "background-color": "black", "z-index": "1"}));
+	var rect = $("#timeline").parent().get()[0].getBoundingClientRect();
+	tDiv.prepend($("<div></div>").css({"position": "absolute", "left": "0px", "height": "1px", "width": `${rect.width}px`, "background-color": "black", "z-index": "1"}));
     return tDiv;
 }
 
