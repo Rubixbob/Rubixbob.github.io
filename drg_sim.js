@@ -151,15 +151,26 @@ function addActionAtIndex(element, idx) {
     var time = startTime;
     if (idx > 0) {
         // GCD
-        var timeGcd = startTime;
-        var gcds = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
-        if ($(element).hasClass("Weaponskill") && gcds.length > 0)
-            timeGcd = (Number(gcds.last().attr("time")) * 100 + Number($("#GCD").val()) * 100) / 100;
+		if ($(element).hasClass("Weaponskill")) {
+			var timeGcd = startTime;
+			var gcds = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
+			if (gcds.length > 0)
+				timeGcd = (Number(gcds.last().attr("time")) * 100 + Number($("#GCD").val()) * 100) / 100;
+			time = Math.max(time, timeGcd);
+		}
+		// CD recast
+		else if ($(element).hasClass("Ability")) {
+			var timeCd = startTime;
+			var cds = $("#rotation").children().filter(function(index) {return index < idx && $(this).attr("name") === $(element).attr("name");});
+			if (cds.length > 0)
+				timeCd = (Number(cds.last().attr("time")) * 100 + getRecastTime(cds.last().attr("name")) * 100) / 100;
+			time = Math.max(time, timeCd);
+		}
         // Anim lock
         var previousAc = $("#rotation").children().filter(function(index) {return index < idx;}).last();
         var incr = getAnimationLock(previousAc.attr("name"));
         var animLockTime = (Number(previousAc.attr("time")) * 100 + incr * 100) / 100;
-        time = Math.max(animLockTime, timeGcd);
+        time = Math.max(time, animLockTime);
     }
 
     // Delayed ability
@@ -221,9 +232,7 @@ function addActionAtIndex(element, idx) {
 function removeAction(element) {
     var idx = $("#rotation").children().index(element);
     if (Number($(element).attr("time")) < 0) {
-        console.log(startTime);
         setStartTime(startTime + getAnimationLock($(element).attr("name")));
-        console.log(startTime);
         idx = 0;
     }
     $(element).remove();
@@ -264,6 +273,14 @@ function getAnimationLock(actionName) {
     if (action.hasOwnProperty("animLock"))
         animLock = action.animLock;
     return (Number($("#Latency").val()) + Number(animLock) * 1000) / 1000;
+}
+
+function getRecastTime(actionName) {
+	var recast = 0;
+    var action = actions.find(ac => actionName === ac.name);
+    if (action.hasOwnProperty("recast"))
+        recast = action.recast;
+	return Number(recast);
 }
 
 function getPotency(actionName) {
