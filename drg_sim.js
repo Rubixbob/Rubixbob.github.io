@@ -81,11 +81,25 @@ actions.forEach(function (ac) {
                     if (delayed === "true" || delayed === undefined) {
                         $(dndHandler.draggedElement).attr("delayed", "false");
                         addActionAtIndex(dndHandler.draggedElement, idx);
+						$("#rotation").children().filter(function(index) {
+							return index > idx && $(this).attr("name") === $(dndHandler.draggedElement).attr("name");
+						}).each(function(index) {
+							console.log(this);
+							console.log($("#rotation").children().index(this));
+							addActionAtIndex(this, $("#rotation").children().index(this));
+						});
                     }
                 } else {
                     if (delayed === "false" || delayed === undefined) {
                         $(dndHandler.draggedElement).attr("delayed", "true");
                         addActionAtIndex(dndHandler.draggedElement, idx);
+						$("#rotation").children().filter(function(index) {
+							return index > idx && $(this).attr("name") === $(dndHandler.draggedElement).attr("name");
+						}).each(function(index) {
+							console.log(this);
+							console.log($("#rotation").children().index(this));
+							addActionAtIndex(this, $("#rotation").children().index(this));
+						});
                     }
                 }
             });
@@ -174,7 +188,7 @@ function addActionAtIndex(element, idx) {
     }
 
     // Delayed ability
-    if ($(element).attr("delayed") === "true" && idx < $("#rotation").children().length - 1) {
+    if ($(element).attr("delayed") === "true" && idx < $("#rotation").children().length - 1 && $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");}).length > 0) {
         var delayTime = startTime;
         if ($("#rotation").children().index(element) == idx) {
             delayTime = (Number($(element).next().attr("time")) * 100 - getAnimationLock($(element).attr("name")) * 100) / 100;
