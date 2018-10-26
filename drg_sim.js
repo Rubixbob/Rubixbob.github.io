@@ -1,5 +1,7 @@
 actions.forEach(function (ac) {
     var action = $("<div></div>").attr({name: ac.name, class: `action draggable ${ac.type}`});
+	if (ac.hasOwnProperty("delayed"))
+		action.attr("delayed", ac.delayed);
     action.append($("<div></div>").attr("class", "actionImage").css("background-image", `url("images/${ac.name}.png")`));
     $(`#${ac.group}`).append(action);
 });
@@ -78,30 +80,20 @@ actions.forEach(function (ac) {
                 var midTime = (minTime + maxTime) / 2;
                 var delayed = $(dndHandler.draggedElement).attr("delayed")
                 if (time <= midTime) {
-                    if (delayed === "true" || delayed === undefined) {
-                        $(dndHandler.draggedElement).attr("delayed", "false");
-                        addActionAtIndex(dndHandler.draggedElement, idx);
-						$("#rotation").children().filter(function(index) {
-							return index > idx && $(this).attr("name") === $(dndHandler.draggedElement).attr("name");
-						}).each(function(index) {
-							console.log(this);
-							console.log($("#rotation").children().index(this));
-							addActionAtIndex(this, $("#rotation").children().index(this));
-						});
-                    }
+                    if (delayed === "false")
+						return;
+					$(dndHandler.draggedElement).attr("delayed", "false");
                 } else {
-                    if (delayed === "false" || delayed === undefined) {
-                        $(dndHandler.draggedElement).attr("delayed", "true");
-                        addActionAtIndex(dndHandler.draggedElement, idx);
-						$("#rotation").children().filter(function(index) {
-							return index > idx && $(this).attr("name") === $(dndHandler.draggedElement).attr("name");
-						}).each(function(index) {
-							console.log(this);
-							console.log($("#rotation").children().index(this));
-							addActionAtIndex(this, $("#rotation").children().index(this));
-						});
-                    }
+                    if (delayed === "true")
+						return;
+					$(dndHandler.draggedElement).attr("delayed", "true");
                 }
+				addActionAtIndex(dndHandler.draggedElement, idx);
+				$("#rotation").children().filter(function(index) {
+					return index > idx && $(this).attr("name") === $(dndHandler.draggedElement).attr("name");
+				}).each(function(index) {
+					addActionAtIndex(this, $("#rotation").children().index(this));
+				});
             });
 
             dropper.addEventListener('dragleave', function(e) {
@@ -332,12 +324,12 @@ $("#opener").click(function(){
     openerAddAction("Elusive Jump");
     openerAddAction("Heavy Thrust");
     openerAddAction("Diversion");
-    openerAddDelayedAction("Battle Litany");
+    openerAddAction("Battle Litany");
     openerAddAction("Impulse Drive");
-    openerAddDelayedAction("Dragon Sight");
-    openerAddDelayedAction("Blood for Blood");
+    openerAddAction("Dragon Sight");
+    openerAddAction("Blood for Blood");
     openerAddAction("Disembowel");
-    openerAddDelayedAction("Potion");
+    openerAddAction("Potion");
     openerAddAction("Chaos Thrust");
     openerAddAction("Jump");
     openerAddAction("Wheeling Thrust");
