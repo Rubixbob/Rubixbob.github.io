@@ -84,6 +84,15 @@ table {
     background: #555;
 }
 
+.tooltip {
+	position: absolute;
+	z-index: 999;
+	color: #FFFFFF;
+    background-color: #323232;
+	/*height: 200px;*/
+    border-radius: 4px;
+}
+
 #progress {
     display: flex;
     flex-wrap: wrap;

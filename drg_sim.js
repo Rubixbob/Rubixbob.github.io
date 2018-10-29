@@ -18,7 +18,7 @@ actions.forEach(function (ac) {
 
             element.addEventListener('dragstart', function(e) {
                 var target = e.target;
-                while (target.parentNode.className.indexOf('draggable') != -1) {
+                while ($(target.parentNode).hasClass('draggable')) {
                     target = target.parentNode;
                 }
                 dndHandler.draggedElement = target.cloneNode(true);
@@ -28,7 +28,7 @@ actions.forEach(function (ac) {
 
             element.addEventListener('click', function(e) {
                 var target = e.target;
-                while (target.parentNode.className.indexOf('draggable') != -1) {
+                while ($(target.parentNode).hasClass('draggable')) {
                     target = target.parentNode;
                 }
                 var clonedElement = target.cloneNode(true);
@@ -37,6 +37,28 @@ actions.forEach(function (ac) {
                 var scrollValue = parseInt($("#rotation").children().last().css("top"), 10) - 200;
                 $(".scrollable").animate({scrollTop:scrollValue}, 50, "linear");
             });
+			
+			element.addEventListener('mouseover', function(e) {
+				var target = e.target;
+                while ($(target.parentNode).hasClass('action')) {
+                    target = target.parentNode;
+                }
+				
+				var name = $(target).attr("name");
+				var type = getType(name);
+				var recast = getRecastTime(name);
+				var desc = getDescription(name);
+				var content = name + "<br/>" + type + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
+				$(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
+			});
+			
+			element.addEventListener('mousemove', function(e) {
+				$(".tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`});
+			});
+			
+			element.addEventListener('mouseout', function(e) {
+				$(".tooltip").remove();
+			});
         },
 
         applyDropEvents: function(dropper) {
@@ -99,6 +121,7 @@ actions.forEach(function (ac) {
             dropper.addEventListener('dragleave', function(e) {
                 if (!e.currentTarget.contains(e.relatedTarget)) {
                     var tempClone = dndHandler.draggedElement.cloneNode(true);
+					tempClone.removeAttribute("time");
                     dndHandler.applyRotationEvents(tempClone);
                     removeAction(dndHandler.draggedElement);
                     dndHandler.draggedElement = tempClone;
@@ -118,6 +141,7 @@ actions.forEach(function (ac) {
                 }
                 dndHandler.draggedElement = target;
                 e.dataTransfer.setData('text/plain', '');
+				$(".tooltip").remove();
             });
 
             element.addEventListener('click', function(e) {
@@ -126,7 +150,28 @@ actions.forEach(function (ac) {
                     target = target.parentNode;
                 }
                 removeAction(target);
+				$(".tooltip").remove();
             });
+			
+			element.addEventListener('mouseover', function(e) {
+				var target = e.target;
+                while ($(target.parentNode).hasClass('action')) {
+                    target = target.parentNode;
+                }
+				
+				var name = $(target).attr("name");
+				var time = $(target).attr("time");
+				var content = name + "<br/>" + time;
+				$(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
+			});
+			
+			element.addEventListener('mousemove', function(e) {
+				$(".tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`});
+			});
+			
+			element.addEventListener('mouseout', function(e) {
+				$(".tooltip").remove();
+			});
         }
     };
 
@@ -219,7 +264,7 @@ function addActionAtIndex(element, idx) {
     if ($(element).hasClass("Ability"))
         offset += 30;
     var animLockHeight = scale * getAnimationLock($(element).attr("name"));
-    var addedElt = $(element).attr({"time": `${time.toFixed(3)}`, "title": `${time.toFixed(3)}`}).css({"position": "absolute", "top": `${position}px`, "left": `${offset}px`, "height": `${animLockHeight}px`});
+    var addedElt = $(element).attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "top": `${position}px`, "left": `${offset}px`, "height": `${animLockHeight}px`});
 
     // Adding action
     if (idx > 0)
@@ -282,7 +327,7 @@ function getAnimationLock(actionName) {
 }
 
 function getRecastTime(actionName) {
-	var recast = 0;
+	var recast = Number($("#GCD").val());
     var action = actions.find(ac => actionName === ac.name);
     if (action.hasOwnProperty("recast"))
         recast = action.recast;
@@ -295,6 +340,22 @@ function getPotency(actionName) {
     if (action.hasOwnProperty("potency"))
         potency = action.potency;
     return Number(potency);
+}
+
+function getDescription(actionName) {
+    var description = "";
+    var action = actions.find(ac => actionName === ac.name);
+    if (action.hasOwnProperty("description"))
+        description = action.description;
+    return description;
+}
+
+function getType(actionName) {
+    var type = "";
+    var action = actions.find(ac => actionName === ac.name);
+    if (action.hasOwnProperty("type"))
+        type = action.type;
+    return type;
 }
 
 function clearRotation() {
