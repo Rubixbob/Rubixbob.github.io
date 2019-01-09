@@ -6,6 +6,11 @@ actions.forEach(function (ac) {
     $(`#${ac.group}`).append(action);
 });
 
+effects.forEach(function (ef) {
+    var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`});
+    $("#effectsHeader").append(effect);
+});
+
 (function() {
     var dndHandler = {
         draggedElement: null,
