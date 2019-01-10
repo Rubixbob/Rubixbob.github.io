@@ -185,6 +185,9 @@ effects.forEach(function (ef) {
 })();
 
 function addActionAtIndex(element, idx) {
+	// Saves associated next possible usage
+	var nextUsage = $("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === Number($(element).attr("time")) + getRecastTime($(element).attr("name"));});
+	
     // Re-adjusts previous delayed abilities
     var ogcdsToDelay = null,
         delayList = [];
@@ -283,9 +286,23 @@ function addActionAtIndex(element, idx) {
         ogcdsToDelay.each(function(index) {$(this).attr("delayed", delayList[index]);});
         $(ogcdsToDelay.get().reverse()).each(function(index) {addActionAtIndex(this, idx - (index + 1));});
     }
+	
+	// Adding next possible usage to Cooldowns
+	if ($(element).hasClass("Ability")) {
+		var offCdTime = time + getRecastTime($(element).attr("name"));
+		var offCdPosition = (offCdTime - startTime) * scale;
+		if (nextUsage.length == 0)
+			nextUsage = $(element.cloneNode(true));
+		$(nextUsage).attr("time", `${offCdTime.toFixed(3)}`).css({"position": "absolute", "top": `${offCdPosition}px`, "left": "", "height": ""});
+		$("#cds").append(nextUsage);
+		addTimeUntil(offCdTime + 5);
+	}
 }
 
 function removeAction(element) {
+	// Removing associated next possible usage
+	$("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === Number($(element).attr("time")) + getRecastTime($(element).attr("name"));}).remove();
+	
     var idx = $("#rotation").children().index(element);
     if (Number($(element).attr("time")) < 0) {
         setStartTime(startTime + getAnimationLock($(element).attr("name")));
@@ -367,11 +384,12 @@ function clearRotation() {
 	$("#rotation").empty();
     $("#timeline").empty();
 	$("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
+    $("#cds").empty();
     addTimeUntil(20);
     startTime = 0;
 }
 
-$("#clearRotation").click(function(){ clearRotation(); });
+$("#clearRotation").click(clearRotation);
 
 function openerAddAction(actionName) {
     var action = actions.find(ac => actionName === ac.name);

@@ -26,6 +26,10 @@
     height: auto;
 }
 
+#cds {
+    position: relative;
+}
+
 .action {
     margin-left: 2px;
     margin-right: 2px;
