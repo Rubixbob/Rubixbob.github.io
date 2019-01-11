@@ -11,7 +11,6 @@ effects.forEach(function (ef) {
     $("#effectsHeader").append(effect);
 });
 
-(function() {
     var dndHandler = {
         draggedElement: null,
         // clone: null,
@@ -49,11 +48,7 @@ effects.forEach(function (ef) {
                     target = target.parentNode;
                 }
 				
-				var name = $(target).attr("name");
-				var type = getType(name);
-				var recast = getRecastTime(name);
-				var desc = getDescription(name);
-				var content = name + "<br/>" + type + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
+				var content = dndHandler.getTooltipContent(target);
 				$(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
 			});
 			
@@ -164,9 +159,7 @@ effects.forEach(function (ef) {
                     target = target.parentNode;
                 }
 				
-				var name = $(target).attr("name");
-				var time = $(target).attr("time");
-				var content = name + "<br/>" + time;
+				var content = dndHandler.getTooltipContent(target);
 				$(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
 			});
 			
@@ -177,16 +170,32 @@ effects.forEach(function (ef) {
 			element.addEventListener('mouseout', function(e) {
 				$(".tooltip").remove();
 			});
-        }
+        },
+		
+		getTooltipContent: function(element) {
+			var parentId = $(element.parentNode).attr("id");
+			if (parentId == "rotation" || parentId == "cds") {
+				var name = $(element).attr("name");
+				var time = $(element).attr("time");
+				return name + "<br/>" + time;
+			} else {
+				var name = $(element).attr("name");
+				var type = getType(name);
+				var recast = getRecastTime(name);
+				var desc = getDescription(name);
+				return name + "<br/>" + type + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
+			}
+		}
     };
 
     $(".draggable").each(function(index) { dndHandler.applyActionsEvents(this); });
     $(".dropper").each(function(index) { dndHandler.applyDropEvents(this); });
-})();
 
 function addActionAtIndex(element, idx) {
 	// Saves associated next possible usage
-	var nextUsage = $("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === Number($(element).attr("time")) + getRecastTime($(element).attr("name"));});
+	var nextUsage;
+	if ($("#rotation").children().index(element) > 0)
+		nextUsage = $("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === Number($(element).attr("time")) + getRecastTime($(element).attr("name"));}).first();
 	
     // Re-adjusts previous delayed abilities
     var ogcdsToDelay = null,
@@ -291,8 +300,10 @@ function addActionAtIndex(element, idx) {
 	if ($(element).hasClass("Ability")) {
 		var offCdTime = time + getRecastTime($(element).attr("name"));
 		var offCdPosition = (offCdTime - startTime) * scale;
-		if (nextUsage.length == 0)
-			nextUsage = $(element.cloneNode(true));
+		if (nextUsage == undefined || nextUsage.length == 0) {
+			nextUsage = $(element.cloneNode(true)).removeAttr("delayed");
+			dndHandler.applyActionsEvents(nextUsage.get(0));
+		}
 		$(nextUsage).attr("time", `${offCdTime.toFixed(3)}`).css({"position": "absolute", "top": `${offCdPosition}px`, "left": "", "height": ""});
 		$("#cds").append(nextUsage);
 		addTimeUntil(offCdTime + 5);
