@@ -6,10 +6,26 @@ actions.forEach(function (ac) {
     $(`#${ac.group}`).append(action);
 });
 
+var imagesToLoad = effects.length;
+var imagesLoaded = 0;
+
 effects.forEach(function (ef) {
-    var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`});
+    var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
+        imagesLoaded++;
+        if (imagesLoaded == imagesToLoad) {
+            $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
+            clearRotation();
+            drawEffect("Blood of the Dragon", 0, 5.5);
+            drawEffect("Right Eye", 5.5, 7);
+        }
+    }).each(function() {
+        if (this.complete) {
+            $(this).trigger('load');
+        }
+    });;
     $("#effectsHeader").append(effect);
 });
+
 
     var dndHandler = {
         draggedElement: null,
@@ -235,7 +251,7 @@ function addActionAtIndex(element, idx) {
 			time = Math.max(time, timeCd);
 		}
         // Anim lock
-        var previousAc = $("#rotation").children().filter(function(index) {return index < idx;}).last();
+        var previousAc = $("#rotation").children().eq(idx - 1);
         var incr = getAnimationLock(previousAc.attr("name"));
         var animLockTime = (Number(previousAc.attr("time")) * 100 + incr * 100) / 100;
         time = Math.max(time, animLockTime);
@@ -256,7 +272,6 @@ function addActionAtIndex(element, idx) {
     if (time <= 0) {
 		if (getPotency($(element).attr("name")) == 0) {
 			if ($("#rotation").children().filter(function(index) {return $(this).attr("time") < 0;}).index(element) == -1) {
-				console.log("not pre pull");
 				var acAnimLock = getAnimationLock($(element).attr("name"));
 				setStartTime(startTime - acAnimLock);
 				time -= acAnimLock;
@@ -267,11 +282,7 @@ function addActionAtIndex(element, idx) {
 		}
     }
 	if (time > 0 && getPotency($(element).attr("name")) == 0 && Number($(element).attr("time")) < 0) {
-            console.log("pre pull");
-        console.log(startTime);
         setStartTime(startTime + getAnimationLock($(element).attr("name")));
-        console.log(startTime);
-        console.log(time);
 		updateRotationBeforeIndex(idx);
 	}
 
@@ -301,7 +312,7 @@ function addActionAtIndex(element, idx) {
 		var offCdTime = time + getRecastTime($(element).attr("name"));
 		var offCdPosition = (offCdTime - startTime) * scale;
 		if (nextUsage == undefined || nextUsage.length == 0) {
-			nextUsage = $(element.cloneNode(true)).removeAttr("delayed");
+			nextUsage = $(element.cloneNode(true));
 			dndHandler.applyActionsEvents(nextUsage.get(0));
 		}
 		$(nextUsage).attr("time", `${offCdTime.toFixed(3)}`).css({"position": "absolute", "top": `${offCdPosition}px`, "left": "", "height": ""});
@@ -337,7 +348,7 @@ function updateRotationBeforeIndex(idx) {
 
 function timeDiv(time) {
 	var tDiv = $(`<div>${time}</div>`).attr("time", `${time.toFixed(3)}`).css("height", `${scale}px`);
-	var rect = $("#timeline").parent().get()[0].getBoundingClientRect();
+	var rect = $("#timeline").parent().get(0).getBoundingClientRect();
 	tDiv.prepend($("<div></div>").css({"position": "absolute", "left": "0px", "height": "1px", "width": `${rect.width}px`, "background-color": "black", "z-index": "1"}));
     return tDiv;
 }
@@ -349,6 +360,14 @@ function addTimeUntil(time) {
     for (i = currentMax + 1; i <= time; i++) {
         $("#timeline").append(timeDiv(i));
     }
+}
+
+function drawEffect(name, beginTime, endTime) {
+    var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left;
+    var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width();
+    var posTop = (beginTime - startTime) * scale;
+    var posHeight = (endTime - beginTime) * scale;
+    $("#effects").append($("<div></div>").attr("class", "effect").css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": "rgb(255,60,60)"}));
 }
 
 function getAnimationLock(actionName) {
@@ -402,14 +421,13 @@ function clearRotation() {
 
 $("#clearRotation").click(clearRotation);
 
-function openerAddAction(actionName) {
+function openerAddAction(actionName, delayed) {
     var action = actions.find(ac => actionName === ac.name);
     $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).click();
-}
-
-function openerAddDelayedAction(actionName) {
-    openerAddAction(actionName);
-    $("#rotation").children().last().attr("delayed", "true");
+    if (delayed == true)
+        $("#rotation").children().last().attr("delayed", "true");
+    else if (delayed == false)
+        $("#rotation").children().last().attr("delayed", "false");
 }
 
 $("#opener").click(function(){

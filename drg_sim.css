@@ -26,6 +26,10 @@
     height: auto;
 }
 
+#effects {
+    position: relative;
+}
+
 #cds {
     position: relative;
 }
@@ -38,6 +42,10 @@
 	opacity: 0.5;
 }
 
+#cds .actionImage:hover {
+    opacity: 1;
+}
+
 .action {
     margin-left: 2px;
     margin-right: 2px;
@@ -48,6 +56,7 @@
     border-radius: 6px;
     box-shadow: 1px 1px 4px black;
     background-color: cyan;
+    overflow: hidden;
 	z-index: 2;
 }
 
@@ -64,6 +73,15 @@
     height: 40px;
     width: 40px;
     border-radius: 6px;
+}
+
+.effect {
+    /*margin-left: 2px;*/
+    /*margin-right: 2px;*/
+    margin-top: 2px;
+    /*margin-bottom: 2px;*/
+    /*border-radius: 6px;*/
+    z-index: 1;
 }
 
 table {
