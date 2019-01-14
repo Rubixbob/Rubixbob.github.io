@@ -15,8 +15,8 @@ effects.forEach(function (ef) {
         if (imagesLoaded == imagesToLoad) {
             $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
             clearRotation();
-            drawEffect("Blood of the Dragon", 0, 5.5);
-            drawEffect("Right Eye", 5.5, 7);
+            // drawEffect("Blood of the Dragon", 0, 5.5);
+            // drawEffect("Right Eye", 5.5, 7);
         }
     }).each(function() {
         if (this.complete) {
@@ -319,6 +319,9 @@ function addActionAtIndex(element, idx) {
 		$("#cds").append(nextUsage);
 		addTimeUntil(offCdTime + 5);
 	}
+
+    $("#dps").empty();
+    generateHistory($("#rotation").children()).forEach(e => {displayDps(Math.floor(e.dps), e.time);});
 }
 
 function removeAction(element) {
@@ -370,44 +373,9 @@ function drawEffect(name, beginTime, endTime) {
     $("#effects").append($("<div></div>").attr("class", "effect").css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": "rgb(255,60,60)"}));
 }
 
-function getAnimationLock(actionName) {
-    var animLock = defaultAnimLock;
-    var action = actions.find(ac => actionName === ac.name);
-    if (action.hasOwnProperty("animLock"))
-        animLock = action.animLock;
-    return (Number($("#Latency").val()) + Number(animLock) * 1000) / 1000;
-}
-
-function getRecastTime(actionName) {
-	var recast = Number($("#GCD").val());
-    var action = actions.find(ac => actionName === ac.name);
-    if (action.hasOwnProperty("recast"))
-        recast = action.recast;
-	return Number(recast);
-}
-
-function getPotency(actionName) {
-    var potency = 0;
-    var action = actions.find(ac => actionName === ac.name);
-    if (action.hasOwnProperty("potency"))
-        potency = action.potency;
-    return Number(potency);
-}
-
-function getDescription(actionName) {
-    var description = "";
-    var action = actions.find(ac => actionName === ac.name);
-    if (action.hasOwnProperty("description"))
-        description = action.description;
-    return description;
-}
-
-function getType(actionName) {
-    var type = "";
-    var action = actions.find(ac => actionName === ac.name);
-    if (action.hasOwnProperty("type"))
-        type = action.type;
-    return type;
+function displayDps(dps, time) {
+    var pos = (time - startTime) * scale;
+    $("#dps").append($(`<div>${dps}</div>`).css({"position": "absolute", "left": "0px", "top": `${pos}px`}));
 }
 
 function clearRotation() {
@@ -415,6 +383,8 @@ function clearRotation() {
     $("#timeline").empty();
 	$("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
     $("#cds").empty();
+    $("#effects").empty();
+    $("#dps").empty();
     addTimeUntil(20);
     startTime = 0;
 }

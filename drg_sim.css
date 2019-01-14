@@ -46,6 +46,10 @@
     opacity: 1;
 }
 
+#dps {
+    position: relative;
+}
+
 .action {
     margin-left: 2px;
     margin-right: 2px;
