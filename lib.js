@@ -87,7 +87,7 @@ function generateHistory(rotationDom) {
 		var eDps = eTime == 0 ? 0 : cumulDamage / eTime;
 		RotationHistory.push(new RotationEvent(eTime, eName, eType, ePot, eDmg, eDps));
 	});
-	RotationHistory.forEach(e => {e.display();});
+	// RotationHistory.forEach(e => {e.display();});
 	return RotationHistory;
 }
 
@@ -129,4 +129,14 @@ function getType(actionName) {
     if (action.hasOwnProperty("type"))
         type = action.type;
     return type;
+}
+
+function getEffects(actionName) {
+    var actionEffects = [];
+    var action = actions.find(ac => actionName === ac.name);
+    if (action.hasOwnProperty("effects")) {
+        var effectsNames = action.effects;
+        effectsNames.forEach(efn => actionEffects.push(effects.find(ef => efn === ef.name)));
+    }
+    return actionEffects;
 }

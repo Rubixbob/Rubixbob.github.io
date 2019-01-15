@@ -44,6 +44,7 @@ effects.forEach(function (ef) {
                 dndHandler.draggedElement = target.cloneNode(true);
                 dndHandler.applyRotationEvents(dndHandler.draggedElement);
                 e.dataTransfer.setData('text/plain', '');
+                $(".tooltip").remove();
             });
 
             element.addEventListener('click', function(e) {
@@ -56,6 +57,7 @@ effects.forEach(function (ef) {
                 addActionAtIndex(clonedElement, $("#rotation").children().length);
                 var scrollValue = parseInt($("#rotation").children().last().css("top"), 10) - 200;
                 $(".scrollable").animate({scrollTop:scrollValue}, 50, "linear");
+                $(".tooltip").remove();
             });
 			
 			element.addEventListener('mouseover', function(e) {
@@ -321,7 +323,15 @@ function addActionAtIndex(element, idx) {
 	}
 
     $("#dps").empty();
-    generateHistory($("#rotation").children()).forEach(e => {displayDps(Math.floor(e.dps), e.time);});
+    $("#effects").empty();
+    generateHistory($("#rotation").children()).forEach(e => {
+        displayDps(Math.floor(e.dps), e.time);
+        getEffects(e.name).forEach(ef => {
+            var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+            drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
+        });
+        
+    });
 }
 
 function removeAction(element) {
@@ -447,6 +457,20 @@ $("#Latency").blur(function(){
         $("#Latency").val($("#Latency").attr("max"));
     $("#Latency").val(Math.trunc($("#Latency").val()));
 	updateStartTime();
+    updateRotationAfterIndex(0);
+});
+
+$("#Scale").blur(function(){
+    if(Number($("#Scale").val()) < Number($("#Scale").attr("min")))
+        $("#Scale").val($("#Scale").attr("min"));
+    if(Number($("#Scale").val()) > Number($("#Scale").attr("max")))
+        $("#Scale").val($("#Scale").attr("max"));
+    $("#Scale").val(Math.trunc($("#Scale").val() * 100) / 100);
+    scale = $("#Scale").val();
+    $("#timeline").empty();
+    $("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
+    setStartTime(0);
+    updateStartTime();
     updateRotationAfterIndex(0);
 });
 
