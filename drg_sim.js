@@ -91,9 +91,10 @@ effects.forEach(function (ef) {
 
                 // Move action to spot below pointer
                 var curIdx = $("#rotation").children().index(dndHandler.draggedElement);
-                if (curIdx === -1)
+                if (curIdx === -1) {
                     curIdx = $("#rotation").children().length;
-                addActionAtIndex(dndHandler.draggedElement, curIdx);
+					addActionAtIndex(dndHandler.draggedElement, curIdx);
+				}
                 var startTime = Number($("#timeline").children().first().attr("time"));
                 var time = (e.clientY-target.getBoundingClientRect().top) / scale + startTime;
                 var idx = $("#rotation").children().filter(function(index) {
@@ -209,7 +210,7 @@ effects.forEach(function (ef) {
     $(".draggable").each(function(index) { dndHandler.applyActionsEvents(this); });
     $(".dropper").each(function(index) { dndHandler.applyDropEvents(this); });
 
-function addActionAtIndex(element, idx) {
+function addActionAtIndex(element, idx, checkDelay = true) {
 	// Saves associated next possible usage
 	var nextUsage;
 	if ($("#rotation").children().index(element) > 0)
@@ -219,7 +220,8 @@ function addActionAtIndex(element, idx) {
     var ogcdsToDelay = null,
         delayList = [];
     var previousGcds = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
-    if (previousGcds.length > 0) {
+	var nextGcd = $("#rotation").children().filter(function(index) {return index > idx && $(this).hasClass("Weaponskill");}).first();
+    if (previousGcds.length > 0 && checkDelay && (nextGcd.length > 0 || $(element).hasClass("Weaponskill"))) {
         lastGcdIdx = $("#rotation").children().index(previousGcds.last());
         ogcdsToDelay = $("#rotation").children().filter(function(index) {return index < idx && index > lastGcdIdx;});
         ogcdsToDelay.each(function(index) {
@@ -231,7 +233,7 @@ function addActionAtIndex(element, idx) {
                 delayList.push("false");
             }
         }).toArray();
-        ogcdsToDelay.each(function(index) {addActionAtIndex(this, lastGcdIdx + (index + 1));});
+        ogcdsToDelay.each(function(index) {addActionAtIndex(this, lastGcdIdx + (index + 1), false);});
     }
 
     var time = startTime;
@@ -239,9 +241,8 @@ function addActionAtIndex(element, idx) {
         // GCD
 		if ($(element).hasClass("Weaponskill")) {
 			var timeGcd = startTime;
-			var gcds = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
-			if (gcds.length > 0)
-				timeGcd = (Number(gcds.last().attr("time")) * 100 + Number($("#GCD").val()) * 100) / 100;
+			if (previousGcds.length > 0)
+				timeGcd = (Number(previousGcds.last().attr("time")) * 100 + Number($("#GCD").val()) * 100) / 100;
 			time = Math.max(time, timeGcd);
 		}
 		// CD recast
@@ -260,7 +261,7 @@ function addActionAtIndex(element, idx) {
     }
 
     // Delayed ability
-    if ($(element).attr("delayed") === "true" && idx < $("#rotation").children().length - 1 && $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");}).length > 0) {
+    if ($(element).attr("delayed") === "true" && idx < $("#rotation").children().length - 1 && previousGcds.length > 0) {
         var delayTime = startTime;
         if ($("#rotation").children().index(element) == idx) {
             delayTime = (Number($(element).next().attr("time")) * 100 - getAnimationLock($(element).attr("name")) * 100) / 100;
@@ -304,9 +305,9 @@ function addActionAtIndex(element, idx) {
     addTimeUntil(time + 5);
 
     // Re-adjusts previous delayed abilities
-    if (previousGcds.length > 0) {
+    if (previousGcds.length > 0 && checkDelay && (nextGcd.length > 0 || $(element).hasClass("Weaponskill"))) {
         ogcdsToDelay.each(function(index) {$(this).attr("delayed", delayList[index]);});
-        $(ogcdsToDelay.get().reverse()).each(function(index) {addActionAtIndex(this, idx - (index + 1));});
+        $(ogcdsToDelay.get().reverse()).each(function(index) {addActionAtIndex(this, idx - (index + 1), false);});
     }
 	
 	// Adding next possible usage to Cooldowns
@@ -322,16 +323,18 @@ function addActionAtIndex(element, idx) {
 		addTimeUntil(offCdTime + 5);
 	}
 
-    $("#dps").empty();
-    $("#effects").empty();
-    generateHistory($("#rotation").children()).forEach(e => {
-        displayDps(Math.floor(e.dps), e.time);
-        getEffects(e.name).forEach(ef => {
-            var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
-            drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
-        });
-        
-    });
+	if (checkDelay) {
+		$("#dps").empty();
+		$("#effects").empty();
+		generateHistory($("#rotation").children()).forEach(e => {
+			displayDps(Math.floor(e.dps), e.time);
+			getEffects(e.name).forEach(ef => {
+				var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+				drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
+			});
+			
+		});
+	}
 }
 
 function removeAction(element) {
