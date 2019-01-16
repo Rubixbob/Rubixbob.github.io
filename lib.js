@@ -59,12 +59,13 @@ class Stats {
 }
 
 class RotationEvent {
-	constructor(time, name, type, potency, damage, dps) {
+	constructor(time, name, type, potency, damage, cumulDamage, dps) {
 		this.time = time;
 		this.name = name;
 		this.type = type;
 		this.potency = potency;
 		this.damage = damage;
+		this.cumulDamage = cumulDamage;
 		this.dps = dps;
 	}
 
@@ -73,8 +74,22 @@ class RotationEvent {
 	}
 }
 
-function generateHistory(rotationDom) {
-	var RotationHistory = [];
+// function deleteAfter(rotationHistory, time) {
+// 	var idx = 0;
+// 	rotationHistory.forEach(function(index) {
+// 		if ($(this).attr("time") > time) {
+// 			idx = index;
+// 			break;
+// 		}
+// 	});
+// 	rotationHistory.splice(idx);
+// }
+
+// function playUntil(rotationDom, rotationHistory, time) {
+
+// }
+
+function generateHistory(rotationDom, rotationHistory) {
 	var stats = new Stats(109, 3207, 1611, 2557, 1796, 655);
 	var cumulDamage = 0;
 	rotationDom.each(function(index) {
@@ -85,10 +100,10 @@ function generateHistory(rotationDom) {
 		var eDmg = stats.actionDamage(ePot);
 		cumulDamage += eDmg;
 		var eDps = eTime == 0 ? 0 : cumulDamage / eTime;
-		RotationHistory.push(new RotationEvent(eTime, eName, eType, ePot, eDmg, eDps));
+		rotationHistory.push(new RotationEvent(eTime, eName, eType, ePot, eDmg, cumulDamage, eDps));
 	});
-	// RotationHistory.forEach(e => {e.display();});
-	return RotationHistory;
+	// rotationHistory.forEach(e => {e.display();});
+	return rotationHistory;
 }
 
 function getAnimationLock(actionName) {
