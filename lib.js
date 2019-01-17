@@ -74,20 +74,40 @@ class RotationEvent {
 	}
 }
 
-// function deleteAfter(rotationHistory, time) {
-// 	var idx = 0;
-// 	rotationHistory.forEach(function(index) {
-// 		if ($(this).attr("time") > time) {
-// 			idx = index;
-// 			break;
-// 		}
-// 	});
-// 	rotationHistory.splice(idx);
-// }
+function deleteAfter(rotationHistory, beginTime) {
+	var idx = rotationHistory.length;
+	for (i = 0; i < rotationHistory.length; i++) {
+		if (Number($(rotationHistory[i]).attr("time")) > beginTime) {
+			idx = i;
+			break;
+		}
+	}
+	rotationHistory.splice(idx);
+}
 
-// function playUntil(rotationDom, rotationHistory, time) {
-
-// }
+function playUntil(rotationDom, rotationHistory, endTime) {
+	var stats = new Stats(109, 3207, 1611, 2557, 1796, 655);
+	var time = rotationDom.first().attr("time") - 1;
+	var cumulDamage = 0;
+	if (rotationHistory.length > 0) {
+		time = rotationHistory[rotationHistory.length - 1].time;
+		cumulDamage = rotationHistory[rotationHistory.length - 1].cumulDamage;
+	}
+	var actionsToPlay = rotationDom.filter(function(index) {return Number($(this).attr("time")) > time;});
+	var curAction = actionsToPlay.first();
+	time = curAction.attr("time");
+	while (time <= endTime) {
+		var eName = curAction.attr("name");
+		var eType = "action";
+		var ePot = getPotency(eName);
+		var eDmg = stats.actionDamage(ePot);
+		cumulDamage += eDmg;
+		var eDps = time == 0 ? 0 : cumulDamage / time;
+		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, cumulDamage, eDps));
+		curAction = curAction.next();
+		time = curAction.attr("time");
+	}
+}
 
 function generateHistory(rotationDom, rotationHistory) {
 	var stats = new Stats(109, 3207, 1611, 2557, 1796, 655);

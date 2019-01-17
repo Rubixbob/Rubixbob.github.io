@@ -331,26 +331,26 @@ function addActionAtIndex(element, idx, checkDelay = true) {
 		addTimeUntil(offCdTime + 5);
 	}
 
-	if (checkDelay) {
+	// if (checkDelay) {
         // console.log($(element).attr("name"));
-        // var simTime = startTime;
-        // if (idx > 1)
-        //     simTime = $(element).prev().attr("time");
-        // deleteAfter(RotationHistory, simTime);
-        // playUntil($("#rotation").children(), RotationHistory, $(element).attr("time"));
+        var simTime = startTime;
+        if (idx > 0)
+            simTime = $(element).prev().attr("time");
+        deleteAfter(RotationHistory, simTime);
+        playUntil($("#rotation").children(), RotationHistory, $(element).attr("time"));
 
 		$("#dps").empty();
 		$("#effects").empty();
-		RotationHistory = generateHistory($("#rotation").children(), []);
+		// RotationHistory = generateHistory($("#rotation").children(), []);
         RotationHistory.forEach(e => {
 			displayDps(Math.floor(e.dps), e.time);
 			getEffects(e.name).forEach(ef => {
 				var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
 				drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
 			});
-			
 		});
-	}
+	// }
+    // TODO : Add time until end of last effect
 }
 
 function removeAction(element) {
