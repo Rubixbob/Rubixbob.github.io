@@ -332,23 +332,28 @@ function addActionAtIndex(element, idx, checkDelay = true) {
 	}
 
 	// if (checkDelay) {
-        // console.log($(element).attr("name"));
         var simTime = startTime;
         if (idx > 0)
-            simTime = $(element).prev().attr("time");
+            simTime = Number($(element).prev().attr("time"));
+        // console.log($(element).attr("name") + " " + $(element).attr("time") + " " + simTime);
         deleteAfter(RotationHistory, simTime);
-        playUntil($("#rotation").children(), RotationHistory, $(element).attr("time"));
+        removeEffectsAfter(simTime);
+        removeDpsAfter(simTime);
+        playUntil($("#rotation").children(), RotationHistory, Number($(element).attr("time")));
 
-		$("#dps").empty();
-		$("#effects").empty();
+		// $("#dps").empty();
+		// $("#effects").empty();
 		// RotationHistory = generateHistory($("#rotation").children(), []);
         RotationHistory.forEach(e => {
-			displayDps(Math.floor(e.dps), e.time);
-			getEffects(e.name).forEach(ef => {
-				var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
-				drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
-			});
+			if (e.time >= simTime) {
+				displayDps(Math.floor(e.dps), e.time);
+				getEffects(e.name).forEach(ef => {
+					var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+					drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
+				});
+			}
 		});
+		// console.log(RotationHistory);
 	// }
     // TODO : Add time until end of last effect
 }
@@ -399,14 +404,26 @@ function drawEffect(name, beginTime, endTime) {
     var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
     var posTop = (beginTime - startTime) * scale;
     var posHeight = (endTime - beginTime) * scale - 6;
-    $("#effects").append($("<div></div>").attr("class", "effect")
+    $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`})
         .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": "rgb(255,60,60)",
               "border": "solid 3px rgb(128, 30, 30)"}));
 }
 
+function deleteEffect(name, beginTime) {
+	$("#effects").children().filter(function(index) {return $(this).attr("name") == name && Number($(this).attr("time")) == beginTime;}).remove();
+}
+
+function removeEffectsAfter(beginTime) {
+	$("#effects").children().filter(function(index) {return Number($(this).attr("time")) > beginTime;}).remove();
+}
+
 function displayDps(dps, time) {
     var pos = (time - startTime) * scale;
-    $("#dps").append($(`<div>${dps}</div>`).css({"position": "absolute", "left": "0px", "top": `${pos}px`}));
+    $("#dps").append($(`<div>${dps}</div>`).attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "left": "0px", "top": `${pos}px`}));
+}
+
+function removeDpsAfter(beginTime) {
+	$("#dps").children().filter(function(index) {return Number($(this).attr("time")) > beginTime;}).remove();
 }
 
 function clearRotation() {

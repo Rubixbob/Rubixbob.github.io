@@ -82,10 +82,14 @@ function deleteAfter(rotationHistory, beginTime) {
 			break;
 		}
 	}
+	// console.log("Deleting " + (rotationHistory.length - idx) + " actions");
 	rotationHistory.splice(idx);
 }
 
 function playUntil(rotationDom, rotationHistory, endTime) {
+	// For logs
+	var actionsNb = rotationHistory.length;
+	
 	var stats = new Stats(109, 3207, 1611, 2557, 1796, 655);
 	var time = rotationDom.first().attr("time") - 1;
 	var cumulDamage = 0;
@@ -95,18 +99,21 @@ function playUntil(rotationDom, rotationHistory, endTime) {
 	}
 	var actionsToPlay = rotationDom.filter(function(index) {return Number($(this).attr("time")) > time;});
 	var curAction = actionsToPlay.first();
-	time = curAction.attr("time");
+	time = Number(curAction.attr("time"));
 	while (time <= endTime) {
+		// console.log ("time: " + time + ", endTime: " + endTime);
 		var eName = curAction.attr("name");
 		var eType = "action";
 		var ePot = getPotency(eName);
 		var eDmg = stats.actionDamage(ePot);
 		cumulDamage += eDmg;
-		var eDps = time == 0 ? 0 : cumulDamage / time;
+		var eDps = time <= 0 ? 0 : cumulDamage / time;
 		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, cumulDamage, eDps));
 		curAction = curAction.next();
-		time = curAction.attr("time");
+		time = Number(curAction.attr("time"));
 	}
+	
+	// console.log("Added " + (rotationHistory.length - actionsNb) + " actions, from " + actionsNb + " to " + rotationHistory.length);
 }
 
 function generateHistory(rotationDom, rotationHistory) {
