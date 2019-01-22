@@ -54,15 +54,28 @@ effects.forEach(function (ef) {
                 dndHandler.applyRotationEvents(clonedElement);
                 addActionAtIndex(clonedElement, $("#rotation").children().length);
 
-                playUntil($("#rotation").children(), RotationHistory, Number($(clonedElement).attr("time")));
-                var lastEvent = RotationHistory[RotationHistory.length - 1];
-                displayDps(Math.floor(lastEvent.dps), lastEvent.time);
-                getEffects(lastEvent.name).forEach(ef => {
-                    var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
-                    var beginTime = Number(lastEvent.time) + Number(activationTime);
-                    drawEffect(ef.name, beginTime, beginTime + Number(ef.duration));
-                    // TODO : Add time until end of last effect
+                $("#effects").empty();
+                $("#dps").empty();
+                RotationHistory = [];
+                generateHistory($("#rotation").children(), RotationHistory);
+                RotationHistory.forEach(e => {
+                    if (e.type == "action") {
+                        displayDps(Math.floor(e.dps), e.time);
+                        getEffects(e.name).forEach(ef => {
+                            var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+                            drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
+                        });
+                    }
                 });
+                // playUntil($("#rotation").children(), RotationHistory, Number($(clonedElement).attr("time")));
+                // var lastEvent = RotationHistory[RotationHistory.length - 1];
+                // displayDps(Math.floor(lastEvent.dps), lastEvent.time);
+                // getEffects(lastEvent.name).forEach(ef => {
+                //     var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+                //     var beginTime = Number(lastEvent.time) + Number(activationTime);
+                //     drawEffect(ef.name, beginTime, beginTime + Number(ef.duration));
+                //     // TODO : Add time until end of last effect
+                // });
 
                 var scrollValue = parseInt($("#rotation").children().last().css("top"), 10) - 200;
                 $(".scrollable").animate({scrollTop:scrollValue}, 50, "linear");
@@ -181,13 +194,15 @@ effects.forEach(function (ef) {
                 }
 
                 if (RotationHistory.length == 0) {
-                    playUntil($("#rotation").children(), RotationHistory, Number($("#rotation").children().last().attr("time")));
+                    generateHistory($("#rotation").children(), RotationHistory);
                     RotationHistory.forEach(e => {
-                        displayDps(Math.floor(e.dps), e.time);
-                        getEffects(e.name).forEach(ef => {
-                            var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
-                            drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
-                        });
+                        if (e.type == "action") {
+                            displayDps(Math.floor(e.dps), e.time);
+                            getEffects(e.name).forEach(ef => {
+                                var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+                                drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
+                            });
+                        }
                     });
                     // TODO : Add time until end of last effect
                 }
@@ -405,14 +420,16 @@ function removeAction(element) {
     $(element).remove();
     updateRotationAfterIndex(idx);
 
-    playUntil($("#rotation").children(), RotationHistory, Number($("#rotation").children().last().attr("time")));
+    generateHistory($("#rotation").children(), RotationHistory);
     RotationHistory.forEach(e => {
-        displayDps(Math.floor(e.dps), e.time);
-        getEffects(e.name).forEach(ef => {
-            var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
-            drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
-        });
-        // TODO : Add time until end of last effect
+        if (e.type == "action") {
+            displayDps(Math.floor(e.dps), e.time);
+            getEffects(e.name).forEach(ef => {
+                var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+                drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
+            });
+            // TODO : Add time until end of last effect
+        }
     });
 }
 
