@@ -89,17 +89,39 @@ effects.forEach(function (ef) {
                     target = target.parentNode;
                 }
 
+
+
+        // var simTime = startTime;
+        // if (idx > 0)
+        //     simTime = Number($(element).prev().attr("time"));
+        // // console.log($(element).attr("name") + " " + $(element).attr("time") + " " + simTime);
+        // deleteAfter(RotationHistory, simTime);
+        // removeEffectsAfter(simTime);
+        // removeDpsAfter(simTime);
+        // playUntil($("#rotation").children(), RotationHistory, Number($(element).attr("time")));
+
+        // RotationHistory.forEach(e => {
+        //     if (e.time >= simTime) {
+        //         displayDps(Math.floor(e.dps), e.time);
+        //         getEffects(e.name).forEach(ef => {
+        //             var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+        //             drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
+        //         });
+        //     }
+        // });
+
+
                 // Move action to spot below pointer
                 var curIdx = $("#rotation").children().index(dndHandler.draggedElement);
                 if (curIdx === -1) {
+                    // console.log(dndHandler.draggedElement);
                     curIdx = $("#rotation").children().length;
 					addActionAtIndex(dndHandler.draggedElement, curIdx);
 				}
                 var startTime = Number($("#timeline").children().first().attr("time"));
                 var time = (e.clientY-target.getBoundingClientRect().top) / scale + startTime;
                 var idx = $("#rotation").children().filter(function(index) {
-                    return Number($(this).attr("time")) + getAnimationLock($(this).attr("name")) / 2 <= time
-                        && index != curIdx;
+                    return Number($(this).attr("time")) + getAnimationLock($(this).attr("name")) / 2 <= time && index != curIdx;
                 }).length;
                 if (idx > curIdx) {
                     addActionAtIndex($("#rotation").children().get(idx), idx-1);
@@ -109,6 +131,8 @@ effects.forEach(function (ef) {
                     addActionAtIndex(dndHandler.draggedElement, idx);
                     updateRotationAfterIndex(idx + 1);
                 }
+                if (idx - curIdx >= 2)
+                    console.log("We shouldn't be here, curIdx = " + curIdx + ", idx = " + idx);
 
                 // Snap to previous or next action
                 if ($(dndHandler.draggedElement).hasClass("Weaponskill") || idx === 0 || idx === $("#rotation").children().length)
@@ -117,9 +141,10 @@ effects.forEach(function (ef) {
                 var prevGcd = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");}).last();
                 var prevOgcds = $("#rotation").children().filter(function(index) {return index < idx && index > $("#rotation").children().index(prevGcd);});
 
-                // var prevAc = $(dndHandler.draggedElement).prev();
-                // var minTime = Number(prevAc.attr("time")) + getAnimationLock(prevAc.attr("name"));
-                var minTime = Number(prevGcd.attr("time")) + getAnimationLock(prevGcd.attr("name"));
+                var prevAc = $(dndHandler.draggedElement).prev();
+                var minTime = Number(prevAc.attr("time")) + getAnimationLock(prevAc.attr("name"));
+                if (prevGcd.length > 0)
+                    minTime = Number(prevGcd.attr("time")) + getAnimationLock(prevGcd.attr("name"));
                 prevOgcds.each(function(index) {minTime += getAnimationLock($(this).attr("name"));});
                 var nextAc = $(dndHandler.draggedElement).next();
                 var maxTime = Number(nextAc.attr("time"));
@@ -331,28 +356,25 @@ function addActionAtIndex(element, idx, checkDelay = true) {
 		addTimeUntil(offCdTime + 5);
 	}
 
-	// if (checkDelay) {
-        var simTime = startTime;
-        if (idx > 0)
-            simTime = Number($(element).prev().attr("time"));
-        // console.log($(element).attr("name") + " " + $(element).attr("time") + " " + simTime);
-        deleteAfter(RotationHistory, simTime);
-        removeEffectsAfter(simTime);
-        removeDpsAfter(simTime);
-        playUntil($("#rotation").children(), RotationHistory, Number($(element).attr("time")));
+	// // if (checkDelay) {
+ //        var simTime = startTime;
+ //        if (idx > 0)
+ //            simTime = Number($(element).prev().attr("time"));
+ //        // console.log($(element).attr("name") + " " + $(element).attr("time") + " " + simTime);
+ //        deleteAfter(RotationHistory, simTime);
+ //        removeEffectsAfter(simTime);
+ //        removeDpsAfter(simTime);
+ //        playUntil($("#rotation").children(), RotationHistory, Number($(element).attr("time")));
 
-		// $("#dps").empty();
-		// $("#effects").empty();
-		// RotationHistory = generateHistory($("#rotation").children(), []);
-        RotationHistory.forEach(e => {
-			if (e.time >= simTime) {
-				displayDps(Math.floor(e.dps), e.time);
-				getEffects(e.name).forEach(ef => {
-					var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
-					drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
-				});
-			}
-		});
+ //        RotationHistory.forEach(e => {
+	// 		if (e.time >= simTime) {
+	// 			displayDps(Math.floor(e.dps), e.time);
+	// 			getEffects(e.name).forEach(ef => {
+	// 				var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+	// 				drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
+	// 			});
+	// 		}
+	// 	});
 		// console.log(RotationHistory);
 	// }
     // TODO : Add time until end of last effect

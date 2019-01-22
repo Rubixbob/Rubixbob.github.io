@@ -82,7 +82,7 @@ function deleteAfter(rotationHistory, beginTime) {
 			break;
 		}
 	}
-	// console.log("Deleting " + (rotationHistory.length - idx) + " actions");
+	console.log("Deleting " + (rotationHistory.length - idx) + " actions");
 	rotationHistory.splice(idx);
 }
 
@@ -113,7 +113,7 @@ function playUntil(rotationDom, rotationHistory, endTime) {
 		time = Number(curAction.attr("time"));
 	}
 	
-	// console.log("Added " + (rotationHistory.length - actionsNb) + " actions, from " + actionsNb + " to " + rotationHistory.length);
+	console.log("Added " + (rotationHistory.length - actionsNb) + " actions, from " + actionsNb + " to " + rotationHistory.length);
 }
 
 function generateHistory(rotationDom, rotationHistory) {
