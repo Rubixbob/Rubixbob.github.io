@@ -145,13 +145,17 @@ effects.forEach(function (ef) {
 				// });
             });
 
-            dropper.addEventListener('dragleave', function(e) {
-                if (!e.currentTarget.contains(e.relatedTarget)) {
-                    var tempClone = dndHandler.draggedElement.cloneNode(true);
-					tempClone.removeAttribute("time");
-                    dndHandler.applyRotationEvents(tempClone);
-                    removeAction(dndHandler.draggedElement);
-                    dndHandler.draggedElement = tempClone;
+            dropper.addEventListener('dragleave', function dragleaveAction(e) {
+                if (!$("#rotation").get(0).contains(e.relatedTarget)) {
+					if ($(e.relatedTarget).css("height") == "1px" && $(e.relatedTarget).css("z-index") == 1) {
+						$(e.relatedTarget).one('dragleave', dragleaveAction);
+					} else {
+						var tempClone = dndHandler.draggedElement.cloneNode(true);
+						tempClone.removeAttribute("time");
+						dndHandler.applyRotationEvents(tempClone);
+						removeAction(dndHandler.draggedElement);
+						dndHandler.draggedElement = tempClone;
+					}
                 }
             });
         },
