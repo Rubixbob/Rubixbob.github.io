@@ -1,5 +1,5 @@
 class Stats {
-	constructor(wd, str, dh, crit, det, sks) {
+	constructor(wd, str, dh, crit, det, sks, activeEffects) {
 		this.wd = wd;
 		this.wDelay = 2.88;
 		this.str = str;
@@ -7,6 +7,68 @@ class Stats {
 		this.crit = crit;
 		this.det = det;
 		this.sks = sks;
+		this.activeEffects = activeEffects;
+		this.globalDmgMult = 1;
+		this.piercingDmgMult = 1;
+		this.dhRateBonus = 0;
+		this.critRateBonus = 0;
+		this.CTDamage = 0;
+	}
+
+	updateEffects(effect){
+		switch (effect.type) {
+			case "Damage":
+				this.globalDmgMult = 1;
+				this.activeEffects.forEach(ef => {
+					if (ef.type === "Damage") {
+						this.globalDmgMult *= ef.value;
+					}
+				});
+				break;
+			case "Piercing":
+				this.piercingDmgMult = 1;
+				this.activeEffects.forEach(ef => {
+					if (ef.type === "Piercing") {
+						this.piercingDmgMult *= ef.value;
+					}
+				});
+				break;
+			case "DoT":
+				if (effect.name === "Chaos Thrust") {
+					if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0) {
+						this.CTDamage = this.dotDamage(effect.value);
+					} else {
+						this.CTDamage = 0;
+					}
+				}
+				break;
+			case "Crit":
+				this.critRateBonus = 0;
+				this.activeEffects.forEach(ef => {
+					if (ef.type === "Crit") {
+						this.critRateBonus += ef.value;
+					}
+				});
+				break;
+			case "DH":
+				this.dhRateBonus = 0;
+				this.activeEffects.forEach(ef => {
+					if (ef.type === "DH") {
+						this.dhRateBonus += ef.value;
+					}
+				});
+				break;
+			case "Special":
+				if (effect.name === "Medicated") {
+					if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0) {
+						this.str += effect.value;
+					} else {
+						this.str -= effect.value;
+					}
+				}
+			default:
+				break;
+		}
 	}
 
 	wdMod() {
@@ -22,27 +84,27 @@ class Stats {
 	}
 
 	dhRate() {
-		return Math.floor((this.dh - 364) * 550 / 2170) / 1000;
+		return Math.min(Math.floor((this.dh - 364) * 550 / 2170) / 1000 + this.dhRateBonus, 1);
 	}
 
 	dhDamage() {
 		return 1.25;
 	}
 
-	dhMod(dhRateBonus) {
-		return 1 + (this.dhRate() + dhRateBonus) * (this.dhDamage() - 1);
+	dhMod() {
+		return 1 + this.dhRate() * (this.dhDamage() - 1);
 	}
 
 	critRate() {
-		return 0.05 + Math.floor((this.crit - 364) * 200 / 2170) / 1000;
+		return Math.min(0.05 + Math.floor((this.crit - 364) * 200 / 2170) / 1000 + this.critRateBonus, 1);
 	}
 
 	critDamage() {
 		return 1.40 + Math.floor((this.crit - 364) * 200 / 2170) / 1000;
 	}
 
-	critMod(critRateBonus) {
-		return 1 + (this.critRate() + critRateBonus) * (this.critDamage() - 1);
+	critMod() {
+		return 1 + this.critRate() * (this.critDamage() - 1);
 	}
 
 	detMod() {
@@ -54,20 +116,20 @@ class Stats {
 	}
 
 	actionDamage(potency) {
-		return potency / 100 * this.wdMod() * this.strMod() * this.detMod() * this.dhMod(0) * this.critMod(0);
+		return potency / 100 * this.wdMod() * this.strMod() * this.detMod() * this.dhMod() * this.critMod() * this.globalDmgMult * this.piercingDmgMult;
 	}
 
 	aaDamage() {
-		return 110 / 100 * this.aaMod() * this.strMod() * this.detMod() * this.sksMod() * this.dhMod(0) * this.critMod(0);
+		return 110 / 100 * this.aaMod() * this.strMod() * this.detMod() * this.sksMod() * this.dhMod() * this.critMod() * this.globalDmgMult * this.piercingDmgMult;
 	}
 
 	dotDamage(potency) {
-		return potency / 100 * this.wdMod() * this.strMod() * this.detMod() * this.sksMod() * this.dhMod(0) * this.critMod(0);
+		return potency / 100 * this.wdMod() * this.strMod() * this.detMod() * this.sksMod() * this.dhMod() * this.critMod() * this.globalDmgMult;
 	}
 }
 
 class RotationEvent {
-	constructor(time, name, type, potency, damage, cumulDamage, dps) {
+	constructor(time, name, type, potency, damage, cumulDamage, dps, timedEffect) {
 		this.time = time;
 		this.name = name;
 		this.type = type;
@@ -75,6 +137,7 @@ class RotationEvent {
 		this.damage = damage;
 		this.cumulDamage = cumulDamage;
 		this.dps = dps;
+		this.timedEffect = timedEffect;
 	}
 
 	display() {
@@ -94,54 +157,56 @@ function deleteAfter(rotationHistory, beginTime) {
 	rotationHistory.splice(idx);
 }
 
-function playUntil(rotationDom, rotationHistory, endTime) {
-	// For logs
-	var actionsNb = rotationHistory.length;
+// function playUntil(rotationDom, rotationHistory, endTime) {
+// 	// For logs
+// 	var actionsNb = rotationHistory.length;
 	
-	var stats = new Stats(109, 3207, 1611, 2557, 1796, 655);
-	var time = rotationDom.first().attr("time") - 1;
-	var cumulDamage = 0;
-	if (rotationHistory.length > 0) {
-		time = rotationHistory[rotationHistory.length - 1].time;
-		cumulDamage = rotationHistory[rotationHistory.length - 1].cumulDamage;
-	}
-	var actionsToPlay = rotationDom.filter(function(index) {return Number($(this).attr("time")) > time;});
-	var curAction = actionsToPlay.first();
-	time = Number(curAction.attr("time"));
-	while (time <= endTime) {
-		// console.log ("time: " + time + ", endTime: " + endTime);
-		var eName = curAction.attr("name");
-		var eType = "action";
-		var ePot = getPotency(eName);
-		var eDmg = stats.actionDamage(ePot);
-		cumulDamage += eDmg;
-		var eDps = time <= 0 ? 0 : cumulDamage / time;
-		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, cumulDamage, eDps));
-		curAction = curAction.next();
-		time = Number(curAction.attr("time"));
-	}
+// 	var stats = new Stats(109, 3207, 1611, 2557, 1796, 655);
+// 	var time = rotationDom.first().attr("time") - 1;
+// 	var cumulDamage = 0;
+// 	if (rotationHistory.length > 0) {
+// 		time = rotationHistory[rotationHistory.length - 1].time;
+// 		cumulDamage = rotationHistory[rotationHistory.length - 1].cumulDamage;
+// 	}
+// 	var actionsToPlay = rotationDom.filter(function(index) {return Number($(this).attr("time")) > time;});
+// 	var curAction = actionsToPlay.first();
+// 	time = Number(curAction.attr("time"));
+// 	while (time <= endTime) {
+// 		// console.log ("time: " + time + ", endTime: " + endTime);
+// 		var eName = curAction.attr("name");
+// 		var eType = "action";
+// 		var ePot = getPotency(eName);
+// 		var eDmg = stats.actionDamage(ePot);
+// 		cumulDamage += eDmg;
+// 		var eDps = time <= 0 ? 0 : cumulDamage / time;
+// 		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, cumulDamage, eDps));
+// 		curAction = curAction.next();
+// 		time = Number(curAction.attr("time"));
+// 	}
 	
-	// console.log("Added " + (rotationHistory.length - actionsNb) + " actions, from " + actionsNb + " to " + rotationHistory.length);
-}
+// 	// console.log("Added " + (rotationHistory.length - actionsNb) + " actions, from " + actionsNb + " to " + rotationHistory.length);
+// }
 
 function generateHistory(rotationDom, rotationHistory) {
-	var stats = new Stats(109, 3207, 1611, 2557, 1796, 655);
+	var activeEffects = [];
+	var stats = new Stats(109, 3207, 1611, 2557, 1796, 655, activeEffects);
 	var curAction = rotationDom.first();
 	var nextAction = curAction;
 	var time = Number(curAction.attr("time"));
 	var lastTime = time;
 	var cumulDamage = 0;
-	var done = false;
-	var activeEffects = [];
 	var effectsToActivate = [];
 	var effectsToEnd = [];
 
 	var eType = "action";
 
-	while (!done) {
+	while (eType !== "done") {
 		var eName = "";
 		var ePot = 0;
 		var eDmg = 0;
+		var eAaDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / stats.wDelay * stats.aaDamage();
+		var eDotDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / 3 * stats.CTDamage;
+		var timedEffect;
 		switch (eType) {
 			case "action":
 				curAction = nextAction;
@@ -151,60 +216,64 @@ function generateHistory(rotationDom, rotationHistory) {
 				eDmg = stats.actionDamage(ePot);
 
 				getEffects(eName).forEach(ef => {
-	                var activationTime = ef.activationTime == undefined ? 0 : ef.activationTime;
+	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
 	                var beginTime = time + activationTime;
 	                var endTime = beginTime + ef.duration;
 	                var idx = 0;
-	                while (effectsToActivate[idx] != undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
-	                effectsToActivate.splice(idx, 0, {name: ef.name, beginTime: beginTime, endTime: endTime});
+	                timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime};
+	                while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
+	                effectsToActivate.splice(idx, 0, timedEffect);
 	                idx = 0;
-	                while (effectsToEnd[idx] != undefined && effectsToEnd[idx].endTime < endTime) { idx++; }
-	                effectsToEnd.splice(idx, 0, {name: ef.name, beginTime: beginTime, endTime: endTime});
+	                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < endTime) { idx++; }
+	                effectsToEnd.splice(idx, 0, timedEffect);
 	            });
+
+	            switch(eName) {
+	            	case "Mirage Dive":
+	            		var MDEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Dive Ready"), 1)[0];
+	            		MDEffect.endTime = time;
+	            		effectsToEnd.unshift(MDEffect);
+	            		break;
+            		default:
+            			break;
+	            }
 	            break;
             case "effectBegin":
-            	var curEffectBegin = effectsToActivate.shift();
-            	activeEffects.push(curEffectBegin);
-            	eName = curEffectBegin.name;
+            	timedEffect = effectsToActivate.shift();
+            	activeEffects.push(timedEffect.effect);
+            	stats.updateEffects(timedEffect.effect);
+            	eName = timedEffect.effect.name;
             	break;
             case "effectEnd":
-            	var curEffectEnd = effectsToEnd.shift();
-            	activeEffects.splice(activeEffects.indexOf(curEffectEnd), 1);
-            	eName = curEffectEnd.name;
+            	timedEffect = effectsToEnd.shift();
+            	activeEffects.splice(activeEffects.indexOf(timedEffect.effect), 1);
+            	stats.updateEffects(timedEffect.effect);
+            	eName = timedEffect.effect.name;
+            	timedEffect.endTime = time;
             	break;
             default:
 		}
 
-		var eAaDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / stats.wDelay * stats.aaDamage();
-		var eDotDmg = 0 * (time >= 0 ? time : 0 - lastTime >= 0 ? lastTime : 0) / 3; // TODO
 		cumulDamage += eDmg + eAaDmg + eDotDmg;
 		var eDps = time <= 0 ? 0 : cumulDamage / time;
-		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, cumulDamage, eDps));
+		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, cumulDamage, eDps, timedEffect));
 
-		if (nextAction.length == 0)
-			done = true;
-		else {
-			var nextActionTime = Number(nextAction.attr("time"));
-			var nextEffectBegin = nextActionTime + 1;
-			if (effectsToActivate.length > 0)
-				nextEffectBegin = effectsToActivate[0].beginTime;
-			var nextEffectEnd = nextActionTime + 1;
-			if (effectsToEnd.length > 0)
-				nextEffectEnd = effectsToEnd[0].endTime;
-
-			lastTime = time;
-			time = Math.min(nextActionTime, nextEffectBegin, nextEffectEnd);
-			switch (time) {
-				case nextEffectEnd:
-					eType = "effectEnd";
-					break;
-				case nextEffectBegin:
-					eType = "effectBegin";
-					break;
-				case nextActionTime:
-					eType = "action";
-					break;
-				default:
+		lastTime = time;
+		eType = "done";
+		if (effectsToEnd.length > 0) {
+			eType = "effectEnd";
+			time = effectsToEnd[0].endTime;
+		}
+		if (effectsToActivate.length > 0) {
+			if (effectsToActivate[0].beginTime < time) {
+				eType = "effectBegin";
+				time = effectsToActivate[0].beginTime;
+			}
+		}
+		if (nextAction.length > 0) {
+			if (Number(nextAction.attr("time")) < time) {
+				eType = "action";
+				time = Number(nextAction.attr("time"));
 			}
 		}
 	}
