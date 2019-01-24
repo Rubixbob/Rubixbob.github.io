@@ -17,11 +17,11 @@ effects.forEach(function (ef) {
             clearRotation();
         }
     }).each(function() {
+        $("#effectsHeader").append(this);
         if (this.complete) {
             $(this).trigger('load');
         }
     });;
-    $("#effectsHeader").append(effect);
 });
 
 
