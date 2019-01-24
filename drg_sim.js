@@ -561,6 +561,28 @@ $("#Scale").change(function(){
     updateDps();
 });
 
+// $(window).bind('mousewheel DOMMouseScroll', function(event) 
+// {
+    // if(event.ctrlKey == true)
+    // {
+        // event.preventDefault();
+        // if(event.originalEvent.deltaY > 0) {
+            // scale *= 1.1;
+        // }else {
+            // scale /= 1.1;
+        // }
+		// $("#timeline").empty();
+        // $("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
+        // setStartTime(0);
+        // updateStartTime();
+        // updateRotationAfterIndex(0);
+        // $("#effects").empty();
+        // $("#dps").empty();
+        // RotationHistory = [];
+        // updateDps();
+    // }
+// });
+
 function setStartTime(value) {
     if (value < startTime) {
         for (var i = 0; i < Math.ceil(startTime) - Math.ceil(value); i++) {
