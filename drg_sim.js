@@ -273,7 +273,7 @@ effects.forEach(function (ef) {
 function addActionAtIndex(element, idx, checkDelay = true) {
 	// Saves associated next possible usage
 	var nextUsage;
-	if ($("#rotation").children().index(element) > 0)
+	if ($("#rotation").children().index(element) >= 0)
 		nextUsage = $("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === (Number($(element).attr("time")) * 1000 + getRecastTime($(element).attr("name")) * 1000) / 1000;}).first();
     
     // Re-adjusts previous delayed abilities

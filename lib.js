@@ -265,13 +265,13 @@ function generateHistory(rotationDom, rotationHistory) {
 			time = effectsToEnd[0].endTime;
 		}
 		if (effectsToActivate.length > 0) {
-			if (effectsToActivate[0].beginTime < time) {
+			if (eType === "done" || effectsToActivate[0].beginTime < time) {
 				eType = "effectBegin";
 				time = effectsToActivate[0].beginTime;
 			}
 		}
 		if (nextAction.length > 0) {
-			if (Number(nextAction.attr("time")) < time) {
+			if (eType === "done" || Number(nextAction.attr("time")) < time) {
 				eType = "action";
 				time = Number(nextAction.attr("time"));
 			}
