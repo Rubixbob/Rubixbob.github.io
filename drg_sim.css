@@ -95,6 +95,7 @@ table {
 }
 
 .scrollable{
+    width: fit-content;
     height: 800px;
     overflow: auto;
     position: relative;

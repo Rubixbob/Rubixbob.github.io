@@ -436,7 +436,7 @@ function drawEffect(name, beginTime, endTime) {
     var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
     var posTop = (beginTime - startTime) * scale;
     var posHeight = (endTime - beginTime) * scale - 6;
-    $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`})
+    $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
         .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": "rgb(255,60,60)",
               "border": "solid 3px rgb(128, 30, 30)"}));
 }
@@ -543,45 +543,45 @@ $("#Latency").blur(function(){
     updateRotationAfterIndex(0);
 });
 
-$("#Scale").change(function(){
-    if(Number($("#Scale").val()) < Number($("#Scale").attr("min")))
-        $("#Scale").val($("#Scale").attr("min"));
-    if(Number($("#Scale").val()) > Number($("#Scale").attr("max")))
-        $("#Scale").val($("#Scale").attr("max"));
-    $("#Scale").val(Math.trunc($("#Scale").val() * 100) / 100);
-    scale = $("#Scale").val();
-    $("#timeline").empty();
-    $("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
-    setStartTime(0);
-    updateStartTime();
-    updateRotationAfterIndex(0);
-    $("#effects").empty();
-    $("#dps").empty();
-    RotationHistory = [];
-    updateDps();
-});
+$(window).bind('mousewheel DOMMouseScroll', function(event) 
+{
+    if(event.ctrlKey == true)
+    {
+        event.preventDefault();
+        if(event.originalEvent.deltaY > 0) {
+            scale /= 1.1;
+        } else {
+            scale *= 1.1;
+        }
+        $("#timeline").children().css("height", `${scale}px`);
+        var value = $("#timeline").children().eq(0).attr("time");
+        $("#timeline").children().eq(0).css("height", `${(Math.ceil(value)-value) * scale}px`);
 
-// $(window).bind('mousewheel DOMMouseScroll', function(event) 
-// {
-    // if(event.ctrlKey == true)
-    // {
-        // event.preventDefault();
-        // if(event.originalEvent.deltaY > 0) {
-            // scale *= 1.1;
-        // }else {
-            // scale /= 1.1;
-        // }
-		// $("#timeline").empty();
-        // $("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
-        // setStartTime(0);
-        // updateStartTime();
-        // updateRotationAfterIndex(0);
-        // $("#effects").empty();
-        // $("#dps").empty();
-        // RotationHistory = [];
-        // updateDps();
-    // }
-// });
+        $("#rotation").children().each(function(index) {
+            var position = ($(this).attr("time") - startTime) * scale;
+            var animLockHeight = scale * getAnimationLock($(this).attr("name"));
+            $(this).css({"top": `${position}px`, "height": `${animLockHeight}px`});
+        });
+
+        $("#effects").children().each(function(index) {
+            var beginTime = $(this).attr("time");
+            var endTime = $(this).attr("endTime");
+            var posTop = (beginTime - startTime) * scale;
+            var posHeight = (endTime - beginTime) * scale - 6;
+            $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
+        });
+
+        $("#cds").children().each(function(index) {
+            var offCdPosition = ($(this).attr("time") - startTime) * scale;
+            $(this).css("top", `${offCdPosition}px`);
+        });
+
+        $("#dps").children().each(function(index) {
+            var pos = ($(this).attr("time") - startTime) * scale;
+            $(this).css("top", `${pos}px`);
+        });
+    }
+});
 
 function setStartTime(value) {
     if (value < startTime) {
