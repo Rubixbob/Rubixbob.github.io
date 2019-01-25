@@ -441,6 +441,39 @@ function drawEffect(name, beginTime, endTime) {
               "border": "solid 3px rgb(128, 30, 30)"}));
 }
 
+// function drawEffect(name, beginTime, endTime) {
+    // var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left;
+    // var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
+    // var posTop = (beginTime - startTime) * scale;
+    // var posHeight = (endTime - beginTime) * scale - 6;
+	// var img = $("<img></img>").attr("src", `images/effects/${name}.png`).get(0);
+	// var canvas = document.createElement('canvas');
+	// canvas.width = img.width;
+	// canvas.height = img.height;
+	// canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
+	// var count = 0;
+	// var r = 0;
+	// var g = 0;
+	// var b = 0;
+	// for (i = 0; i < img.width; i++) {
+		// for	 (j = 0; j < img.height; j++) {
+			// p = canvas.getContext('2d').getImageData(i, j, 1, 1).data;
+			// if (p[0] != 0 || p[1] != 0 || p[2] != 0) {
+				// count ++;
+				// r += p[0];
+				// g += p[1];
+				// b += p[2];
+			// }
+		// }
+	// }
+	// r /= count;
+	// g /= count;
+	// b /= count;
+    // $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
+        // .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `rgb(${r},${g},${b})`,
+              // "border": `solid 3px rgb(${r/2},${g/2},${b/2})`}));
+// }
+
 function deleteEffect(name, beginTime) {
 	$("#effects").children().filter(function(index) {return $(this).attr("name") === name && Number($(this).attr("time")) === beginTime;}).remove();
 }
