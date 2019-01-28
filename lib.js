@@ -1,7 +1,7 @@
 class Stats {
 	constructor(wd, str, dh, crit, det, sks, activeEffects) {
 		this.wd = wd;
-		this.wDelay = 2.88;
+		this.wDelay = 2.80;
 		this.str = str;
 		this.dh = dh;
 		this.crit = crit;
@@ -96,8 +96,6 @@ class Stats {
 	}
 
 	critRate() {
-        // if (this.activeEffects.findIndex(ef => ef.name === "Life Surge") >= 0)
-            // console.log("LS active");
 		return Math.min(0.05 + Math.floor((this.crit - 364) * 200 / 2170) / 1000 + this.critRateBonus, 1);
 	}
 
@@ -119,6 +117,10 @@ class Stats {
 
 	actionDamage(potency) {
 		return potency / 100 * this.wdMod() * this.strMod() * this.detMod() * this.dhMod() * this.critMod() * this.globalDmgMult * this.piercingDmgMult;
+	}
+
+	actionDamageLS(potency) {
+		return potency / 100 * this.wdMod() * this.strMod() * this.detMod() * this.dhMod() * this.critDamage() * this.globalDmgMult * this.piercingDmgMult;
 	}
 
 	aaDamage() {
@@ -215,13 +217,64 @@ function generateHistory(rotationDom, rotationHistory) {
 				nextAction = nextAction.next();
 				eName = curAction.attr("name");
 				ePot = getPotency(eName);
-				eDmg = stats.actionDamage(ePot);
+
+				// Potency modifiers
+				switch(eName) {
+	            	case "Jump":
+	            	case "Spineshatter Dive":
+	            		var BotDEffect = activeEffects.find(ef => ef.name === "Blood of the Dragon") || activeEffects.find(ef => ef.name === "Life of the Dragon");
+	            		if (BotDEffect)
+	            			ePot *= BotDEffect.value;
+	            		break;
+	            	case "Fang and Claw":
+	            		var FCEffect = activeEffects.find(ef => ef.name === "Sharper Fang and Claw");
+	            		if (FCEffect) {
+	            			ePot += FCEffect.value;
+	            		} else {
+	            			ePot = 0;
+	            			// TODO : throw exception
+	            		}
+	            		break;
+	            	case "Wheeling Thrust":
+	            		var WTEffect = activeEffects.find(ef => ef.name === "Enhanced Wheeling Thrust");
+	            		if (WTEffect) {
+	            			ePot += WTEffect.value;
+	            		} else {
+	            			ePot = 0;
+	            			// TODO : throw exception
+	            		}
+	            		break;
+            		default:
+            			break;
+	            }
+
+	            // Action damage
+                if (getType(eName) === "Weaponskill" && activeEffects.findIndex(ef => ef.name === "Life Surge") >= 0) {
+                	eDmg = stats.actionDamageLS(ePot);
+                    var LSEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Life Surge"), 1)[0];
+                    LSEffect.endTime = time;
+                    effectsToEnd.unshift(LSEffect);
+                } else {
+                	eDmg = stats.actionDamage(ePot);
+                }
 
                 // Activating effects
 				getEffects(eName).forEach(ef => {
-                    // Lance Mastery // TODO : +100 potency -------------------------------------
-                    //if (eName === "Fang and Claw" && lastWeaponskill === "Wheeling Thrust" || eName === "Wheeling Thrust" && lastWeaponskill === "Fang and Claw")
-                        // continue;
+                    // Lance Mastery
+                    if (eName === "Fang and Claw" && ef.name === "Enhanced Wheeling Thrust") {
+                    	var FCEffect = activeEffects.find(ef => ef.name === "Sharper Fang and Claw");
+                    	if (FCEffect.value)
+                        	return;
+                        else
+                        	ef.value = 100;
+                    } else if (eName === "Wheeling Thrust" && ef.name === "Sharper Fang and Claw") {
+                    	var WTEffect = activeEffects.find(ef => ef.name === "Enhanced Wheeling Thrust");
+                    	if (WTEffect.value)
+                        	return;
+                        else
+                        	ef.value = 100;
+                    }
+
 	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
 	                var beginTime = time + activationTime;
 	                var endTime = beginTime + ef.duration;
@@ -235,11 +288,6 @@ function generateHistory(rotationDom, rotationHistory) {
 	            });
                 
                 // Consuming effects
-                if (getType(eName) === "Weaponskill" && activeEffects.findIndex(ef => ef.name === "Life Surge") >= 0) {
-                    var LSEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Life Surge"), 1)[0];
-                    LSEffect.endTime = time;
-                    effectsToEnd.unshift(LSEffect);
-                }
 	            switch(eName) {
 	            	case "Mirage Dive":
 	            		var MDEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Dive Ready"), 1)[0];
@@ -259,6 +307,24 @@ function generateHistory(rotationDom, rotationHistory) {
             		default:
             			break;
 	            }
+
+				// BotD extension
+				switch(eName) {
+	            	case "Fang and Claw":
+	            	case "Wheeling Thrust":
+	            	case "Sonic Thrust":
+	            		var BotDIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Blood of the Dragon");
+	            		if (BotDIdx >= 0) {
+	            			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
+	            			BotDEffect.endTime = Math.min(BotDEffect.endTime + 10, time + 30);
+			                var idx = 0;
+			                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < BotDEffect.endTime) { idx++; }
+			                effectsToEnd.splice(idx, 0, BotDEffect);
+	            		}
+	            		break;
+            		default:
+            			break;
+	            }
 	            break;
             case "effectBegin":
             	timedEffect = effectsToActivate.shift();
@@ -270,6 +336,8 @@ function generateHistory(rotationDom, rotationHistory) {
             	timedEffect = effectsToEnd.shift();
             	activeEffects.splice(activeEffects.indexOf(timedEffect.effect), 1);
             	stats.updateEffects(timedEffect.effect);
+            	if (timedEffect.effect.name === "Enhanced Wheeling Thrust" || timedEffect.effect.name === "Sharper Fang and Claw")
+                	timedEffect.effect.value = 0;
             	eName = timedEffect.effect.name;
             	timedEffect.endTime = time;
             	break;

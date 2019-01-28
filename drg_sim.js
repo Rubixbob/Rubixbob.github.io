@@ -614,7 +614,7 @@ $("#opener").click(function(){
     jQuery.fx.off = false;
 });
 
-$("#GCD").blur(function(){
+$("#GCD").blur(function(){ // TODO : Replace by stats
     if(Number($("#GCD").val()) < Number($("#GCD").attr("min")))
         $("#GCD").val($("#GCD").attr("min"));
     if(Number($("#GCD").val()) > Number($("#GCD").attr("max")))
@@ -628,8 +628,14 @@ $("#Latency").blur(function(){
     if(Number($("#Latency").val()) > Number($("#Latency").attr("max")))
         $("#Latency").val($("#Latency").attr("max"));
     $("#Latency").val(Math.trunc($("#Latency").val()));
-	updateStartTime();
-    updateRotationAfterIndex(0);
+    if ($("#rotation").children().length > 0) {
+    	updateStartTime();
+        updateRotationAfterIndex(0);
+        $("#effects").empty();
+        $("#dps").empty();
+        RotationHistory = [];
+        updateDps();
+    }
 });
 
 $(window).bind('mousewheel DOMMouseScroll', function(event) 
@@ -637,6 +643,9 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
     if(event.ctrlKey == true)
     {
         event.preventDefault();
+        var scrollTopOffset = Number($(".scrollable").attr("scrollTop")) || 0;
+        var scrollTime = ($(".scrollable").scrollTop() + scrollTopOffset) / scale;
+
         if(event.originalEvent.deltaY > 0) {
             scale /= 1.1;
         } else {
@@ -669,6 +678,10 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
             var pos = ($(this).attr("time") - startTime) * scale;
             $(this).css("top", `${pos}px`);
         });
+        $(".scrollable").attr("scrollTop", (scrollTime * scale) % 1);
+        $(".scrollable").scrollTop(scrollTime * scale);
+    } else {
+        $(".scrollable").attr("scrollTop", 0);
     }
 });
 
