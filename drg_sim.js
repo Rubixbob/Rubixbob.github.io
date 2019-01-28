@@ -442,36 +442,92 @@ function drawEffect(name, beginTime, endTime) {
 }
 
 // function drawEffect(name, beginTime, endTime) {
-    // var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left;
-    // var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
-    // var posTop = (beginTime - startTime) * scale;
-    // var posHeight = (endTime - beginTime) * scale - 6;
-	// var img = $("<img></img>").attr("src", `images/effects/${name}.png`).get(0);
-	// var canvas = document.createElement('canvas');
-	// canvas.width = img.width;
-	// canvas.height = img.height;
-	// canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
-	// var count = 0;
-	// var r = 0;
-	// var g = 0;
-	// var b = 0;
-	// for (i = 0; i < img.width; i++) {
-		// for	 (j = 0; j < img.height; j++) {
-			// p = canvas.getContext('2d').getImageData(i, j, 1, 1).data;
-			// if (p[0] != 0 || p[1] != 0 || p[2] != 0) {
-				// count ++;
-				// r += p[0];
-				// g += p[1];
-				// b += p[2];
-			// }
-		// }
-	// }
-	// r /= count;
-	// g /= count;
-	// b /= count;
-    // $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
-        // .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `rgb(${r},${g},${b})`,
-              // "border": `solid 3px rgb(${r/2},${g/2},${b/2})`}));
+//     var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left;
+//     var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
+//     var posTop = (beginTime - startTime) * scale;
+//     var posHeight = (endTime - beginTime) * scale - 6;
+//     var img = $("#effectsHeader").children().filter(function(index) {return $(this).attr("name") === name;}).get(0);
+//     var canvas = document.createElement('canvas');
+//     canvas.width = img.width;
+//     canvas.height = img.height;
+//     var r = 0;
+//     var g = 0;
+//     var b = 0;
+//     var r2 = 0;
+//     var g2 = 0;
+//     var b2 = 0;
+//     var colors = new Map();
+//     try {
+//         canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
+//         for (i = 0; i < img.width; i++) {
+//             for  (j = 0; j < img.height; j++) {
+//                 p = canvas.getContext('2d').getImageData(i, j, 1, 1).data;
+//                 var pr = p[0];
+//                 var pg = p[1];
+//                 var pb = p[2];
+//                 var interval = 32;
+//                 if (pr != 0 || pg != 0 || pb != 0) {
+//                     pr = Math.floor(pr / interval) * interval + interval / 2;
+//                     pg = Math.floor(pg / interval) * interval + interval / 2;
+//                     pb = Math.floor(pb / interval) * interval + interval / 2;
+//                     var key = pr + pg * 256 + pb * 256 * 256;
+//                     var val = colors.get(key);
+//                     if (val === undefined)
+//                         val = 0;
+//                     var coef = 1/Math.sqrt((Math.pow(img.width/2-i,2)+Math.pow(img.height/2-j,2))/30+1);
+//                     colors.set(key, val + coef);
+//                 }
+//             }
+//         }
+//         var mainColor = 0;
+//         var secondColor = 0;
+//         var mainColorUses = 0;
+//         var secondColorUses = 0;
+//         for (var [key, val] of colors) {
+//             if ((val) > mainColorUses) {
+//                 secondColorUses = mainColorUses;
+//                 secondColor = mainColor;
+//                 mainColorUses = val;
+//                 mainColor = key;
+//             } else if ((val) > secondColorUses) {
+//                 secondColorUses = val;
+//                 secondColor = key;
+//             }
+//         }
+//         console.log("Main color: " + mainColor + ", used " + mainColorUses + " times");
+//         console.log("Second color: " + secondColor + ", used " + secondColorUses + " times");
+//         b = Math.floor(mainColor / 256 / 256);
+//         g = Math.floor(mainColor / 256 - b * 256);
+//         r = Math.floor(mainColor - b * 256 * 256 - g * 256);
+//         b2 = Math.floor(secondColor / 256 / 256);
+//         g2 = Math.floor(secondColor / 256 - b2 * 256);
+//         r2 = Math.floor(secondColor - b2 * 256 * 256 - g2 * 256);
+//         console.log("r: " + r + ", g: " + g + " , b: " + b + " , main color check: " + (r + g * 256 + b * 256 * 256));
+//         console.log("r2: " + r2 + ", g2: " + g2 + " , b2: " + b2 + " , second color check: " + (r2 + g2 * 256 + b2 * 256 * 256));
+//         var grey = Math.max(r, g, b);
+//         var grey2 = Math.max(r2, g2, b2);
+//         if (grey2 > grey) {
+//             var r3 = r;
+//             var g3 = g;
+//             var b3 = b;
+//             r = r2;
+//             g = g2;
+//             b = b2;
+//             r2 = r3;
+//             g2 = g3;
+//             b2 = b3;
+//         }
+//     } catch {
+//         r = 255;
+//         g = 60;
+//         b = 60;
+//         r2 = 127;
+//         g2 = 30;
+//         b2 = 30;
+//     }
+//     $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
+//         .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `rgb(${r},${g},${b})`,
+//               "border": `solid 3px rgb(${r2},${g2},${b2})`}));
 // }
 
 function deleteEffect(name, beginTime) {
