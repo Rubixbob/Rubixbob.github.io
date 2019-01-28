@@ -96,6 +96,8 @@ class Stats {
 	}
 
 	critRate() {
+        // if (this.activeEffects.findIndex(ef => ef.name === "Life Surge") >= 0)
+            // console.log("LS active");
 		return Math.min(0.05 + Math.floor((this.crit - 364) * 200 / 2170) / 1000 + this.critRateBonus, 1);
 	}
 
@@ -215,7 +217,11 @@ function generateHistory(rotationDom, rotationHistory) {
 				ePot = getPotency(eName);
 				eDmg = stats.actionDamage(ePot);
 
+                // Activating effects
 				getEffects(eName).forEach(ef => {
+                    // Lance Mastery // TODO : +100 potency -------------------------------------
+                    //if (eName === "Fang and Claw" && lastWeaponskill === "Wheeling Thrust" || eName === "Wheeling Thrust" && lastWeaponskill === "Fang and Claw")
+                        // continue;
 	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
 	                var beginTime = time + activationTime;
 	                var endTime = beginTime + ef.duration;
@@ -227,12 +233,28 @@ function generateHistory(rotationDom, rotationHistory) {
 	                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < endTime) { idx++; }
 	                effectsToEnd.splice(idx, 0, timedEffect);
 	            });
-
+                
+                // Consuming effects
+                if (getType(eName) === "Weaponskill" && activeEffects.findIndex(ef => ef.name === "Life Surge") >= 0) {
+                    var LSEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Life Surge"), 1)[0];
+                    LSEffect.endTime = time;
+                    effectsToEnd.unshift(LSEffect);
+                }
 	            switch(eName) {
 	            	case "Mirage Dive":
 	            		var MDEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Dive Ready"), 1)[0];
 	            		MDEffect.endTime = time;
 	            		effectsToEnd.unshift(MDEffect);
+	            		break;
+	            	case "Fang and Claw":
+	            		var FCEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Sharper Fang and Claw"), 1)[0];
+	            		FCEffect.endTime = time;
+	            		effectsToEnd.unshift(FCEffect);
+	            		break;
+	            	case "Wheeling Thrust":
+	            		var WTEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Enhanced Wheeling Thrust"), 1)[0];
+	            		WTEffect.endTime = time;
+	            		effectsToEnd.unshift(WTEffect);
 	            		break;
             		default:
             			break;
