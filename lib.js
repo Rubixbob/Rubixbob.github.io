@@ -251,6 +251,7 @@ function generateHistory(rotationDom, rotationHistory) {
 	            // Action damage
                 if (getType(eName) === "Weaponskill" && activeEffects.findIndex(ef => ef.name === "Life Surge") >= 0) {
                 	eDmg = stats.actionDamageLS(ePot);
+                	// Consuming LS
                     var LSEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Life Surge"), 1)[0];
                     LSEffect.endTime = time;
                     effectsToEnd.unshift(LSEffect);
@@ -275,6 +276,21 @@ function generateHistory(rotationDom, rotationHistory) {
                         	ef.value = 100;
                     }
 
+                    // Re-use BotD
+                    if (eName === "Blood of the Dragon") {
+	            		var BotDIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Blood of the Dragon");
+	            		if (BotDIdx >= 0) {
+	            			if (!effectsToEnd[BotDIdx].effect.life) {
+		            			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
+		            			BotDEffect.endTime = Math.max(BotDEffect.endTime, time + 20);
+				                var idx = 0;
+				                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < BotDEffect.endTime) { idx++; }
+				                effectsToEnd.splice(idx, 0, BotDEffect);
+				            }
+				            return;
+	            		}
+                    }
+
 	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
 	                var beginTime = time + activationTime;
 	                var endTime = beginTime + ef.duration;
@@ -291,35 +307,53 @@ function generateHistory(rotationDom, rotationHistory) {
 	            switch(eName) {
 	            	case "Mirage Dive":
 	            		var MDEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Dive Ready"), 1)[0];
-	            		MDEffect.endTime = time;
-	            		effectsToEnd.unshift(MDEffect);
+	            		if (MDEffect) {
+		            		MDEffect.endTime = time;
+		            		effectsToEnd.unshift(MDEffect);
+		            	}
 	            		break;
 	            	case "Fang and Claw":
 	            		var FCEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Sharper Fang and Claw"), 1)[0];
-	            		FCEffect.endTime = time;
-	            		effectsToEnd.unshift(FCEffect);
+	            		if (FCEffect) {
+		            		FCEffect.endTime = time;
+		            		effectsToEnd.unshift(FCEffect);
+		            	}
 	            		break;
 	            	case "Wheeling Thrust":
 	            		var WTEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Enhanced Wheeling Thrust"), 1)[0];
-	            		WTEffect.endTime = time;
-	            		effectsToEnd.unshift(WTEffect);
+	            		if (WTEffect) {
+		            		WTEffect.endTime = time;
+		            		effectsToEnd.unshift(WTEffect);
+		            	}
 	            		break;
             		default:
             			break;
 	            }
 
-				// BotD extension
+				// BotD interactions
 				switch(eName) {
 	            	case "Fang and Claw":
 	            	case "Wheeling Thrust":
 	            	case "Sonic Thrust":
 	            		var BotDIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Blood of the Dragon");
-	            		if (BotDIdx >= 0) {
+	            		if (BotDIdx >= 0 && !effectsToEnd[BotDIdx].effect.life) {
 	            			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
 	            			BotDEffect.endTime = Math.min(BotDEffect.endTime + 10, time + 30);
 			                var idx = 0;
 			                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < BotDEffect.endTime) { idx++; }
 			                effectsToEnd.splice(idx, 0, BotDEffect);
+	            		}
+	            		break;
+	            	case "Mirage Dive":
+	            		var BotDEffect = effectsToEnd.find(ef => ef.effect.name === "Blood of the Dragon");
+	            		if (BotDEffect)
+	            			BotDEffect.effect.eyes = Math.min(BotDEffect.effect.eyes + 1, 3);
+	            		break;
+	            	case "Geirskogul":
+	            		var BotDEffect = effectsToEnd.find(ef => ef.effect.name === "Blood of the Dragon");
+	            		if (BotDEffect && BotDEffect.effect.eyes === 3) {
+	            			BotDEffect.effect.eyes = 0;
+	            			BotDEffect.effect.life = true;
 	            		}
 	            		break;
             		default:
@@ -336,10 +370,29 @@ function generateHistory(rotationDom, rotationHistory) {
             	timedEffect = effectsToEnd.shift();
             	activeEffects.splice(activeEffects.indexOf(timedEffect.effect), 1);
             	stats.updateEffects(timedEffect.effect);
-            	if (timedEffect.effect.name === "Enhanced Wheeling Thrust" || timedEffect.effect.name === "Sharper Fang and Claw")
-                	timedEffect.effect.value = 0;
             	eName = timedEffect.effect.name;
             	timedEffect.endTime = time;
+            	switch(eName) {
+	            	case "Enhanced Wheeling Thrust":
+	            	case "Sharper Fang and Claw":
+	            		timedEffect.effect.value = 0;
+	            		break;
+	            	case "Blood of the Dragon":
+	            		if (timedEffect.effect.life) {
+	            			timedEffect.effect.life = false;
+	            			timedEffect.endTime = time + 20;
+			                var idx = 0;
+			                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < timedEffect.endTime) { idx++; }
+			                effectsToEnd.splice(idx, 0, timedEffect);
+			            	activeEffects.push(timedEffect.effect);
+			            	stats.updateEffects(timedEffect.effect);
+	            		} else {
+	            			timedEffect.effect.eyes = 0;
+	            		}
+	            		break;
+            		default:
+            			break;
+            	}
             	break;
             default:
 		}

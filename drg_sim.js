@@ -6,22 +6,25 @@ actions.forEach(function (ac) {
     $(`#${ac.group}`).append(action);
 });
 
-var imagesToLoad = effects.length;
+var imagesToLoad = 0;
 var imagesLoaded = 0;
 
 effects.forEach(function (ef) {
-    var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
-        imagesLoaded++;
-        if (imagesLoaded === imagesToLoad) {
-            $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
-            clearRotation();
-        }
-    }).each(function() {
-        $("#effectsHeader").append(this);
-        if (this.complete) {
-            $(this).trigger('load');
-        }
-    });;
+    if (ef.name !== "Blood of the Dragon") {
+        var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
+            imagesLoaded++;
+            if (imagesLoaded === imagesToLoad) {
+                $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
+                clearRotation();
+            }
+        }).each(function() {
+            $("#effectsHeader").append(this);
+            imagesToLoad++;
+            if (this.complete) {
+                $(this).trigger('load');
+            }
+        });;
+    }
 });
 
 
@@ -54,6 +57,7 @@ effects.forEach(function (ef) {
                 dndHandler.applyRotationEvents(clonedElement);
                 addActionAtIndex(clonedElement, $("#rotation").children().length);
 
+                $("#botd").empty();
                 $("#effects").empty();
                 $("#dps").empty();
                 RotationHistory = [];
@@ -141,6 +145,7 @@ effects.forEach(function (ef) {
                 if (idx !== curIdx) {
                     if (idx - curIdx >= 2)
                         console.log("We shouldn't be here, curIdx = " + curIdx + ", idx = " + idx);
+                    $("#botd").empty();
                     $("#effects").empty();
                     $("#dps").empty();
                     RotationHistory = [];
@@ -174,6 +179,7 @@ effects.forEach(function (ef) {
                         $(dndHandler.draggedElement).attr("delayed", "true");
 
                     if ($(dndHandler.draggedElement).attr("delayed") !== delayed) {
+                        $("#botd").empty();
                         $("#effects").empty();
                         $("#dps").empty();
                         RotationHistory = [];
@@ -388,6 +394,7 @@ function removeAction(element) {
 	// Removing associated next possible usage
 	$("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === Number($(element).attr("time")) + getRecastTime($(element).attr("name"));}).remove();
 	
+    $("#botd").empty();
     $("#effects").empty();
     $("#dps").empty();
     RotationHistory = [];
@@ -432,22 +439,25 @@ function addTimeUntil(time) {
 }
 
 function drawEffect(name, beginTime, endTime) {
-    var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left;
-    var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
-    var posTop = (beginTime - startTime) * scale;
-    var posHeight = (endTime - beginTime) * scale - 6;
-    
-    var effect = effects.find(ef => name === ef.name);
-    var backgroundColor = "rgb(255,60,60)";
-    if (effect.hasOwnProperty("backgroundColor"))
-        backgroundColor = effect.backgroundColor;
-    var borderColor = "rgb(128, 30, 30)";
-    if (effect.hasOwnProperty("borderColor"))
-        borderColor = effect.borderColor;
-    
-    $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
-        .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
-              "border": `solid 3px ${borderColor}`}));
+    if ($("#effectsHeader").children(`[name="${name}"]`).length > 0) {
+        var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left;
+        var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
+        var posTop = (beginTime - startTime) * scale;
+        var posHeight = (endTime - beginTime) * scale - 6;
+        
+        var effect = effects.find(ef => name === ef.name);
+        var backgroundColor = "rgb(255,60,60)";
+        if (effect.hasOwnProperty("backgroundColor"))
+            backgroundColor = effect.backgroundColor;
+        var borderColor = "rgb(128, 30, 30)";
+        if (effect.hasOwnProperty("borderColor"))
+            borderColor = effect.borderColor;
+        
+        $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
+            .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
+                  "border": `solid 3px ${borderColor}`}));
+        addTimeUntil(endTime + 5);
+    }
 }
 
 // function drawEffect(name, beginTime, endTime) {
@@ -564,7 +574,34 @@ function updateDps() {
         } else if (e.type === "effectBegin") {
             drawEffect(e.name, e.time, e.timedEffect.endTime);
         }
-        // TODO : Add time until end of last effect
+        switch(e.name) {
+            case "Blood of the Dragon":
+                if (e.type === "effectEnd") {
+                    // if (e.timedEffect.effect.life) // TODO : See how to handle life
+                    var posLeft = 1;
+                    var posWidth = 36;
+                    var posTop = (e.timedEffect.beginTime - startTime) * scale + 1;
+                    var posHeight = (e.timedEffect.endTime - e.timedEffect.beginTime) * scale;
+                    
+                    var effect = effects.find(ef => e.name === ef.name);
+                    var backgroundColor = effect.backgroundColor;
+                    var eyeColor = effect.eyeColor;
+                    var lifeColor = effect.lifeColor;
+                    
+                    $("#botd").append($("<div></div>").attr({"time": `${e.timedEffect.beginTime.toFixed(3)}`, "endTime": `${e.timedEffect.endTime.toFixed(3)}`})
+                        .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
+                              "z-index": "1"}));
+                }
+                break;
+            case "Geirskogul":
+                break;
+            case "Mirage Dive":
+                break;
+            default:
+                break;
+        }
+
+        // TODO : Add time until end of botd
     });
 }
 
@@ -573,6 +610,7 @@ function clearRotation() {
     $("#timeline").empty();
 	$("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
     $("#cds").empty();
+    $("#botd").empty();
     $("#effects").empty();
     $("#dps").empty();
     addTimeUntil(20);
@@ -598,24 +636,24 @@ $("#opener").click(function(){
     openerAddAction("Elusive Jump");
     openerAddAction("Heavy Thrust");
     openerAddAction("Diversion");
-    openerAddAction("Battle Litany");
-    openerAddAction("Impulse Drive");
     openerAddAction("Dragon Sight");
+    openerAddAction("Impulse Drive");
+    openerAddAction("Battle Litany");
     openerAddAction("Blood for Blood");
     openerAddAction("Disembowel");
     openerAddAction("Potion");
     openerAddAction("Chaos Thrust");
     openerAddAction("Jump");
     openerAddAction("Wheeling Thrust");
-    openerAddAction("Mirage Dive");
     openerAddAction("Geirskogul");
+    openerAddAction("Mirage Dive");
     openerAddAction("Fang and Claw");
     openerAddAction("Dragonfire Dive");
     openerAddAction("True Thrust");
     openerAddAction("Spineshatter Dive");
     openerAddAction("Vorpal Thrust");
-    openerAddAction("Mirage Dive");
     openerAddAction("Life Surge");
+    openerAddAction("Mirage Dive");
     openerAddAction("Full Thrust");
     openerAddAction("Fang and Claw");
     openerAddAction("Wheeling Thrust");
@@ -640,6 +678,7 @@ $("#Latency").blur(function(){
     if ($("#rotation").children().length > 0) {
     	updateStartTime();
         updateRotationAfterIndex(0);
+        $("#botd").empty();
         $("#effects").empty();
         $("#dps").empty();
         RotationHistory = [];
@@ -668,6 +707,14 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
             var position = ($(this).attr("time") - startTime) * scale;
             var animLockHeight = scale * getAnimationLock($(this).attr("name"));
             $(this).css({"top": `${position}px`, "height": `${animLockHeight}px`});
+        });
+
+        $("#botd").children().each(function(index) {
+            var beginTime = $(this).attr("time");
+            var endTime = $(this).attr("endTime");
+            var posTop = (beginTime - startTime) * scale + 1;
+            var posHeight = (endTime - beginTime) * scale;
+            $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
         });
 
         $("#effects").children().each(function(index) {
