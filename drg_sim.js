@@ -436,9 +436,18 @@ function drawEffect(name, beginTime, endTime) {
     var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
     var posTop = (beginTime - startTime) * scale;
     var posHeight = (endTime - beginTime) * scale - 6;
+    
+    var effect = effects.find(ef => name === ef.name);
+    var backgroundColor = "rgb(255,60,60)";
+    if (effect.hasOwnProperty("backgroundColor"))
+        backgroundColor = effect.backgroundColor;
+    var borderColor = "rgb(128, 30, 30)";
+    if (effect.hasOwnProperty("borderColor"))
+        borderColor = effect.borderColor;
+    
     $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
-        .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": "rgb(255,60,60)",
-              "border": "solid 3px rgb(128, 30, 30)"}));
+        .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
+              "border": `solid 3px ${borderColor}`}));
 }
 
 // function drawEffect(name, beginTime, endTime) {
