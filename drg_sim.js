@@ -549,6 +549,64 @@ function drawEffect(name, beginTime, endTime) {
 //               "border": `solid 3px rgb(${r2},${g2},${b2})`}));
 // }
 
+function drawBotd(type, botdObject, eTime) {
+    var posLeft = 1;
+    var posWidth = 36;
+    var zIndex = 1;
+    var beginTime, backgroundColor;
+    var effect = effects.find(ef => "Blood of the Dragon" === ef.name);
+    // var botdDiv = $("<div></div>");
+    
+    var botdDiv = function(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex) {
+        return $("<div></div>").attr({"time": `${beginTime.toFixed(3)}`, "endTime": `${eTime.toFixed(3)}`})
+        .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`, "z-index": `${zIndex}`});
+    };
+    
+    switch (type) {
+        case "blood":
+            beginTime = botdObject.bloodStart;
+            backgroundColor = effect.backgroundColor;
+            break;
+        case "life":
+            beginTime = botdObject.lifeStart;
+            backgroundColor = effect.lifeColor;
+            // TODO : 10 secs lines, green + orange, include in zoom
+            // var topDiv = Math.round((eTime - 10 - beginTime) * scale + 1);
+            // botdDiv.prepend($("<div></div>").attr("time", `${(eTime - 10).toFixed(3)}`)
+                // .css({"position": "absolute", "left": `${posLeft}px`, "top": `${topDiv}px`, "height": "1px", "width": `${posWidth}px`, "background-color": "orange", "z-index": "3"}));
+            // topDiv = Math.round((eTime - 20 - beginTime) * scale + 1);
+            // botdDiv.prepend($("<div></div>").attr("time", `${(eTime - 20).toFixed(3)}`)
+                // .css({"position": "absolute", "left": `${posLeft}px`, "top": `${topDiv}px`, "height": "1px", "width": `${posWidth}px`, "background-color": "green", "z-index": "3"}));
+            break;
+        case "eye":
+            for (var i = 0; i < botdObject.eyeCount; i++) {
+                posLeft = 12 * i + 3;
+                posWidth = 9;
+                beginTime = botdObject.eyeTime[i];
+                backgroundColor = effect.eyeColor;
+                zIndex = 2;
+                var posTop = Math.round((beginTime - startTime) * scale + 1);
+                var posHeight = Math.round((eTime - beginTime) * scale);
+                $("#botd").append(botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex));
+            }
+            return;
+            // if (botdObject.eyeCount > 0) {
+                // posWidth = 12 * botdObject.eyeCount;
+                // beginTime = botdObject.eyeTime[botdObject.eyeCount - 1];
+                // backgroundColor = effect.eyeColor;
+                // zIndex = 2;
+            // } else
+                // return;
+            // break;
+        default:
+            return;
+    }
+    
+    var posTop = Math.round((beginTime - startTime) * scale + 1);
+    var posHeight = Math.round((eTime - beginTime) * scale);
+    $("#botd").append(botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex));
+}
+
 function deleteEffect(name, beginTime) {
 	$("#effects").children().filter(function(index) {return $(this).attr("name") === name && Number($(this).attr("time")) === beginTime;}).remove();
 }
@@ -568,6 +626,7 @@ function removeDpsAfter(beginTime) {
 
 function updateDps() {
     generateHistory($("#rotation").children(), RotationHistory);
+    var botdObject = {bloodStart: 0, eyeTime: [], lifeStart: 0, eyeCount: 0};
     RotationHistory.forEach(e => {
         if (e.type === "action") {
             displayDps(Math.floor(e.dps), e.time);
@@ -576,26 +635,31 @@ function updateDps() {
         }
         switch(e.name) {
             case "Blood of the Dragon":
-                if (e.type === "effectEnd") {
-                    // if (e.timedEffect.effect.life) // TODO : See how to handle life
-                    var posLeft = 1;
-                    var posWidth = 36;
-                    var posTop = (e.timedEffect.beginTime - startTime) * scale + 1;
-                    var posHeight = (e.timedEffect.endTime - e.timedEffect.beginTime) * scale;
-                    
-                    var effect = effects.find(ef => e.name === ef.name);
-                    var backgroundColor = effect.backgroundColor;
-                    var eyeColor = effect.eyeColor;
-                    var lifeColor = effect.lifeColor;
-                    
-                    $("#botd").append($("<div></div>").attr({"time": `${e.timedEffect.beginTime.toFixed(3)}`, "endTime": `${e.timedEffect.endTime.toFixed(3)}`})
-                        .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
-                              "z-index": "1"}));
+                if (e.type === "effectBegin") { // Blood start
+                    botdObject.bloodStart = e.time;
+                } else if (e.type === "effectEnd") {
+                    if (e.timedEffect.endTime === e.time) { // Blood end
+                        drawBotd("blood", botdObject, e.time);
+                        drawBotd("eye", botdObject, e.time);
+                        botdObject.eyeCount = 0;
+                    } else { // Life end
+                        drawBotd("life", botdObject, e.time);
+                        botdObject.bloodStart = e.time;
+                    }
                 }
                 break;
             case "Geirskogul":
+                if (botdObject.eyeCount === 3) { // Blood end | Life start
+                    drawBotd("blood", botdObject, e.time);
+                    drawBotd("eye", botdObject, e.time);
+                    botdObject.eyeCount = 0;
+                    botdObject.lifeStart = e.time;
+                }
                 break;
-            case "Mirage Dive":
+            case "Mirage Dive": // TODO : no botd
+                // drawBotd("eye", botdObject, e.time);
+                botdObject.eyeTime[botdObject.eyeCount] = e.time;
+                botdObject.eyeCount = Math.min(botdObject.eyeCount + 1, 3);
                 break;
             default:
                 break;
