@@ -6,6 +6,11 @@ actions.forEach(function (ac) {
     $(`#${ac.group}`).append(action);
 });
 
+function fitColumns() {
+    // TODO : Adjust width of elements inside
+    $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
+}
+
 var imagesToLoad = 0;
 var imagesLoaded = 0;
 
@@ -14,7 +19,7 @@ effects.forEach(function (ef) {
         var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
             imagesLoaded++;
             if (imagesLoaded === imagesToLoad) {
-                $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
+                fitColumns();
                 clearRotation();
             }
         }).each(function() {
@@ -57,11 +62,7 @@ effects.forEach(function (ef) {
                 dndHandler.applyRotationEvents(clonedElement);
                 addActionAtIndex(clonedElement, $("#rotation").children().length);
 
-                $("#botd").empty();
-                $("#effects").empty();
-                $("#dps").empty();
-                RotationHistory = [];
-                updateDps();
+                resetAndUpdateDps();
                 // playUntil($("#rotation").children(), RotationHistory, Number($(clonedElement).attr("time")));
                 // var lastEvent = RotationHistory[RotationHistory.length - 1];
                 // displayDps(Math.floor(lastEvent.dps), lastEvent.time);
@@ -145,10 +146,7 @@ effects.forEach(function (ef) {
                 if (idx !== curIdx) {
                     if (idx - curIdx >= 2)
                         console.log("We shouldn't be here, curIdx = " + curIdx + ", idx = " + idx);
-                    $("#botd").empty();
-                    $("#effects").empty();
-                    $("#dps").empty();
-                    RotationHistory = [];
+                    resetDps();
                     if (idx > curIdx) {
                         addActionAtIndex($("#rotation").children().get(idx), idx-1);
                         addActionAtIndex(dndHandler.draggedElement, idx);
@@ -179,10 +177,7 @@ effects.forEach(function (ef) {
                         $(dndHandler.draggedElement).attr("delayed", "true");
 
                     if ($(dndHandler.draggedElement).attr("delayed") !== delayed) {
-                        $("#botd").empty();
-                        $("#effects").empty();
-                        $("#dps").empty();
-                        RotationHistory = [];
+                        resetDps();
                         var prevTime = $(dndHandler.draggedElement).attr("time");
                         addActionAtIndex(dndHandler.draggedElement, idx);
                         if (prevTime !== $(dndHandler.draggedElement).attr("time"))
@@ -308,7 +303,7 @@ function addActionAtIndex(element, idx, checkDelay = true) {
 		if ($(element).hasClass("Weaponskill")) {
 			var timeGcd = startTime;
 			if (previousGcds.length > 0)
-				timeGcd = (Number(previousGcds.last().attr("time")) * 100 + Number($("#GCD").val()) * 100) / 100;
+				timeGcd = (Number(previousGcds.last().attr("time")) * 100 + Number($("#SKSoutGCD").val()) * 100) / 100;
 			time = Math.max(time, timeGcd);
 		}
 		// CD recast
@@ -394,10 +389,7 @@ function removeAction(element) {
 	// Removing associated next possible usage
 	$("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === Number($(element).attr("time")) + getRecastTime($(element).attr("name"));}).remove();
 	
-    $("#botd").empty();
-    $("#effects").empty();
-    $("#dps").empty();
-    RotationHistory = [];
+    resetDps();
 
     var idx = $("#rotation").children().index(element);
     if (Number($(element).attr("time")) < 0) {
@@ -407,7 +399,8 @@ function removeAction(element) {
     $(element).remove();
     updateRotationAfterIndex(idx);
 
-    updateDps();
+    if ($("#rotation").children().length >0)
+        updateDps();
 }
 
 function updateRotationAfterIndex(idx) {
@@ -620,7 +613,7 @@ function removeDpsAfter(beginTime) {
 }
 
 function updateDps() {
-    generateHistory($("#rotation").children(), RotationHistory);
+    generateHistory($("#rotation").children(), RotationHistory, stats);
     var botdObject = {bloodStart: 0, eyeTime: [], lifeStart: 0, eyeCount: -1};
     RotationHistory.forEach(e => {
         if (e.type === "action") {
@@ -664,17 +657,26 @@ function updateDps() {
     });
 }
 
+function resetDps() {
+    $("#botd").empty();
+    $("#effects").empty();
+    $("#dps").empty();
+    RotationHistory = [];
+}
+
+function resetAndUpdateDps() {
+    resetDps();
+    updateDps();
+}
+
 function clearRotation() {
 	$("#rotation").empty();
     $("#timeline").empty();
 	$("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
     $("#cds").empty();
-    $("#botd").empty();
-    $("#effects").empty();
-    $("#dps").empty();
+    resetDps();
     addTimeUntil(20);
     startTime = 0;
-    RotationHistory = [];
 }
 
 $("#clearRotation").click(clearRotation);
@@ -720,28 +722,84 @@ $("#opener").click(function(){
     jQuery.fx.off = false;
 });
 
-$("#GCD").blur(function(){ // TODO : Replace by stats
-    if(Number($("#GCD").val()) < Number($("#GCD").attr("min")))
-        $("#GCD").val($("#GCD").attr("min"));
-    if(Number($("#GCD").val()) > Number($("#GCD").attr("max")))
-        $("#GCD").val($("#GCD").attr("max"));
-    $("#GCD").val(Math.trunc($("#GCD").val() * 100) / 100);
-    updateRotationAfterIndex(0);
-});
+function trimInput(element) {
+    if(Number(element.val()) < Number(element.attr("min")))
+        element.val(element.attr("min"));
+    if(Number(element.val()) > Number(element.attr("max")))
+        element.val(element.attr("max"));
+}
+
+// $("#GCD").blur(function(){ // TODO : Replace by stats
+//     trimInput($("#GCD"));
+//     $("#GCD").val(Math.trunc($("#GCD").val() * 100) / 100);
+//     if ($("#rotation").children().length > 0) {
+//         updateStartTime();
+//         updateRotationAfterIndex(0);
+//         resetAndUpdateDps();
+//     }
+// });
 $("#Latency").blur(function(){
-    if(Number($("#Latency").val()) < Number($("#Latency").attr("min")))
-        $("#Latency").val($("#Latency").attr("min"));
-    if(Number($("#Latency").val()) > Number($("#Latency").attr("max")))
-        $("#Latency").val($("#Latency").attr("max"));
+    trimInput($("#Latency"));
     $("#Latency").val(Math.trunc($("#Latency").val()));
     if ($("#rotation").children().length > 0) {
     	updateStartTime();
         updateRotationAfterIndex(0);
-        $("#botd").empty();
-        $("#effects").empty();
-        $("#dps").empty();
-        RotationHistory = [];
-        updateDps();
+        resetAndUpdateDps();
+    }
+});
+
+$("#WDin").change(function() {
+    trimInput($("#WDin"));
+    stats.wd = Number($("#WDin").val());
+    $("#WDout").val(stats.wdMod());
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
+});
+
+$("#STRin").change(function() {
+    trimInput($("#STRin"));
+    stats.str = Number($("#STRin").val());
+    $("#STRout").val(stats.strMod());
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
+});
+
+$("#DHin").change(function() {
+    trimInput($("#DHin"));
+    stats.dh = Number($("#DHin").val());
+    $("#DHout").val(stats.dhMod());
+    $("#DHoutRate").val(stats.dhRate());
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
+});
+
+$("#CRITin").change(function() {
+    trimInput($("#CRITin"));
+    stats.crit = Number($("#CRITin").val());
+    $("#CRITout").val(stats.critMod());
+    $("#CRIToutRate").val(stats.critRate());
+    $("#CRIToutDmg").val(stats.critDamage());
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
+});
+
+$("#DETin").change(function() {
+    trimInput($("#DETin"));
+    stats.det = Number($("#DETin").val());
+    $("#DETout").val(stats.detMod());
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
+});
+
+$("#SKSin").change(function() {
+    trimInput($("#SKSin"));
+    stats.sks = Number($("#SKSin").val());
+    $("#SKSout").val(stats.sksMod());
+    $("#SKSoutGCD").val(stats.gcd());
+    if ($("#rotation").children().length > 0) {
+        updateStartTime();
+        updateRotationAfterIndex(0);
+        resetAndUpdateDps();
     }
 });
 
@@ -805,6 +863,12 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
     }
 });
 
+var resizeTimer;
+$(window).resize(function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fitColumns, 20);
+});
+
 function setStartTime(value) {
     if (value < startTime) {
         for (var i = 0; i < Math.ceil(startTime) - Math.ceil(value); i++) {
@@ -827,4 +891,11 @@ function updateStartTime() {
 
 var startTime = 0;
 var RotationHistory = [];
+var stats = new Stats(0, 0, 0, 0, 0, 0, []);
+$("#WDin").change();
+$("#STRin").change();
+$("#DHin").change();
+$("#CRITin").change();
+$("#DETin").change();
+$("#SKSin").change();
 clearRotation();

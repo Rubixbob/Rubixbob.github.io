@@ -11,8 +11,8 @@
 <body>
     <button id="clearRotation">Clear rotation</button>
     <button id="opener">Recommended opener</button>
-    <label for="GCD">GCD</label>
-    <input id="GCD" type="number" step="0.01" value="2.45" maxlength=4 size="1" min="1.5" max="2.5"></input>
+    <!-- <label for="GCD">GCD</label>
+    <input id="GCD" type="number" step="0.01" value="2.45" maxlength=4 size="1" min="1.5" max="2.5"></input> -->
     <label for="Latency">Latency</label>
     <input id="Latency" type="number" value="20" maxlength=3 size="1" min="0" max="999"></input>
     <div id="actions">
@@ -31,12 +31,48 @@
         <div id="other" class="actionGroup">
         </div>
     </div>
+    <table id="stats">
+        <tr>
+            <td><label for="WDin">Weapon Damage</label></td>
+            <td><input id="WDin" type="number" value="109" min="0" max="9999"></input></td>
+            <td><output id="WDout"></output></td>
+        </tr>
+        <tr>
+            <td><label for="STRin">Strength</label></td>
+            <td><input id="STRin" type="number" value="3207" min="0" max="9999"></input></td>
+            <td><output id="STRout"></output></td>
+        </tr>
+        <tr>
+            <td><label for="DHin">Direct Hit Rate</label></td>
+            <td><input id="DHin" type="number" value="1611" min="0" max="9999"></input></td>
+            <td><output id="DHout"></output></td>
+            <td><output id="DHoutRate"></output></td>
+        </tr>
+        <tr>
+            <td><label for="CRITin">Critical Hit Rate</label></td>
+            <td><input id="CRITin" type="number" value="2557" min="0" max="9999"></input></td>
+            <td><output id="CRITout"></output></td>
+            <td><output id="CRIToutRate"></output></td>
+            <td><output id="CRIToutDmg"></output></td>
+        </tr>
+        <tr>
+            <td><label for="DETin">Determination</label></td>
+            <td><input id="DETin" type="number" value="1796" min="0" max="9999"></input></td>
+            <td><output id="DETout"></output></td>
+        </tr>
+        <tr>
+            <td><label for="SKSin">Skill Speed</label></td>
+            <td><input id="SKSin" type="number" value="655" min="0" max="9999"></input></td>
+            <td><output id="SKSout"></output></td>
+            <td><output id="SKSoutGCD"></output></td>
+        </tr>
+    </table>
     <table>
         <tr id="headers">
             <th>Time</th>
-            <th width="74px">Action</th>
+            <th width="74px">Actions</th>
             <th width="36px">BotD</th>
-            <th id="effectsHeader">Effects<br/></th>
+            <th id="effectsHeader"></th>
             <th>Cooldowns</th>
             <th width="40px">DPS</th>
         </tr>
@@ -79,15 +115,15 @@
                 <!-- <li>Effects list + activation time</li> -->
                 <li>Cooldowns display</li>
                 <li>Effects display</li>
+                <li>Lib (Actual DPS calculator, too much to do, will be detailed later)</li>
+                <li>Stats input</li>
             </ul>
         </div>
         <div>
             <strong>TODO:</strong>
             <ul>
-                <li>Lib (Actual DPS calculator, too much to do, will be detailed later)</li>
-                <li>Stats input</li>
                 <li>Raid buffs + speed buffs</li>
-                <li>Show/Hide columns/buffs/cds
+                <li>Show/Hide columns/buffs/cds</li>
                 <li>Make it work on phone</li>
                 <li>Downtime manager</li>
                 <li>Actions suggestions</li>

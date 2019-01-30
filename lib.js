@@ -96,11 +96,11 @@ class Stats {
 	}
 
 	critRate() {
-		return Math.min(0.05 + Math.floor((this.crit - 364) * 200 / 2170) / 1000 + this.critRateBonus, 1);
+		return Math.min(Math.floor(50 + (this.crit - 364) * 200 / 2170) / 1000 + this.critRateBonus, 1);
 	}
 
 	critDamage() {
-		return 1.40 + Math.floor((this.crit - 364) * 200 / 2170) / 1000;
+		return Math.floor(1400 + (this.crit - 364) * 200 / 2170) / 1000;
 	}
 
 	critMod() {
@@ -108,11 +108,15 @@ class Stats {
 	}
 
 	detMod() {
-		return 1 + Math.floor((this.det - 292) * 130 / 2170) / 1000;
+		return Math.floor(1000 + (this.det - 292) * 130 / 2170) / 1000;
 	}
 
 	sksMod() {
-		return 1 + Math.floor((this.sks - 364) * 130 / 2170) / 1000;
+		return Math.floor(1000 + (this.sks - 364) * 130 / 2170) / 1000;
+	}
+
+	gcd() {
+		return Math.floor(2.5 * (1 - Math.floor((this.sks - 364) * 130 / 2170) / 1000) * 100) / 100;
 	}
 
 	actionDamage(potency) {
@@ -191,9 +195,9 @@ function deleteAfter(rotationHistory, beginTime) {
 // 	// console.log("Added " + (rotationHistory.length - actionsNb) + " actions, from " + actionsNb + " to " + rotationHistory.length);
 // }
 
-function generateHistory(rotationDom, rotationHistory) {
+function generateHistory(rotationDom, rotationHistory, stats) {
 	var activeEffects = [];
-	var stats = new Stats(109, 3207, 1611, 2557, 1796, 655, activeEffects);
+	stats.activeEffects = activeEffects;
 	var curAction = rotationDom.first();
 	var nextAction = curAction;
 	var time = Number(curAction.attr("time"));
@@ -264,13 +268,13 @@ function generateHistory(rotationDom, rotationHistory) {
                     // Lance Mastery
                     if (eName === "Fang and Claw" && ef.name === "Enhanced Wheeling Thrust") {
                     	var FCEffect = activeEffects.find(ef => ef.name === "Sharper Fang and Claw");
-                    	if (FCEffect.value)
+                    	if (FCEffect && FCEffect.value)
                         	return;
                         else
                         	ef.value = 100;
                     } else if (eName === "Wheeling Thrust" && ef.name === "Sharper Fang and Claw") {
                     	var WTEffect = activeEffects.find(ef => ef.name === "Enhanced Wheeling Thrust");
-                    	if (WTEffect.value)
+                    	if (WTEffect && WTEffect.value)
                         	return;
                         else
                         	ef.value = 100;
