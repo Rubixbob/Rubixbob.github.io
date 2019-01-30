@@ -291,6 +291,19 @@ function generateHistory(rotationDom, rotationHistory) {
 	            		}
                     }
 
+                    // Use a Jump when Dive Ready
+                    if (eName === "Jump" || eName === "Spineshatter Dive") {
+                    	var DRIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Dive Ready");
+	            		if (DRIdx >= 0) {
+	            			var DREffect = effectsToEnd.splice(DRIdx, 1)[0];
+	            			DREffect.endTime = time + DREffect.effect.duration;
+			                var idx = 0;
+			                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < DREffect.endTime) { idx++; }
+			                effectsToEnd.splice(idx, 0, DREffect);
+				            return;
+	            		}
+                    }
+
 	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
 	                var beginTime = time + activationTime;
 	                var endTime = beginTime + ef.duration;
@@ -354,6 +367,13 @@ function generateHistory(rotationDom, rotationHistory) {
 	            		if (BotDEffect && BotDEffect.effect.eyes === 3) {
 	            			BotDEffect.effect.eyes = 0;
 	            			BotDEffect.effect.life = true;
+	            			if (BotDEffect.endTime < time + 20) {
+	            				effectsToEnd.splice(effectsToEnd.indexOf(BotDEffect), 1);
+		            			BotDEffect.endTime = Math.max(BotDEffect.endTime, time + 20);
+				                var idx = 0;
+				                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < BotDEffect.endTime) { idx++; }
+				                effectsToEnd.splice(idx, 0, BotDEffect);
+	            			}
 	            		}
 	            		break;
             		default:

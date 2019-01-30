@@ -555,7 +555,6 @@ function drawBotd(type, botdObject, eTime) {
     var zIndex = 1;
     var beginTime, backgroundColor;
     var effect = effects.find(ef => "Blood of the Dragon" === ef.name);
-    // var botdDiv = $("<div></div>");
     
     var botdDiv = function(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex) {
         return $("<div></div>").attr({"time": `${beginTime.toFixed(3)}`, "endTime": `${eTime.toFixed(3)}`})
@@ -566,45 +565,41 @@ function drawBotd(type, botdObject, eTime) {
         case "blood":
             beginTime = botdObject.bloodStart;
             backgroundColor = effect.backgroundColor;
+            var posTop = Math.round((beginTime - startTime) * scale + 1);
+            var posHeight = Math.round((eTime - beginTime) * scale);
+            $("#botd").append(botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex));
             break;
         case "life":
             beginTime = botdObject.lifeStart;
             backgroundColor = effect.lifeColor;
-            // TODO : 10 secs lines, green + orange, include in zoom
-            // var topDiv = Math.round((eTime - 10 - beginTime) * scale + 1);
-            // botdDiv.prepend($("<div></div>").attr("time", `${(eTime - 10).toFixed(3)}`)
-                // .css({"position": "absolute", "left": `${posLeft}px`, "top": `${topDiv}px`, "height": "1px", "width": `${posWidth}px`, "background-color": "orange", "z-index": "3"}));
-            // topDiv = Math.round((eTime - 20 - beginTime) * scale + 1);
-            // botdDiv.prepend($("<div></div>").attr("time", `${(eTime - 20).toFixed(3)}`)
-                // .css({"position": "absolute", "left": `${posLeft}px`, "top": `${topDiv}px`, "height": "1px", "width": `${posWidth}px`, "background-color": "green", "z-index": "3"}));
+            var posTop = Math.round((beginTime - startTime) * scale + 1);
+            var posHeight = Math.round((eTime - beginTime) * scale);
+            var lifeDiv = botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex);
+            
+            for (var i = 1; i <= 2; i++) {
+            var posTop = Math.round((eTime - 10 * i - beginTime) * scale);
+                lifeDiv.prepend($("<div></div>").attr("time", `${(eTime - 10 * i).toFixed(3)}`)
+                    .css({"position": "absolute", "top": `${posTop}px`, "height": "2px", "width": `${posWidth}px`, "background-color": "orange", "z-index": "3"}));
+            }
+            $("#botd").append(lifeDiv);
             break;
         case "eye":
             for (var i = 0; i < botdObject.eyeCount; i++) {
-                posLeft = 12 * i + 3;
-                posWidth = 9;
+                posLeft = 11 * i + 4;
+                posWidth = 8;
                 beginTime = botdObject.eyeTime[i];
                 backgroundColor = effect.eyeColor;
                 zIndex = 2;
                 var posTop = Math.round((beginTime - startTime) * scale + 1);
                 var posHeight = Math.round((eTime - beginTime) * scale);
-                $("#botd").append(botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex));
+                $("#botd").append(botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex).css("border-radius", "3px"));
             }
-            return;
-            // if (botdObject.eyeCount > 0) {
-                // posWidth = 12 * botdObject.eyeCount;
-                // beginTime = botdObject.eyeTime[botdObject.eyeCount - 1];
-                // backgroundColor = effect.eyeColor;
-                // zIndex = 2;
-            // } else
-                // return;
-            // break;
+            break;
         default:
             return;
     }
-    
-    var posTop = Math.round((beginTime - startTime) * scale + 1);
-    var posHeight = Math.round((eTime - beginTime) * scale);
-    $("#botd").append(botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex));
+
+    addTimeUntil(eTime + 5);
 }
 
 function deleteEffect(name, beginTime) {
@@ -626,7 +621,7 @@ function removeDpsAfter(beginTime) {
 
 function updateDps() {
     generateHistory($("#rotation").children(), RotationHistory);
-    var botdObject = {bloodStart: 0, eyeTime: [], lifeStart: 0, eyeCount: 0};
+    var botdObject = {bloodStart: 0, eyeTime: [], lifeStart: 0, eyeCount: -1};
     RotationHistory.forEach(e => {
         if (e.type === "action") {
             displayDps(Math.floor(e.dps), e.time);
@@ -637,11 +632,12 @@ function updateDps() {
             case "Blood of the Dragon":
                 if (e.type === "effectBegin") { // Blood start
                     botdObject.bloodStart = e.time;
+                    botdObject.eyeCount = 0;
                 } else if (e.type === "effectEnd") {
                     if (e.timedEffect.endTime === e.time) { // Blood end
                         drawBotd("blood", botdObject, e.time);
                         drawBotd("eye", botdObject, e.time);
-                        botdObject.eyeCount = 0;
+                        botdObject.eyeCount = -1;
                     } else { // Life end
                         drawBotd("life", botdObject, e.time);
                         botdObject.bloodStart = e.time;
@@ -656,16 +652,15 @@ function updateDps() {
                     botdObject.lifeStart = e.time;
                 }
                 break;
-            case "Mirage Dive": // TODO : no botd
-                // drawBotd("eye", botdObject, e.time);
-                botdObject.eyeTime[botdObject.eyeCount] = e.time;
-                botdObject.eyeCount = Math.min(botdObject.eyeCount + 1, 3);
+            case "Mirage Dive":
+                if (botdObject.eyeCount >= 0) { // When blood/life up
+                    botdObject.eyeTime[botdObject.eyeCount] = e.time;
+                    botdObject.eyeCount = Math.min(botdObject.eyeCount + 1, 3);
+                }
                 break;
             default:
                 break;
         }
-
-        // TODO : Add time until end of botd
     });
 }
 
@@ -779,6 +774,11 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
             var posTop = (beginTime - startTime) * scale + 1;
             var posHeight = (endTime - beginTime) * scale;
             $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
+            $(this).children().each(function(index) {
+                var eTime = $(this).attr("time");
+                var posTop = Math.round((eTime - beginTime) * scale);
+                $(this).css("top", `${posTop}px`);
+            })
         });
 
         $("#effects").children().each(function(index) {
