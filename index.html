@@ -9,12 +9,6 @@
 </head>
 
 <body>
-    <button id="clearRotation">Clear rotation</button>
-    <button id="opener">Recommended opener</button>
-    <!-- <label for="GCD">GCD</label>
-    <input id="GCD" type="number" step="0.01" value="2.45" maxlength=4 size="1" min="1.5" max="2.5"></input> -->
-    <label for="Latency">Latency</label>
-    <input id="Latency" type="number" value="20" maxlength=3 size="1" min="0" max="999"></input>
     <div id="actions">
         <div id="combo1" class="actionGroup">
         </div>
@@ -31,7 +25,42 @@
         <div id="other" class="actionGroup">
         </div>
     </div>
+    <div>
+        <button id="clearRotation">Clear rotation</button>
+        <button id="opener">Recommended opener</button>
+        <!-- <label for="GCD">GCD</label>
+        <input id="GCD" type="number" step="0.01" value="2.45" maxlength=4 size="1" min="1.5" max="2.5"></input> -->
+        <label for="Latency">Latency</label>
+        <input id="Latency" type="number" value="20" maxlength=3 size="1" min="0" max="999"></input>
+        <table>
+            <tr id="headers">
+                <th>Time</th>
+                <th width="74px">Actions</th>
+                <th width="36px">BotD</th>
+                <th id="effectsHeader"></th>
+                <th>Cooldowns</th>
+                <th width="40px">DPS</th>
+            </tr>
+        </table>
+        <div class="scrollable">
+            <table>
+                <tr id="columns">
+                    <td id="timeline"></td>
+                    <td id="rotation" class="dropper"></td>
+                    <td id="botd"></td>
+                    <td id="effects"></td>
+                    <td id="cds"></td>
+                    <td id="dps"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
     <table id="stats">
+        <tr>
+            <th>Stats</th>
+            <th></th>
+            <th>Mod</th>
+        </tr>
         <tr>
             <td><label for="WDin">Weapon Damage</label></td>
             <td><input id="WDin" type="number" value="109" min="0" max="9999"></input></td>
@@ -46,14 +75,13 @@
             <td><label for="DHin">Direct Hit Rate</label></td>
             <td><input id="DHin" type="number" value="1611" min="0" max="9999"></input></td>
             <td><output id="DHout"></output></td>
-            <td><output id="DHoutRate"></output></td>
+            <td>Chance: <output id="DHoutRate"></output></td>
         </tr>
         <tr>
             <td><label for="CRITin">Critical Hit Rate</label></td>
             <td><input id="CRITin" type="number" value="2557" min="0" max="9999"></input></td>
             <td><output id="CRITout"></output></td>
-            <td><output id="CRIToutRate"></output></td>
-            <td><output id="CRIToutDmg"></output></td>
+            <td>Chance: <output id="CRIToutRate"></output> Damage: <output id="CRIToutDmg"></output></td>
         </tr>
         <tr>
             <td><label for="DETin">Determination</label></td>
@@ -64,31 +92,9 @@
             <td><label for="SKSin">Skill Speed</label></td>
             <td><input id="SKSin" type="number" value="655" min="0" max="9999"></input></td>
             <td><output id="SKSout"></output></td>
-            <td><output id="SKSoutGCD"></output></td>
+            <td>GCD: <output id="SKSoutGCD"></output></td>
         </tr>
     </table>
-    <table>
-        <tr id="headers">
-            <th>Time</th>
-            <th width="74px">Actions</th>
-            <th width="36px">BotD</th>
-            <th id="effectsHeader"></th>
-            <th>Cooldowns</th>
-            <th width="40px">DPS</th>
-        </tr>
-    </table>
-    <div class="scrollable">
-        <table>
-            <tr id="columns">
-                <td id="timeline"></td>
-                <td id="rotation" class="dropper"></td>
-                <td id="botd"></td>
-                <td id="effects"></td>
-                <td id="cds"></td>
-                <td id="dps"></td>
-            </tr>
-        </table>
-    </div>
     <div id="progress">
         <div>
             <strong>DONE:</strong>

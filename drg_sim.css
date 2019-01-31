@@ -10,13 +10,13 @@
 }
 
 #actions {
-    float: left;
     display: flex;
     flex-wrap: wrap;
     background-color: #F0F0F0;
     padding-left: 10px;
     padding-top: 10px;
     width: 186px;
+    height: fit-content;
     border-radius: 16px;
 }
 
@@ -26,8 +26,16 @@
     height: auto;
 }
 
+body {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+input {
+    text-align: right;
+}
+
 #stats {
-    float: right;
     background-color: #FFFFFF;
     padding-left: 10px;
     padding-top: 10px;

@@ -750,6 +750,7 @@ $("#Latency").blur(function(){
 
 $("#WDin").change(function() {
     trimInput($("#WDin"));
+    $("#WDin").val(Math.trunc($("#WDin").val()));
     stats.wd = Number($("#WDin").val());
     $("#WDout").val(stats.wdMod());
     if ($("#rotation").children().length > 0)
@@ -758,6 +759,7 @@ $("#WDin").change(function() {
 
 $("#STRin").change(function() {
     trimInput($("#STRin"));
+    $("#STRin").val(Math.trunc($("#STRin").val()));
     stats.str = Number($("#STRin").val());
     $("#STRout").val(stats.strMod());
     if ($("#rotation").children().length > 0)
@@ -766,6 +768,7 @@ $("#STRin").change(function() {
 
 $("#DHin").change(function() {
     trimInput($("#DHin"));
+    $("#DHin").val(Math.trunc($("#DHin").val()));
     stats.dh = Number($("#DHin").val());
     $("#DHout").val(stats.dhMod());
     $("#DHoutRate").val(stats.dhRate());
@@ -775,6 +778,7 @@ $("#DHin").change(function() {
 
 $("#CRITin").change(function() {
     trimInput($("#CRITin"));
+    $("#CRITin").val(Math.trunc($("#CRITin").val()));
     stats.crit = Number($("#CRITin").val());
     $("#CRITout").val(stats.critMod());
     $("#CRIToutRate").val(stats.critRate());
@@ -785,6 +789,7 @@ $("#CRITin").change(function() {
 
 $("#DETin").change(function() {
     trimInput($("#DETin"));
+    $("#DETin").val(Math.trunc($("#DETin").val()));
     stats.det = Number($("#DETin").val());
     $("#DETout").val(stats.detMod());
     if ($("#rotation").children().length > 0)
@@ -793,6 +798,7 @@ $("#DETin").change(function() {
 
 $("#SKSin").change(function() {
     trimInput($("#SKSin"));
+    $("#SKSin").val(Math.trunc($("#SKSin").val()));
     stats.sks = Number($("#SKSin").val());
     $("#SKSout").val(stats.sksMod());
     $("#SKSoutGCD").val(stats.gcd());
