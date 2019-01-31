@@ -457,7 +457,7 @@ function getAnimationLock(actionName) {
 }
 
 function getRecastTime(actionName) {
-	var recast = Number($("#GCD").val());
+	var recast = Number($("#SKSoutGCD").val());
     var action = actions.find(ac => actionName === ac.name);
     if (action.hasOwnProperty("recast"))
         recast = action.recast;

@@ -257,7 +257,7 @@ effects.forEach(function (ef) {
 			if (parentId === "rotation" || parentId === "cds") {
 				var name = $(element).attr("name");
 				var time = $(element).attr("time");
-				return name + "<br/>" + time;
+				return name + "<br/>" + time + "s";
 			} else {
 				var name = $(element).attr("name");
 				var type = getType(name);
