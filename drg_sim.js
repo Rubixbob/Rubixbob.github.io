@@ -2,6 +2,8 @@ actions.forEach(function (ac) {
     var action = $("<div></div>").attr({name: ac.name, class: `action draggable ${ac.type}`});
 	if (ac.hasOwnProperty("delayed"))
 		action.attr("delayed", ac.delayed);
+    if (ac.hasOwnProperty("id"))
+        action.attr("id", ac.id);
     action.append($("<div></div>").attr("class", "actionImage").css("background-image", `url("images/${ac.name}.png")`));
     $(`#${ac.group}`).append(action);
 });
@@ -722,6 +724,47 @@ $("#opener").click(function(){
     jQuery.fx.off = false;
 });
 
+$("#loadRotation").click(function() {
+    jQuery.fx.off = true;
+    clearRotation();
+    stats.wd = savedRotation.wd;
+    stats.str = savedRotation.str;
+    stats.dh = savedRotation.dh;
+    stats.crit = savedRotation.crit;
+    stats.det = savedRotation.det;
+    stats.sks = savedRotation.sks;
+    $("#WDin").change();
+    $("#STRin").change();
+    $("#DHin").change();
+    $("#CRITin").change();
+    $("#DETin").change();
+    $("#SKSin").change();
+    savedRotation.actions.forEach(ac => {
+        openerAddAction(actions[ac.id].name);
+    });
+    $(".scrollable").scrollTop(0);
+    jQuery.fx.off = false;
+})
+
+$("#saveRotation").click(function() {
+    savedRotation = {
+        wd: stats.wd,
+        str: stats.str,
+        dh: stats.dh,
+        crit: stats.crit,
+        det: stats.det,
+        sks: stats.sks,
+        actions: []
+    };
+    $("#rotation").children().each(function(index) {
+        var id = $(this).attr("id");
+        if ($(this).attr("delayed") !== undefined)
+            savedRotation.actions.push({id: id, delayed: $(this).attr("delayed")});
+        else
+            savedRotation.actions.push({id: $(this).attr("id")});
+    });
+})
+
 function trimInput(element) {
     if(Number(element.val()) < Number(element.attr("min")))
         element.val(element.attr("min"));
@@ -897,6 +940,7 @@ function updateStartTime() {
 
 var startTime = 0;
 var RotationHistory = [];
+var savedRotation;
 var stats = new Stats(0, 0, 0, 0, 0, 0, []);
 $("#WDin").change();
 $("#STRin").change();
