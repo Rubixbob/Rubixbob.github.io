@@ -685,15 +685,16 @@ $("#clearRotation").click(clearRotation);
 
 function openerAddAction(actionName, delayed) {
     var action = actions.find(ac => actionName === ac.name);
-    $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).click();
-    if (delayed === true)
-        $("#rotation").children().last().attr("delayed", "true");
-    else if (delayed === false)
-        $("#rotation").children().last().attr("delayed", "false");
+    var target = $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).get(0);
+    var clonedElement = target.cloneNode(true);
+    dndHandler.applyRotationEvents(clonedElement);
+    addActionAtIndex(clonedElement, $("#rotation").children().length);
+    
+    if (delayed !== undefined)
+        $(clonedElement).attr("delayed", delayed);
 }
 
 $("#opener").click(function(){
-    jQuery.fx.off = true;
     clearRotation();
     openerAddAction("Blood of the Dragon");
     openerAddAction("Elusive Jump");
@@ -720,34 +721,37 @@ $("#opener").click(function(){
     openerAddAction("Full Thrust");
     openerAddAction("Fang and Claw");
     openerAddAction("Wheeling Thrust");
-    $(".scrollable").scrollTop(0);
-    jQuery.fx.off = false;
+
+    updateDps();
 });
 
 $("#loadRotation").click(function() {
-    jQuery.fx.off = true;
     clearRotation();
-    stats.wd = savedRotation.wd;
-    stats.str = savedRotation.str;
-    stats.dh = savedRotation.dh;
-    stats.crit = savedRotation.crit;
-    stats.det = savedRotation.det;
-    stats.sks = savedRotation.sks;
+    var savedRotationObject = JSON.parse(savedRotation);
+    stats.wd = savedRotationObject.wd;
+    stats.str = savedRotationObject.str;
+    stats.dh = savedRotationObject.dh;
+    stats.crit = savedRotationObject.crit;
+    stats.det = savedRotationObject.det;
+    stats.sks = savedRotationObject.sks;
     $("#WDin").change();
     $("#STRin").change();
     $("#DHin").change();
     $("#CRITin").change();
     $("#DETin").change();
     $("#SKSin").change();
-    savedRotation.actions.forEach(ac => {
-        openerAddAction(actions[ac.id].name);
+    savedRotationObject.actions.forEach(ac => {
+        if (ac.hasOwnProperty("d"))
+            openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
+        else
+            openerAddAction(actions[ac.i].name);
     });
-    $(".scrollable").scrollTop(0);
-    jQuery.fx.off = false;
+
+    updateDps();
 })
 
 $("#saveRotation").click(function() {
-    savedRotation = {
+    var savedRotationObject = {
         wd: stats.wd,
         str: stats.str,
         dh: stats.dh,
@@ -759,10 +763,12 @@ $("#saveRotation").click(function() {
     $("#rotation").children().each(function(index) {
         var id = $(this).attr("id");
         if ($(this).attr("delayed") !== undefined)
-            savedRotation.actions.push({id: id, delayed: $(this).attr("delayed")});
+            savedRotationObject.actions.push({i: id, d: ($(this).attr("delayed") === "true" ? "1" : "0")});
         else
-            savedRotation.actions.push({id: $(this).attr("id")});
+            savedRotationObject.actions.push({i: $(this).attr("id")});
     });
+    savedRotation = JSON.stringify(savedRotationObject);
+    console.log(savedRotation);
 })
 
 function trimInput(element) {
