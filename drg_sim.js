@@ -620,8 +620,8 @@ function updateDps() {
     RotationHistory.forEach(e => {
         if (e.type === "action") {
             displayDps(Math.floor(e.dps), e.time);
-        } else if (e.type === "effectBegin") {
-            drawEffect(e.name, e.time, e.timedEffect.endTime);
+        } else if (e.type === "effectEnd") {
+            drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
         }
         switch(e.name) {
             case "Blood of the Dragon":

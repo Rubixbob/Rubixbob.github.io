@@ -296,17 +296,17 @@ function generateHistory(rotationDom, rotationHistory, stats) {
                     }
 
                     // Use a Jump when Dive Ready
-                    if (eName === "Jump" || eName === "Spineshatter Dive") {
-                    	var DRIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Dive Ready");
-	            		if (DRIdx >= 0) {
-	            			var DREffect = effectsToEnd.splice(DRIdx, 1)[0];
-	            			DREffect.endTime = time + DREffect.effect.duration;
-			                var idx = 0;
-			                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < DREffect.endTime) { idx++; }
-			                effectsToEnd.splice(idx, 0, DREffect);
-				            return;
-	            		}
-                    }
+               //      if (eName === "Jump" || eName === "Spineshatter Dive") {
+               //      	var DRIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Dive Ready");
+	            		// if (DRIdx >= 0) {
+	            		// 	var DREffect = effectsToEnd.splice(DRIdx, 1)[0];
+	            		// 	DREffect.endTime = time + DREffect.effect.duration;
+			            //     var idx = 0;
+			            //     while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < DREffect.endTime) { idx++; }
+			            //     effectsToEnd.splice(idx, 0, DREffect);
+				           //  return;
+	            		// }
+               //      }
 
 	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
 	                var beginTime = time + activationTime;
@@ -315,6 +315,12 @@ function generateHistory(rotationDom, rotationHistory, stats) {
 	                timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime};
 	                while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
 	                effectsToActivate.splice(idx, 0, timedEffect);
+
+	                var efIdx = effectsToEnd.findIndex(e => e.effect.name === ef.name);
+            		if (efIdx >= 0) {
+            			timedEffect = effectsToEnd.splice(efIdx, 1)[0];
+            			timedEffect.endTime = endTime;
+            		}
 	                idx = 0;
 	                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < endTime) { idx++; }
 	                effectsToEnd.splice(idx, 0, timedEffect);
@@ -386,7 +392,10 @@ function generateHistory(rotationDom, rotationHistory, stats) {
 	            break;
             case "effectBegin":
             	timedEffect = effectsToActivate.shift();
-            	activeEffects.push(timedEffect.effect);
+
+            	// Check if already active
+            	if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) < 0)
+        			activeEffects.push(timedEffect.effect);
             	stats.updateEffects(timedEffect.effect);
             	eName = timedEffect.effect.name;
             	break;
