@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="./jquery-ui/jquery-ui.min.css">
     <link rel="stylesheet" href="./drg_sim.css">
     <link rel="shortcut icon" href="./images/favicon.ico" />
     <title>XIV DRG Sim</title>
@@ -98,69 +99,40 @@
                 <td>GCD: <output id="SKSoutGCD"></output></td>
             </tr>
         </table>
-        <!-- <br />
+        <br />
         <table id="group">
             <tr>
                 <th>Raid group</th>
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+</td>
-            </tr> -->
-            <!-- <tr>
-                <td>
-                    <img src="images/jobs/DarkKnight.png" />
-                    <select>
-                        <option value="drk">DRK</option>
-                    </select>
-                </td>
+                <!-- <td>+</td> -->
             </tr>
             <tr>
                 <td>
-                    <img src="images/jobs/Warrior.png" />
                     <select>
-                        <option value="war">WAR</option>
+                        <optgroup label="Tanks">
+                            <option value="war" data-class="war">WAR</option>
+                            <option value="pld" data-class="pld">PLD</option>
+                            <option value="drk" data-class="drk">DRK</option>
+                        </optgroup>
+                        <optgroup label="Healers">
+                            <option value="sch" data-class="sch">SCH</option>
+                            <option value="ast" data-class="ast">AST</option>
+                            <option value="whm" data-class="whm">WHM</option>
+                        </optgroup>
+                        <optgroup label="DPS">
+                            <option value="drg" data-class="drg">DRG</option>
+                            <option value="nin" data-class="nin">NIN</option>
+                            <option value="mnk" data-class="mnk">MNK</option>
+                            <option value="sam" data-class="sam">SAM</option>
+                            <option value="brd" data-class="brd">BRD</option>
+                            <option value="mch" data-class="mch">MCH</option>
+                            <option value="smn" data-class="smn">SMN</option>
+                            <option value="rdm" data-class="rdm">RDM</option>
+                            <option value="blm" data-class="blm">BLM</option>
+                        </optgroup>
                     </select>
                 </td>
             </tr>
-            <tr>
-                <td>
-                    <img src="images/jobs/Astrologian.png" />
-                    <select>
-                        <option value="ast">AST</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <img src="images/jobs/Scholar.png" />
-                    <select>
-                        <option value="sch">SCH</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <img src="images/jobs/Ninja.png" />
-                    <select>
-                        <option value="nin">NIN</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <img src="images/jobs/Bard.png" />
-                    <select>
-                        <option value="brd">BRD</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <img src="images/jobs/Machinist.png" />
-                    <select>
-                        <option value="mch">MCH</option>
-                    </select>
-                </td>
-            </tr> -->
-        <!-- </table> -->
+        </table>
     </div>
     <div id="progress">
         <div>
@@ -216,6 +188,7 @@
     </div>
 
     <script src="./jquery.js"></script>
+    <script src="./jquery-ui/jquery-ui.min.js"></script>
     <script src="./data.js"></script>
     <script src="./lib.js"></script>
     <script src="./drg_sim.js"></script>

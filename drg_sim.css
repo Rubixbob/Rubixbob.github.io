@@ -155,3 +155,90 @@ table {
     display: flex;
     flex-wrap: wrap;
 }
+
+.ui-selectmenu-menu .ui-menu.customicons .ui-menu-item-wrapper {
+    padding: 0.5em 0 0.5em 3em;
+}
+
+.ui-selectmenu-menu .ui-menu.customicons .ui-menu-item .ui-icon {
+    height: 32px;
+    width: 32px;
+}
+
+.ui-selectmenu-button .ui-selectmenu-text {
+    padding: 0.5em 0 0.5em 3em;
+    position: relative;
+}
+
+.ui-selectmenu-button .ui-selectmenu-text .ui-icon {
+    position: absolute;
+    top: 0;
+    left: .2em;
+    margin-top: 0;
+    height: 32px;
+    width: 32px;
+}
+
+.ui-selectmenu-icon.ui-icon {
+    margin-top: 8px;
+}
+
+.ui-icon.war, .ui-button:hover .ui-icon.war, .ui-button:focus .ui-icon.war {
+    background: url("images/jobs/Warrior.png") 0 0 no-repeat;
+}
+
+.ui-icon.pld, .ui-button:hover .ui-icon.pld, .ui-button:focus .ui-icon.pld {
+    background: url("images/jobs/Paladin.png") 0 0 no-repeat;
+}
+
+.ui-icon.drk, .ui-button:hover .ui-icon.drk, .ui-button:focus .ui-icon.drk {
+    background: url("images/jobs/DarkKnight.png") 0 0 no-repeat;
+}
+
+.ui-icon.sch, .ui-button:hover .ui-icon.sch, .ui-button:focus .ui-icon.sch {
+    background: url("images/jobs/Scholar.png") 0 0 no-repeat;
+}
+
+.ui-icon.ast, .ui-button:hover .ui-icon.ast, .ui-button:focus .ui-icon.ast {
+    background: url("images/jobs/Astrologian.png") 0 0 no-repeat;
+}
+
+.ui-icon.whm, .ui-button:hover .ui-icon.whm, .ui-button:focus .ui-icon.whm {
+    background: url("images/jobs/WhiteMage.png") 0 0 no-repeat;
+}
+
+.ui-icon.drg, .ui-button:hover .ui-icon.drg, .ui-button:focus .ui-icon.drg {
+    background: url("images/jobs/Dragoon.png") 0 0 no-repeat;
+}
+
+.ui-icon.nin, .ui-button:hover .ui-icon.nin, .ui-button:focus .ui-icon.nin {
+    background: url("images/jobs/Ninja.png") 0 0 no-repeat;
+}
+
+.ui-icon.mnk, .ui-button:hover .ui-icon.mnk, .ui-button:focus .ui-icon.mnk {
+    background: url("images/jobs/Monk.png") 0 0 no-repeat;
+}
+
+.ui-icon.sam, .ui-button:hover .ui-icon.sam, .ui-button:focus .ui-icon.sam {
+    background: url("images/jobs/Samurai.png") 0 0 no-repeat;
+}
+
+.ui-icon.brd, .ui-button:hover .ui-icon.brd, .ui-button:focus .ui-icon.brd {
+    background: url("images/jobs/Bard.png") 0 0 no-repeat;
+}
+
+.ui-icon.mch, .ui-button:hover .ui-icon.mch, .ui-button:focus .ui-icon.mch {
+    background: url("images/jobs/Machinist.png") 0 0 no-repeat;
+}
+
+.ui-icon.smn, .ui-button:hover .ui-icon.smn, .ui-button:focus .ui-icon.smn {
+    background: url("images/jobs/Summoner.png") 0 0 no-repeat;
+}
+
+.ui-icon.rdm, .ui-button:hover .ui-icon.rdm, .ui-button:focus .ui-icon.rdm {
+    background: url("images/jobs/RedMage.png") 0 0 no-repeat;
+}
+
+.ui-icon.blm, .ui-button:hover .ui-icon.blm, .ui-button:focus .ui-icon.blm {
+    background: url("images/jobs/BlackMage.png") 0 0 no-repeat;
+}

@@ -955,3 +955,51 @@ $("#CRITin").change();
 $("#DETin").change();
 $("#SKSin").change();
 clearRotation();
+
+$.widget( "custom.iconselectmenu", $.ui.selectmenu, {
+    _renderItem: function( ul, item ) {
+        // console.log(item);
+        var li = $( "<li>" ),
+        wrapper = $( "<div>", { text: item.label } );
+
+        if ( item.disabled ) {
+            li.addClass( "ui-state-disabled" );
+        }
+
+        $( "<span>", {
+            style: item.element.attr( "data-style" ),
+            "class": "ui-icon " + item.element.attr( "data-class" )
+        })
+        .appendTo( wrapper );
+
+        return li.append( wrapper ).appendTo( ul );
+    },
+
+    _renderButtonItem: function( item ) {
+        // console.log(item);
+        // wrapper = $( "<div>", {
+        //     "class": "ui-selectmenu-text",
+        //     text: item.label
+        // } );
+        var buttonItem = $( "<span>", {
+            "class": "ui-selectmenu-text"
+        });
+        this._setText( buttonItem, item.label );
+
+        $( "<span>", {
+            style: item.element.attr( "data-style" ),
+            "class": "ui-icon " + item.element.attr( "data-class" )
+        })
+        .appendTo( buttonItem );
+
+        // buttonItem.css("height", "32px");
+
+        return buttonItem;
+    }
+});
+
+for (i = 0; i < 6; i++) {
+    $("#group").append($("#group tr").get(1).cloneNode(true));
+}
+
+$("#group tr td select").each(function() { $(this).iconselectmenu().iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
