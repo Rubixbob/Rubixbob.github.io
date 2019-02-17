@@ -1003,3 +1003,15 @@ for (i = 0; i < 6; i++) {
 }
 
 $("#group tr td select").each(function() { $(this).iconselectmenu().iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
+
+$("#group tr td select").eq(0).val("war");
+$("#group tr td select").eq(1).val("pld");
+$("#group tr td select").eq(2).val("sch");
+$("#group tr td select").eq(3).val("ast");
+$("#group tr td select").eq(4).val("nin");
+$("#group tr td select").eq(5).val("brd");
+$("#group tr td select").eq(6).val("smn");
+
+for (i = 0; i < 7; i++) {
+    $("#group tr td select").eq(i).iconselectmenu("refresh");
+}
