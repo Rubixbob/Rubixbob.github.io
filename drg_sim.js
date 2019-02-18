@@ -1002,7 +1002,10 @@ for (i = 0; i < 6; i++) {
     $("#group").append($("#group tr").get(1).cloneNode(true));
 }
 
-$("#group tr td select").each(function() { $(this).iconselectmenu().iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
+$("#group tr td select").each(function() {
+    $(this).iconselectmenu({
+        change: function(event, data) { console.log(data.item.value); }
+     }).iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
 
 $("#group tr td select").eq(0).val("war");
 $("#group tr td select").eq(1).val("pld");
