@@ -45,15 +45,7 @@ input {
     /*border-radius: 16px;*/
 }
 
-#botd {
-    position: relative;
-}
-
-#effects {
-    position: relative;
-}
-
-#cds {
+#botd, #effects, #groupEffects, #cds, #dps {
     position: relative;
 }
 
@@ -67,10 +59,6 @@ input {
 
 #cds .actionImage:hover {
     opacity: 1;
-}
-
-#dps {
-    position: relative;
 }
 
 .action {

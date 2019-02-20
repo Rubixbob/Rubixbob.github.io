@@ -17,7 +17,7 @@ var imagesToLoad = 0;
 var imagesLoaded = 0;
 
 effects.forEach(function (ef) {
-    if (ef.name !== "Blood of the Dragon") {
+    if (ef.display === "self") {
         var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
             imagesLoaded++;
             if (imagesLoaded === imagesToLoad) {

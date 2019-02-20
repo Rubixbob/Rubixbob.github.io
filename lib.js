@@ -58,6 +58,9 @@ class Stats {
 					}
 				});
 				break;
+			case "Speed":
+				// TODO
+				break;
 			case "Special":
 				if (effect.name === "Medicated") {
 					if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0) {
