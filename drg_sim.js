@@ -923,12 +923,17 @@ function refreshGroupMember(index, value) {
     var raidImagesToLoad = 0;
     var raidImagesLoaded = 0;
     memberEffects.forEach(function (ef) {
+        var wrapper = $("<div></div>").attr("class", "raidBuff");
+        // wrapper.append($("<span class='ui-icon ui-icon-plus'></span>").css({"position": "absolute", "top": "36px", "left": "4px"}));
+
         var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
             raidImagesLoaded++;
             if (raidImagesLoaded === raidImagesToLoad)
                 fitColumns();
         }).each(function() {
-            $("#groupEffectsHeader").append(this);
+            wrapper.append($("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "position": "absolute", "top": "32px", "left": "0px"}));
+            wrapper.append(this);
+            $("#groupEffectsHeader").append(wrapper);
             raidImagesToLoad++;
             if (this.complete)
                 $(this).trigger('load');

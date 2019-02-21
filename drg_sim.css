@@ -71,6 +71,7 @@ input {
     border-radius: 6px;
     box-shadow: 1px 1px 4px black;
     background-color: cyan;
+    cursor: pointer;
     overflow: hidden;
 	z-index: 2;
 }
@@ -97,6 +98,12 @@ input {
     /*margin-bottom: 2px;*/
     /*border-radius: 6px;*/
     z-index: 1;
+}
+.raidBuff {
+    position: relative;
+    height: 56px;
+    width: 24px;
+    display: inline-block;
 }
 
 table {
