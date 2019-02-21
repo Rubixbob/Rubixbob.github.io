@@ -11,26 +11,24 @@ actions.forEach(function (ac) {
 function fitColumns() {
     // TODO : Adjust width of elements inside
     $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
+    $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width}px`); });
 }
 
 var imagesToLoad = 0;
 var imagesLoaded = 0;
 
 effects.forEach(function (ef) {
-    if (ef.display === "self") {
+    if (ef.displaySelf) {
         var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
             imagesLoaded++;
-            if (imagesLoaded === imagesToLoad) {
+            if (imagesLoaded === imagesToLoad)
                 fitColumns();
-                clearRotation();
-            }
         }).each(function() {
             $("#effectsHeader").append(this);
             imagesToLoad++;
-            if (this.complete) {
+            if (this.complete)
                 $(this).trigger('load');
-            }
-        });;
+        });
     }
 });
 
@@ -108,30 +106,6 @@ effects.forEach(function (ef) {
                 while (target.className.indexOf('dropper') === -1) {
                     target = target.parentNode;
                 }
-
-
-
-        // var simTime = startTime;
-        // if (idx > 0)
-        //     simTime = Number($(element).prev().attr("time"));
-        // // console.log($(element).attr("name") + " " + $(element).attr("time") + " " + simTime);
-        // deleteAfter(RotationHistory, simTime);
-        // removeEffectsAfter(simTime);
-        // removeDpsAfter(simTime);
-        // playUntil($("#rotation").children(), RotationHistory, Number($(element).attr("time")));
-
-        // RotationHistory.forEach(e => {
-        //     if (e.time >= simTime) {
-        //         displayDps(Math.floor(e.dps), e.time);
-        //         getEffects(e.name).forEach(ef => {
-        //             var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
-        //             drawEffect(ef.name, Number(e.time) + Number(activationTime), Number(e.time) + Number(ef.duration) + Number(activationTime));
-        //         });
-        //     }
-        // });
-
-
-
 
                 // Move action to spot below pointer
                 var curIdx = $("#rotation").children().index(dndHandler.draggedElement);
@@ -419,7 +393,7 @@ function updateRotationBeforeIndex(idx) {
 
 function timeDiv(time) {
 	var tDiv = $(`<div>${time}</div>`).attr("time", `${time.toFixed(3)}`).css("height", `${scale}px`);
-	var rect = $("#timeline").parent().get(0).getBoundingClientRect();
+	var rect = $("#columns").get(0).getBoundingClientRect();
 	tDiv.prepend($("<div></div>").css({"position": "absolute", "left": "0px", "height": "1px", "width": `${rect.width}px`, "background-color": "black", "z-index": "1"}));
     return tDiv;
 }
@@ -944,6 +918,70 @@ function updateStartTime() {
 	setStartTime(prePullTime);
 }
 
+function refreshGroupMember(index, value) {
+    memberEffects = effects.filter(ef => ef.job === value);
+    var raidImagesToLoad = 0;
+    var raidImagesLoaded = 0;
+    memberEffects.forEach(function (ef) {
+        var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
+            raidImagesLoaded++;
+            if (raidImagesLoaded === raidImagesToLoad)
+                fitColumns();
+        }).each(function() {
+            $("#groupEffectsHeader").append(this);
+            raidImagesToLoad++;
+            if (this.complete)
+                $(this).trigger('load');
+        });
+    });
+}
+
+$.widget("custom.iconselectmenu", $.ui.selectmenu, {
+    _renderItem: function(ul, item) {
+        var li = $("<li>"),
+        wrapper = $("<div>", { text: item.label });
+
+        if (item.disabled)
+            li.addClass("ui-state-disabled");
+
+        $("<span>", {
+            style: item.element.attr("data-style"),
+            "class": "ui-icon " + item.element.attr("data-class")
+        }).appendTo(wrapper);
+
+        return li.append(wrapper).appendTo(ul);
+    },
+
+    _renderButtonItem: function(item) {
+        var buttonItem = $("<span>", { "class": "ui-selectmenu-text" });
+        this._setText(buttonItem, item.label);
+
+        $("<span>", {
+            style: item.element.attr( "data-style" ),
+            "class": "ui-icon " + item.element.attr( "data-class" )
+        }).appendTo( buttonItem );
+
+        return buttonItem;
+    }
+});
+
+for (i = 0; i < 6; i++) {
+    $("#group").append($("#group tr").get(1).cloneNode(true));
+}
+
+$("#group tr td select").each(function() {
+    $(this).iconselectmenu({ change: function(event, data) {
+        refreshGroupMember($("#group tr td select").index($(event.target)), data.item.value);
+}}).iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
+
+var standardComp = ["war", "pld", "sch", "ast", "nin", "brd", "smn"];
+
+for (i = 0; i < 7; i++) {
+    $("#group tr td select").eq(i).val(standardComp[i]);
+    $("#group tr td select").eq(i).iconselectmenu("refresh");
+    refreshGroupMember(i, standardComp[i]);
+}
+
 var startTime = 0;
 var RotationHistory = [];
 var savedRotation;
@@ -955,66 +993,3 @@ $("#CRITin").change();
 $("#DETin").change();
 $("#SKSin").change();
 clearRotation();
-
-$.widget( "custom.iconselectmenu", $.ui.selectmenu, {
-    _renderItem: function( ul, item ) {
-        // console.log(item);
-        var li = $( "<li>" ),
-        wrapper = $( "<div>", { text: item.label } );
-
-        if ( item.disabled ) {
-            li.addClass( "ui-state-disabled" );
-        }
-
-        $( "<span>", {
-            style: item.element.attr( "data-style" ),
-            "class": "ui-icon " + item.element.attr( "data-class" )
-        })
-        .appendTo( wrapper );
-
-        return li.append( wrapper ).appendTo( ul );
-    },
-
-    _renderButtonItem: function( item ) {
-        // console.log(item);
-        // wrapper = $( "<div>", {
-        //     "class": "ui-selectmenu-text",
-        //     text: item.label
-        // } );
-        var buttonItem = $( "<span>", {
-            "class": "ui-selectmenu-text"
-        });
-        this._setText( buttonItem, item.label );
-
-        $( "<span>", {
-            style: item.element.attr( "data-style" ),
-            "class": "ui-icon " + item.element.attr( "data-class" )
-        })
-        .appendTo( buttonItem );
-
-        // buttonItem.css("height", "32px");
-
-        return buttonItem;
-    }
-});
-
-for (i = 0; i < 6; i++) {
-    $("#group").append($("#group tr").get(1).cloneNode(true));
-}
-
-$("#group tr td select").each(function() {
-    $(this).iconselectmenu({
-        change: function(event, data) { console.log(data.item.value); }
-     }).iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
-
-$("#group tr td select").eq(0).val("war");
-$("#group tr td select").eq(1).val("pld");
-$("#group tr td select").eq(2).val("sch");
-$("#group tr td select").eq(3).val("ast");
-$("#group tr td select").eq(4).val("nin");
-$("#group tr td select").eq(5).val("brd");
-$("#group tr td select").eq(6).val("smn");
-
-for (i = 0; i < 7; i++) {
-    $("#group tr td select").eq(i).iconselectmenu("refresh");
-}
