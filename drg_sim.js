@@ -919,26 +919,37 @@ function updateStartTime() {
 }
 
 function refreshGroupMember(index, value) {
+    $("#groupEffectsHeader").children(`[jobIndex="${index}"]`).remove();
+    
     memberEffects = effects.filter(ef => ef.job === value);
-    var raidImagesToLoad = 0;
-    var raidImagesLoaded = 0;
-    memberEffects.forEach(function (ef) {
-        var wrapper = $("<div></div>").attr("class", "raidBuff");
-        // wrapper.append($("<span class='ui-icon ui-icon-plus'></span>").css({"position": "absolute", "top": "36px", "left": "4px"}));
+    if (memberEffects.length > 0) {
+        var raidImagesToLoad = 0;
+        var raidImagesLoaded = 0;
+        var idx = 0;
+        while (idx < $("#groupEffectsHeader").children().length && $("#groupEffectsHeader").children().eq(idx).attr("jobIndex") <= index) { idx++; }
+        memberEffects.forEach(function (ef) {
+            var wrapper = $("<div></div>").attr({"class": "raidBuff", "jobIndex": `${index}`});
+            // wrapper.append($("<span class='ui-icon ui-icon-plus'></span>").css({"position": "absolute", "top": "36px", "left": "4px"}));
 
-        var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
-            raidImagesLoaded++;
-            if (raidImagesLoaded === raidImagesToLoad)
-                fitColumns();
-        }).each(function() {
-            wrapper.append($("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "position": "absolute", "top": "32px", "left": "0px"}));
-            wrapper.append(this);
-            $("#groupEffectsHeader").append(wrapper);
-            raidImagesToLoad++;
-            if (this.complete)
-                $(this).trigger('load');
+            var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
+                raidImagesLoaded++;
+                if (raidImagesLoaded === raidImagesToLoad)
+                    fitColumns();
+            }).each(function() {
+                wrapper.append($("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "position": "absolute", "top": "32px", "left": "0px"}));
+                wrapper.append(this);
+                if (idx > 0)
+                    $("#groupEffectsHeader").children().eq(idx-1).after(wrapper);
+                else
+                    $("#groupEffectsHeader").prepend(wrapper);
+                
+                idx++;
+                raidImagesToLoad++;
+                if (this.complete)
+                    $(this).trigger('load');
+            });
         });
-    });
+    }
 }
 
 $.widget("custom.iconselectmenu", $.ui.selectmenu, {
