@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="./jquery-ui/jquery-ui.min.css">
     <link rel="stylesheet" href="./UI-Icon-master/icon.min.css">
     <link rel="stylesheet" href="./UI-Button-master/button.min.css">
+    <link rel="stylesheet" href="./UI-Transition-master/transition.min.css">
+    <link rel="stylesheet" href="./UI-Dimmer-master/dimmer.min.css">
+    <link rel="stylesheet" href="./UI-Modal-master/modal.min.css">
     <link rel="stylesheet" href="./drg_sim.css">
     <link rel="shortcut icon" href="./images/favicon.ico" />
     <title>XIV DRG Sim</title>
@@ -191,9 +194,67 @@
             </ul>
         </div>
     </div>
+    
+    <div id="raidBuffLightbox" class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            Add raid buff
+        </div>
+        <div class="image content">
+            <div class="ui medium image">
+                <img src="images/Heavy Thrust.png">
+            </div>
+            <div class="description">
+                <table id="raidBuffInput">
+                    <tr>
+                        <td><label>Start time</label></td>
+                        <td><input></input></td>
+                    </tr>
+                    <tr>
+                        <td><label>Duration</label></td>
+                        <td>
+                            <input></input>
+                            <output hidden></output>
+                        </td>
+                    </tr>
+                    <!-- <tr hidden> -->
+                    <tr>
+                        <td colspan="2">
+                            <input type="radio" id="balance" name="card" value="balance" checked/>
+                            <label for="balance"><img src="images/effects/The Balance.png">The Balance</label>
+                            <input type="radio" id="spear" name="card" value="spear"/>
+                            <label for="spear"><img src="images/effects/The Spear.png">The Spear</label>
+                            <input type="radio" id="arrow" name="card" value="arrow"/>
+                            <label for="arrow"><img src="images/effects/The Arrow.png">The Arrow</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="checkbox" id="celestialOpposition" name="celestialOpposition" checked/>
+                            <label for="celestialOpposition"><img src="images/effects/The Balance.png">Celestial Opposition (+10 secs)</label>
+                            <input type="checkbox" id="timeDilation" name="timeDilation" checked/>
+                            <label for="timeDilation"><img src="images/effects/The Balance.png">Time Dilation (+15 secs)</label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui black cancel button">
+                Cancel
+            </div>
+            <div class="ui positive right labeled icon button">
+                OK
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
 
     <script src="./jquery.js"></script>
     <script src="./jquery-ui/jquery-ui.min.js"></script>
+    <script src="./UI-Transition-master/transition.min.js"></script>
+    <script src="./UI-Dimmer-master/dimmer.min.js"></script>
+    <script src="./UI-Modal-master/modal.min.js"></script>
     <script src="./data.js"></script>
     <script src="./lib.js"></script>
     <script src="./drg_sim.js"></script>

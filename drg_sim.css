@@ -35,7 +35,7 @@ input {
     text-align: right;
 }
 
-#stats, #group {
+#stats, #group, #raidBuffInput {
     background-color: #FFFFFF;
     padding-left: 10px;
     padding-top: 10px;
@@ -236,4 +236,8 @@ table {
 
 .ui-icon.blm, .ui-button:hover .ui-icon.blm, .ui-button:focus .ui-icon.blm {
     background: url("images/jobs/BlackMage.png") 0 0 no-repeat;
+}
+
+.ui.modal>.content {
+    width: auto;
 }

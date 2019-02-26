@@ -936,7 +936,10 @@ function refreshGroupMember(index, value) {
                 if (raidImagesLoaded === raidImagesToLoad)
                     fitColumns();
             }).each(function() {
-                wrapper.append($("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "position": "absolute", "top": "32px", "left": "0px"}));
+                var plusButton = $("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "position": "absolute", "top": "32px", "left": "0px"});
+                // $(plusButton).click(function() { $("#raidBuffLightbox").modal("show"); });
+                wrapper.append(plusButton);
+                
                 wrapper.append(this);
                 if (idx > 0)
                     $("#groupEffectsHeader").children().eq(idx-1).after(wrapper);
