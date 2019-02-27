@@ -928,16 +928,48 @@ function refreshGroupMember(index, value) {
         var idx = 0;
         while (idx < $("#groupEffectsHeader").children().length && $("#groupEffectsHeader").children().eq(idx).attr("jobIndex") <= index) { idx++; }
         memberEffects.forEach(function (ef) {
-            var wrapper = $("<div></div>").attr({"class": "raidBuff", "jobIndex": `${index}`});
+            var wrapper = $("<div></div>").attr({name: ef.name, class: "raidBuff", jobIndex: index});
             // wrapper.append($("<span class='ui-icon ui-icon-plus'></span>").css({"position": "absolute", "top": "36px", "left": "4px"}));
 
-            var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
+            var effect = $("<img></img>").attr({class: ef.type, src: `images/effects/${ef.name}.png`}).one("load", function() {
                 raidImagesLoaded++;
                 if (raidImagesLoaded === raidImagesToLoad)
                     fitColumns();
             }).each(function() {
                 var plusButton = $("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "position": "absolute", "top": "32px", "left": "0px"});
-                // $(plusButton).click(function() { $("#raidBuffLightbox").modal("show"); });
+                $(plusButton).click(function() {
+                    // Set up modal data
+                    $("#raidBuffLightboxTitle").val(ef.name);
+                    $("#raidBuffLightboxImg").attr("src", `images/effects/${ef.name}.png`);
+                    $("#raidBuffLightboxStartTimeInput").val(0);
+                    switch(ef.name) {
+                        case "Trick Attack":
+                            $("#raidBuffLightboxDurationInput").val(10);
+                            $("#raidBuffLightboxDurationOutput").val(10);
+                            $("#raidBuffLightboxDurationInput").prop("hidden", true);
+                            $("#raidBuffLightboxDurationOutput").prop("hidden", false);
+                            break;
+                        default:
+                            $("#raidBuffLightboxDurationInput").val(0);
+                            $("#raidBuffLightboxDurationInput").prop("hidden", false);
+                            $("#raidBuffLightboxDurationOutput").prop("hidden", true);
+                            break;
+                    }
+                    switch(ef.name) {
+                        case "The Balance":
+                        case "The Spear":
+                        case "The Arrow":
+                            $(`#raidBuffLightbox${ef.name.substring(4)}`).prop("checked", true).change();
+                            $("#raidBuffLightboxCardsRow").prop("hidden", false);
+                            $("#raidBuffLightboxAstRow").prop("hidden", false);
+                            break;
+                        default:
+                            $("#raidBuffLightboxCardsRow").prop("hidden", true);
+                            $("#raidBuffLightboxAstRow").prop("hidden", true);
+                            break;
+                    }
+                    $("#raidBuffLightbox").modal("show");
+                });
                 wrapper.append(plusButton);
                 
                 wrapper.append(this);

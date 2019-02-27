@@ -198,42 +198,41 @@
     <div id="raidBuffLightbox" class="ui modal">
         <i class="close icon"></i>
         <div class="header">
-            Add raid buff
+            Add <output id="raidBuffLightboxTitle"></output>
         </div>
         <div class="image content">
             <div class="ui medium image">
-                <img src="images/Heavy Thrust.png">
+                <img id="raidBuffLightboxImg">
             </div>
             <div class="description">
                 <table id="raidBuffInput">
                     <tr>
                         <td><label>Start time</label></td>
-                        <td><input></input></td>
+                        <td><input id="raidBuffLightboxStartTimeInput" type="number"></input></td>
                     </tr>
                     <tr>
                         <td><label>Duration</label></td>
                         <td>
-                            <input></input>
-                            <output hidden></output>
+                            <input id="raidBuffLightboxDurationInput" type="number" min="0"></input>
+                            <output id="raidBuffLightboxDurationOutput" hidden></output>
                         </td>
                     </tr>
-                    <!-- <tr hidden> -->
-                    <tr>
+                    <tr id="raidBuffLightboxCardsRow">
                         <td colspan="2">
-                            <input type="radio" id="balance" name="card" value="balance" checked/>
-                            <label for="balance"><img src="images/effects/The Balance.png">The Balance</label>
-                            <input type="radio" id="spear" name="card" value="spear"/>
-                            <label for="spear"><img src="images/effects/The Spear.png">The Spear</label>
-                            <input type="radio" id="arrow" name="card" value="arrow"/>
-                            <label for="arrow"><img src="images/effects/The Arrow.png">The Arrow</label>
+                            <input type="radio" id="raidBuffLightboxBalance" name="card" value="balance" checked/>
+                            <label for="raidBuffLightboxBalance"><img src="images/effects/The Balance.png">The Balance</label>
+                            <input type="radio" id="raidBuffLightboxSpear" name="card" value="spear"/>
+                            <label for="raidBuffLightboxSpear"><img src="images/effects/The Spear.png">The Spear</label>
+                            <input type="radio" id="raidBuffLightboxArrow" name="card" value="arrow"/>
+                            <label for="raidBuffLightboxArrow"><img src="images/effects/The Arrow.png">The Arrow</label>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="raidBuffLightboxAstRow">
                         <td colspan="2">
                             <input type="checkbox" id="celestialOpposition" name="celestialOpposition" checked/>
-                            <label for="celestialOpposition"><img src="images/effects/The Balance.png">Celestial Opposition (+10 secs)</label>
+                            <label for="celestialOpposition"><img src="images/Celestial Opposition.png">Celestial Opposition (+10 secs)</label>
                             <input type="checkbox" id="timeDilation" name="timeDilation" checked/>
-                            <label for="timeDilation"><img src="images/effects/The Balance.png">Time Dilation (+15 secs)</label>
+                            <label for="timeDilation"><img src="images/Time Dilation.png">Time Dilation (+15 secs)</label>
                         </td>
                     </tr>
                 </table>
