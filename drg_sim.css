@@ -100,8 +100,8 @@ input {
     z-index: 1;
 }
 .raidBuff {
-    position: relative;
-    height: 56px;
+    /* position: relative; */
+    /* height: 156px; */
     width: 24px;
     display: inline-block;
 }

@@ -12,6 +12,7 @@ function fitColumns() {
     // TODO : Adjust width of elements inside
     $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
     $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width}px`); });
+    $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${$(this).attr("name")}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
 }
 
 var imagesToLoad = 0;
@@ -423,6 +424,30 @@ function drawEffect(name, beginTime, endTime) {
             borderColor = effect.borderColor;
         
         $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
+            .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
+                  "border": `solid 3px ${borderColor}`}));
+        addTimeUntil(endTime + 5);
+    }
+}
+
+var raidBuffLightboxJobIndex = 0; // Will have to be passed as a parameter maybe
+
+function drawGroupEffect(name, beginTime, endTime) {
+    if ($("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).length > 0) {
+        var posLeft = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).position().left;
+        var posWidth = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).width() - 8;
+        var posTop = (beginTime - startTime) * scale;
+        var posHeight = (endTime - beginTime) * scale - 6;
+        
+        var effect = effects.find(ef => name === ef.name);
+        var backgroundColor = "rgb(255,60,60)";
+        // if (effect.hasOwnProperty("backgroundColor"))
+            // backgroundColor = effect.backgroundColor;
+        var borderColor = "rgb(128, 30, 30)";
+        // if (effect.hasOwnProperty("borderColor"))
+            // borderColor = effect.borderColor;
+        
+        $("#groupEffects").append($("<div></div>").attr({"class": "effect", "name": name, "jobIndex": raidBuffLightboxJobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
             .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
                   "border": `solid 3px ${borderColor}`}));
         addTimeUntil(endTime + 5);
@@ -876,6 +901,14 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
             $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
         });
 
+        $("#groupEffects").children().each(function(index) {
+            var beginTime = $(this).attr("time");
+            var endTime = $(this).attr("endTime");
+            var posTop = (beginTime - startTime) * scale;
+            var posHeight = (endTime - beginTime) * scale - 6;
+            $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
+        });
+
         $("#cds").children().each(function(index) {
             var offCdPosition = ($(this).attr("time") - startTime) * scale;
             $(this).css("top", `${offCdPosition}px`);
@@ -918,8 +951,41 @@ function updateStartTime() {
 	setStartTime(prePullTime);
 }
 
+function setUpRaidBuffLightbox(name) {
+    $("#raidBuffLightboxTitle").val(name); // Don't delete, this value is used in the OK call
+    $("#raidBuffLightboxImg").attr("src", `images/effects/${name}.png`);
+    $("#raidBuffLightboxStartTimeInput").val(0);
+    switch(name) {
+        case "Trick Attack":
+            $("#raidBuffLightboxDurationInput").val(10);
+            $("#raidBuffLightboxDurationOutput").val(10);
+            $("#raidBuffLightboxDurationInput").prop("hidden", true);
+            $("#raidBuffLightboxDurationOutput").prop("hidden", false);
+            break;
+        default:
+            $("#raidBuffLightboxDurationInput").val(0);
+            $("#raidBuffLightboxDurationInput").prop("hidden", false);
+            $("#raidBuffLightboxDurationOutput").prop("hidden", true);
+            break;
+    }
+    switch(name) {
+        case "The Balance":
+        case "The Spear":
+        case "The Arrow":
+            $(`#raidBuffLightbox${name.substring(4)}`).prop("checked", true).change();
+            $("#raidBuffLightboxCardsRow").prop("hidden", false);
+            $("#raidBuffLightboxAstRow").prop("hidden", false);
+            break;
+        default:
+            $("#raidBuffLightboxCardsRow").prop("hidden", true);
+            $("#raidBuffLightboxAstRow").prop("hidden", true);
+            break;
+    }
+}
+
 function refreshGroupMember(index, value) {
     $("#groupEffectsHeader").children(`[jobIndex="${index}"]`).remove();
+    $("#groupEffects").children(`[jobIndex="${index}"]`).remove();
     
     memberEffects = effects.filter(ef => ef.job === value);
     if (memberEffects.length > 0) {
@@ -936,43 +1002,15 @@ function refreshGroupMember(index, value) {
                 if (raidImagesLoaded === raidImagesToLoad)
                     fitColumns();
             }).each(function() {
-                var plusButton = $("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "position": "absolute", "top": "32px", "left": "0px"});
+                var plusButton = $("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "display": "block"});
                 $(plusButton).click(function() {
-                    // Set up modal data
-                    $("#raidBuffLightboxTitle").val(ef.name);
-                    $("#raidBuffLightboxImg").attr("src", `images/effects/${ef.name}.png`);
-                    $("#raidBuffLightboxStartTimeInput").val(0);
-                    switch(ef.name) {
-                        case "Trick Attack":
-                            $("#raidBuffLightboxDurationInput").val(10);
-                            $("#raidBuffLightboxDurationOutput").val(10);
-                            $("#raidBuffLightboxDurationInput").prop("hidden", true);
-                            $("#raidBuffLightboxDurationOutput").prop("hidden", false);
-                            break;
-                        default:
-                            $("#raidBuffLightboxDurationInput").val(0);
-                            $("#raidBuffLightboxDurationInput").prop("hidden", false);
-                            $("#raidBuffLightboxDurationOutput").prop("hidden", true);
-                            break;
-                    }
-                    switch(ef.name) {
-                        case "The Balance":
-                        case "The Spear":
-                        case "The Arrow":
-                            $(`#raidBuffLightbox${ef.name.substring(4)}`).prop("checked", true).change();
-                            $("#raidBuffLightboxCardsRow").prop("hidden", false);
-                            $("#raidBuffLightboxAstRow").prop("hidden", false);
-                            break;
-                        default:
-                            $("#raidBuffLightboxCardsRow").prop("hidden", true);
-                            $("#raidBuffLightboxAstRow").prop("hidden", true);
-                            break;
-                    }
+                    setUpRaidBuffLightbox(ef.name);
+                    raidBuffLightboxJobIndex = index;
                     $("#raidBuffLightbox").modal("show");
                 });
+                wrapper.append(this);
                 wrapper.append(plusButton);
                 
-                wrapper.append(this);
                 if (idx > 0)
                     $("#groupEffectsHeader").children().eq(idx-1).after(wrapper);
                 else
@@ -984,8 +1022,14 @@ function refreshGroupMember(index, value) {
                     $(this).trigger('load');
             });
         });
+    } else {
+        fitColumns();
     }
 }
+
+$("#raidBuffLightboxConfirm").click(function() {
+    drawGroupEffect($("#raidBuffLightboxTitle").val(), Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()) );
+});
 
 $.widget("custom.iconselectmenu", $.ui.selectmenu, {
     _renderItem: function(ul, item) {
