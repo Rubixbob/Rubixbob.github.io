@@ -550,7 +550,7 @@ var effects = [
 	  shortName: "CU",
 	  description: "Critical hit rate is increased.",
 	  value: 0.02,
-	  duration: 0,
+	  duration: 30,
       stackable: false,
       backgroundColor: "rgb(208, 144, 80)",
       borderColor: "rgb(104, 72, 40)",

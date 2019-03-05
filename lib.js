@@ -509,3 +509,11 @@ function getEffects(actionName) {
     }
     return actionEffects;
 }
+
+function getEffectDuration(actionName) {
+    var duration = 0;
+    var effect = effects.find(ac => actionName === ac.name);
+    if (effect.hasOwnProperty("duration"))
+        duration = effect.duration;
+    return Number(duration);
+}

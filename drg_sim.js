@@ -951,21 +951,64 @@ function updateStartTime() {
 	setStartTime(prePullTime);
 }
 
+function selectCard(cardName) {
+    $("#raidBuffLightboxTitle").val(cardName);
+    $("#raidBuffLightboxImg").attr("src", `images/effects/${cardName}.png`);
+}
+
+$("#raidBuffLightboxBalance").change(function() {
+    if ($("#raidBuffLightboxBalance").prop("checked"))
+        selectCard("The Balance");
+});
+
+$("#raidBuffLightboxSpear").change(function() {
+    if ($("#raidBuffLightboxSpear").prop("checked"))
+        selectCard("The Spear");
+});
+
+$("#raidBuffLightboxArrow").change(function() {
+    if ($("#raidBuffLightboxArrow").prop("checked"))
+        selectCard("The Arrow");
+});
+
+function adjustCardDuration() {
+    var duration = getEffectDuration($("#raidBuffLightboxTitle").val()); // TODO: Get from radio button
+    if ($("#raidBuffLightboxCelestialOpposition").prop("checked"))
+        duration += 10;
+    if ($("#raidBuffLightboxTimeDilation").prop("checked"))
+        duration += 15;
+    // TODO: Expanded/Extended/Enhanced
+    $("#raidBuffLightboxDurationInput").val(duration);
+    $("#raidBuffLightboxDurationOutput").val(duration);
+}
+
+$("#raidBuffLightboxCelestialOpposition").change(function() {
+    adjustCardDuration();
+});
+
+$("#raidBuffLightboxTimeDilation").change(function() {
+    adjustCardDuration();
+});
+
+// TODO: Expanded/Extended/Enhanced
+
 function setUpRaidBuffLightbox(name) {
     $("#raidBuffLightboxTitle").val(name); // Don't delete, this value is used in the OK call
     $("#raidBuffLightboxImg").attr("src", `images/effects/${name}.png`);
     $("#raidBuffLightboxStartTimeInput").val(0);
+    $("#raidBuffLightboxDurationInput").val(getEffectDuration(name));
+    $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name));
     switch(name) {
-        case "Trick Attack":
-            $("#raidBuffLightboxDurationInput").val(10);
-            $("#raidBuffLightboxDurationOutput").val(10);
-            $("#raidBuffLightboxDurationInput").prop("hidden", true);
-            $("#raidBuffLightboxDurationOutput").prop("hidden", false);
-            break;
-        default:
-            $("#raidBuffLightboxDurationInput").val(0);
+        case "Hypercharge":
+        case "Critical Up":
+        case "Foe Requiem":
+        case "Radiant Shield":
             $("#raidBuffLightboxDurationInput").prop("hidden", false);
             $("#raidBuffLightboxDurationOutput").prop("hidden", true);
+            break;
+        default:
+            $("#raidBuffLightboxDurationInput").prop("hidden", true);
+            $("#raidBuffLightboxDurationOutput").prop("hidden", false);
             break;
     }
     switch(name) {
@@ -973,6 +1016,8 @@ function setUpRaidBuffLightbox(name) {
         case "The Spear":
         case "The Arrow":
             $(`#raidBuffLightbox${name.substring(4)}`).prop("checked", true).change();
+            $("#raidBuffLightboxCelestialOpposition").prop("checked", true).change();
+            $("#raidBuffLightboxTimeDilation").prop("checked", true).change();
             $("#raidBuffLightboxCardsRow").prop("hidden", false);
             $("#raidBuffLightboxAstRow").prop("hidden", false);
             break;
