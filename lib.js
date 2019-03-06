@@ -201,8 +201,8 @@ function deleteAfter(rotationHistory, beginTime) {
 function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
     $(groupEffectsDom).each(function() {
         var ef = effects.find(e => e.name === $(this).attr("name"));
-        var beginTime = $(this).attr("time");
-        var endTime = $(this).attr("endtime");
+        var beginTime = Number($(this).attr("time"));
+        var endTime = Number($(this).attr("endtime"));
         var idx = 0;
         timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime};
         while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }

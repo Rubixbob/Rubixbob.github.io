@@ -454,7 +454,10 @@ function drawGroupEffect(name, beginTime, endTime) {
         
         $("#groupEffects").append($("<div></div>").attr({"class": "effect", "name": name, "jobIndex": raidBuffLightboxJobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
             .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
-                  "border": `solid 3px ${borderColor}`}));
+                  "border": `solid 3px ${borderColor}`, "cursor": "pointer"})
+            .click(function() { // TODO : find permanent solution
+                $(this).remove();
+            }));
         addTimeUntil(endTime + 5);
     }
 }
