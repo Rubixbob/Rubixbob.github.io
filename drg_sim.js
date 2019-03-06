@@ -1,3 +1,10 @@
+var raidBuffLightboxJobIndex = 0; // Will have to be passed as a parameter maybe
+var standardComp = ["war", "pld", "sch", "ast", "nin", "brd", "smn"];
+var startTime = 0;
+var RotationHistory = [];
+var savedRotation;
+var stats = new Stats(0, 0, 0, 0, 0, 0, []);
+
 actions.forEach(function (ac) {
     var action = $("<div></div>").attr({name: ac.name, class: `action draggable ${ac.type}`});
 	if (ac.hasOwnProperty("delayed"))
@@ -430,8 +437,6 @@ function drawEffect(name, beginTime, endTime) {
     }
 }
 
-var raidBuffLightboxJobIndex = 0; // Will have to be passed as a parameter maybe
-
 function drawGroupEffect(name, beginTime, endTime) {
     if ($("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).length > 0) {
         var posLeft = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).position().left;
@@ -614,12 +619,12 @@ function removeDpsAfter(beginTime) {
 }
 
 function updateDps() {
-    generateHistory($("#rotation").children(), RotationHistory, stats);
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
     var botdObject = {bloodStart: 0, eyeTime: [], lifeStart: 0, eyeCount: -1};
     RotationHistory.forEach(e => {
         if (e.type === "action") {
             displayDps(Math.floor(e.dps), e.time);
-        } else if (e.type === "effectEnd") {
+        } else if (e.type === "effectEnd") { // TODO : if selfdisplay
             drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
         }
         switch(e.name) {
@@ -943,6 +948,13 @@ function setStartTime(value) {
     }
 	$("#timeline").children().eq(0).attr("time", `${value.toFixed(3)}`).css("height", `${(Math.ceil(value)-value) * scale}px`);
     startTime = value;
+    $("#groupEffects").children().each(function(index) {
+        var beginTime = $(this).attr("time");
+        var endTime = $(this).attr("endTime");
+        var posTop = (beginTime - startTime) * scale;
+        var posHeight = (endTime - beginTime) * scale - 6;
+        $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
+    });
 }
 
 function updateStartTime() {
@@ -1031,6 +1043,8 @@ function setUpRaidBuffLightbox(name) {
 function refreshGroupMember(index, value) {
     $("#groupEffectsHeader").children(`[jobIndex="${index}"]`).remove();
     $("#groupEffects").children(`[jobIndex="${index}"]`).remove();
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
     
     memberEffects = effects.filter(ef => ef.job === value);
     if (memberEffects.length > 0) {
@@ -1074,6 +1088,7 @@ function refreshGroupMember(index, value) {
 
 $("#raidBuffLightboxConfirm").click(function() {
     drawGroupEffect($("#raidBuffLightboxTitle").val(), Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()) );
+    resetAndUpdateDps();
 });
 
 $.widget("custom.iconselectmenu", $.ui.selectmenu, {
@@ -1114,18 +1129,12 @@ $("#group tr td select").each(function() {
         refreshGroupMember($("#group tr td select").index($(event.target)), data.item.value);
 }}).iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
 
-var standardComp = ["war", "pld", "sch", "ast", "nin", "brd", "smn"];
-
 for (i = 0; i < 7; i++) {
     $("#group tr td select").eq(i).val(standardComp[i]);
     $("#group tr td select").eq(i).iconselectmenu("refresh");
     refreshGroupMember(i, standardComp[i]);
 }
 
-var startTime = 0;
-var RotationHistory = [];
-var savedRotation;
-var stats = new Stats(0, 0, 0, 0, 0, 0, []);
 $("#WDin").change();
 $("#STRin").change();
 $("#DHin").change();

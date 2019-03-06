@@ -198,7 +198,28 @@ function deleteAfter(rotationHistory, beginTime) {
 // 	// console.log("Added " + (rotationHistory.length - actionsNb) + " actions, from " + actionsNb + " to " + rotationHistory.length);
 // }
 
-function generateHistory(rotationDom, rotationHistory, stats) {
+function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
+    $(groupEffectsDom).each(function() {
+        var ef = effects.find(e => e.name === $(this).attr("name"));
+        var beginTime = $(this).attr("time");
+        var endTime = $(this).attr("endtime");
+        var idx = 0;
+        timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime};
+        while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
+        effectsToActivate.splice(idx, 0, timedEffect);
+
+        var efIdx = effectsToEnd.findIndex(e => e.effect.name === ef.name);
+        if (efIdx >= 0 && !ef.stackable) {
+            timedEffect = effectsToEnd.splice(efIdx, 1)[0];
+            timedEffect.endTime = endTime;
+        }
+        idx = 0;
+        while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < endTime) { idx++; }
+        effectsToEnd.splice(idx, 0, timedEffect);
+    });
+}
+
+function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	var activeEffects = [];
 	stats.activeEffects = activeEffects;
 	var curAction = rotationDom.first();
@@ -208,8 +229,10 @@ function generateHistory(rotationDom, rotationHistory, stats) {
 	var cumulDamage = 0;
 	var effectsToActivate = [];
 	var effectsToEnd = [];
+    
+    initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd);
 
-	var eType = "action";
+	var eType = "action"; // TODO : init if raid buff if 1st
 
 	while (eType !== "done") {
 		var eName = "";
@@ -319,8 +342,8 @@ function generateHistory(rotationDom, rotationHistory, stats) {
 	                while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
 	                effectsToActivate.splice(idx, 0, timedEffect);
 
-	                var efIdx = effectsToEnd.findIndex(e => e.effect.name === ef.name);
-            		if (efIdx >= 0) {
+	                var efIdx = effectsToEnd.findIndex(e => e.effect.name === ef.name); // TODO : use stackable
+            		if (efIdx >= 0 && !ef.stackable) {
             			timedEffect = effectsToEnd.splice(efIdx, 1)[0];
             			timedEffect.endTime = endTime;
             		}
@@ -397,7 +420,7 @@ function generateHistory(rotationDom, rotationHistory, stats) {
             	timedEffect = effectsToActivate.shift();
 
             	// Check if already active
-            	if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) < 0)
+            	if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) < 0 || timedEffect.effect.stackable)
         			activeEffects.push(timedEffect.effect);
             	stats.updateEffects(timedEffect.effect);
             	eName = timedEffect.effect.name;

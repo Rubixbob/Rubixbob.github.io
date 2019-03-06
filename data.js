@@ -560,7 +560,7 @@ var effects = [
 	{ name: "Left Eye",
 	  shortName: "DS",
 	  description: "Damage dealt is increased.",
-	  value: 0.05,
+	  value: 1.05,
 	  duration: 20,
 	  recast: 120,
       stackable: true,
@@ -581,7 +581,7 @@ var effects = [
       displaySelf: false,
       job: "mnk",
 	  type: "Damage"},
-	{ name: "Embolden",
+	{ name: "Embolden", // TODO : Code stacks
 	  shortName: "EM",
 	  description: "Physical damage dealt is increased.",
 	  value: 1.1,
