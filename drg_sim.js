@@ -457,6 +457,8 @@ function drawGroupEffect(name, beginTime, endTime) {
                   "border": `solid 3px ${borderColor}`, "cursor": "pointer"})
             .click(function() { // TODO : find permanent solution
                 $(this).remove();
+                if ($("#rotation").children().length > 0)
+                    resetAndUpdateDps();
             }));
         addTimeUntil(endTime + 5);
     }
@@ -627,7 +629,7 @@ function updateDps() {
     RotationHistory.forEach(e => {
         if (e.type === "action") {
             displayDps(Math.floor(e.dps), e.time);
-        } else if (e.type === "effectEnd") { // TODO : if selfdisplay
+        } else if (e.type === "effectBegin" && e.timedEffect.displaySelf) {
             drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
         }
         switch(e.name) {
@@ -755,7 +757,7 @@ $("#loadRotation").click(function() {
     });
 
     updateDps();
-})
+});
 
 $("#saveRotation").click(function() {
     var savedRotationObject = {
@@ -776,7 +778,11 @@ $("#saveRotation").click(function() {
     });
     savedRotation = JSON.stringify(savedRotationObject);
     console.log(savedRotation);
-})
+});
+
+$("#debugButton").click(function() {
+    RotationHistory.forEach(function(item) { item.display(); });
+});
 
 function trimInput(element) {
     if(Number(element.val()) < Number(element.attr("min")))
@@ -988,14 +994,31 @@ $("#raidBuffLightboxArrow").change(function() {
 
 function adjustCardDuration() {
     var duration = getEffectDuration($("#raidBuffLightboxTitle").val()); // TODO: Get from radio button
+    if ($("#raidBuffLightboxExtended").prop("checked"))
+        duration *= 2;
     if ($("#raidBuffLightboxCelestialOpposition").prop("checked"))
         duration += 10;
     if ($("#raidBuffLightboxTimeDilation").prop("checked"))
         duration += 15;
-    // TODO: Expanded/Extended/Enhanced
     $("#raidBuffLightboxDurationInput").val(duration);
     $("#raidBuffLightboxDurationOutput").val(duration);
 }
+
+$("#raidBuffLightboxNoEffect").change(function() {
+    adjustCardDuration();
+});
+
+$("#raidBuffLightboxExpanded").change(function() {
+    adjustCardDuration();
+});
+
+$("#raidBuffLightboxExtended").change(function() {
+    adjustCardDuration();
+});
+
+$("#raidBuffLightboxEnhanced").change(function() {
+    adjustCardDuration();
+});
 
 $("#raidBuffLightboxCelestialOpposition").change(function() {
     adjustCardDuration();
@@ -1004,8 +1027,6 @@ $("#raidBuffLightboxCelestialOpposition").change(function() {
 $("#raidBuffLightboxTimeDilation").change(function() {
     adjustCardDuration();
 });
-
-// TODO: Expanded/Extended/Enhanced
 
 function setUpRaidBuffLightbox(name) {
     $("#raidBuffLightboxTitle").val(name); // Don't delete, this value is used in the OK call
@@ -1031,13 +1052,16 @@ function setUpRaidBuffLightbox(name) {
         case "The Spear":
         case "The Arrow":
             $(`#raidBuffLightbox${name.substring(4)}`).prop("checked", true).change();
+            $("#raidBuffLightboxExpanded").prop("checked", true).change();
             $("#raidBuffLightboxCelestialOpposition").prop("checked", true).change();
             $("#raidBuffLightboxTimeDilation").prop("checked", true).change();
             $("#raidBuffLightboxCardsRow").prop("hidden", false);
+            $("#raidBuffLightboxRoadRow").prop("hidden", false);
             $("#raidBuffLightboxAstRow").prop("hidden", false);
             break;
         default:
             $("#raidBuffLightboxCardsRow").prop("hidden", true);
+            $("#raidBuffLightboxRoadRow").prop("hidden", true);
             $("#raidBuffLightboxAstRow").prop("hidden", true);
             break;
     }

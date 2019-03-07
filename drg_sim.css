@@ -242,6 +242,6 @@ table {
     width: auto;
 }
 
-#raidBuffLightboxCardsRow>td>label>img, #raidBuffLightboxAstRow>td>label>img {
+#raidBuffLightboxCardsRow>td>label>img, #raidBuffLightboxRoadRow>td>label>img, #raidBuffLightboxAstRow>td>label>img {
     vertical-align: middle;
 }

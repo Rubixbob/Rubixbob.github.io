@@ -36,7 +36,7 @@ class Stats {
 			case "DoT":
 				if (effect.name === "Chaos Thrust") {
 					if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0) {
-						this.CTDamage = this.dotDamage(effect.value);
+						this.CTDamage = effect.dotDamage;
 					} else {
 						this.CTDamage = 0;
 					}
@@ -140,19 +140,26 @@ class Stats {
 }
 
 class RotationEvent {
-	constructor(time, name, type, potency, damage, cumulDamage, dps, timedEffect) {
+	constructor(time, name, type, potency, actionDamage, aaDamage, dotDamage, aaTick, dotTick, cumulDamage, dps, timedEffect) {
 		this.time = time;
 		this.name = name;
 		this.type = type;
 		this.potency = potency;
-		this.damage = damage;
+		this.actionDamage = actionDamage;
+		this.aaDamage = aaDamage;
+		this.dotDamage = dotDamage;
+		this.aaTick = aaTick;
+		this.dotTick = dotTick;
 		this.cumulDamage = cumulDamage;
 		this.dps = dps;
 		this.timedEffect = timedEffect;
 	}
 
 	display() {
-		console.log(this.time + " " + this.name + " " + this.type + " " + this.potency + " " + this.damage + " " + this.dps);
+		console.log(this.time + " " + this.name + " " + this.type + ", Action Damage: " + this.actionDamage);
+        console.log("  Potency: " + this.potency + ", Cumul Damage: " + this.cumulDamage + ", DPS: " + this.dps);
+        console.log("  AA Tick: " + this.aaTick + ", DoT Tick: " + this.dotTick);
+        console.log("  AA Damage: " + this.aaDamage + ", DoT Damage: " + this.dotDamage);
 	}
 }
 
@@ -238,8 +245,10 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 		var eName = "";
 		var ePot = 0;
 		var eDmg = 0;
-		var eAaDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / stats.wDelay * stats.aaDamage();
-		var eDotDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / 3 * stats.CTDamage;
+        var eAaTick = stats.aaDamage();
+        var eDotTick = stats.CTDamage;
+		var eAaDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / stats.wDelay * eAaTick;
+		var eDotDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / 3 * eDotTick;
 		var timedEffect;
 		switch (eType) {
 			case "action":
@@ -307,7 +316,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                     }
 
                     // Re-use BotD
-                    if (eName === "Blood of the Dragon") {
+                    if (ef.name === "Blood of the Dragon") {
 	            		var BotDIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Blood of the Dragon");
 	            		if (BotDIdx >= 0) {
 	            			if (!effectsToEnd[BotDIdx].effect.life) {
@@ -319,6 +328,11 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 				            }
 				            return;
 	            		}
+                    }
+                    
+                    // Compute CT DoT damage
+                    if (ef.name === "Chaos Thrust") {
+                        ef.dotDamage = stats.dotDamage(ef.value);
                     }
 
                     // Use a Jump when Dive Ready
@@ -335,17 +349,20 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                //      }
 
 	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
-	                var beginTime = time + activationTime;
-	                var endTime = beginTime + ef.duration;
+	                var beginTime = Number((time + activationTime).toFixed(3));
+	                var endTime = Number((beginTime + ef.duration).toFixed(3));
 	                var idx = 0;
-	                timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime};
+	                timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, displaySelf: true};
 	                while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
 	                effectsToActivate.splice(idx, 0, timedEffect);
 
-	                var efIdx = effectsToEnd.findIndex(e => e.effect.name === ef.name); // TODO : use stackable
-            		if (efIdx >= 0 && !ef.stackable) {
-            			timedEffect = effectsToEnd.splice(efIdx, 1)[0];
-            			timedEffect.endTime = endTime;
+	                var oldTimedEffect = effectsToEnd.find(e => e.effect.name === ef.name);
+            		if (oldTimedEffect !== undefined && oldTimedEffect.beginTime < timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime && !ef.stackable) {
+                        effectsToEnd.splice(effectsToEnd.indexOf(oldTimedEffect), 1);
+            			oldTimedEffect.endTime = timedEffect.beginTime;
+                        idx = 0;
+                        while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < oldTimedEffect.endTime) { idx++; }
+                        effectsToEnd.splice(idx, 0, oldTimedEffect);
             		}
 	                idx = 0;
 	                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < endTime) { idx++; }
@@ -419,9 +436,9 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             case "effectBegin":
             	timedEffect = effectsToActivate.shift();
 
-            	// Check if already active
+            	// Check if not already active
             	if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) < 0 || timedEffect.effect.stackable)
-        			activeEffects.push(timedEffect.effect);
+                    activeEffects.push(timedEffect.effect);
             	stats.updateEffects(timedEffect.effect);
             	eName = timedEffect.effect.name;
             	break;
@@ -458,7 +475,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 
 		cumulDamage += eDmg + eAaDmg + eDotDmg;
 		var eDps = time <= 0 ? 0 : cumulDamage / time;
-		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, cumulDamage, eDps, timedEffect));
+		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, eAaDmg, eDotDmg, eAaTick, eDotTick, cumulDamage, eDps, timedEffect));
 
 		lastTime = time;
 		eType = "done";
