@@ -15,7 +15,8 @@ class Stats {
 		this.CTDamage = 0;
 	}
 
-	updateEffects(effect){
+	updateEffects(timedEffect){
+        var effect = timedEffect.effect;
 		switch (effect.type) {
 			case "Damage":
 				this.globalDmgMult = 1;
@@ -36,7 +37,7 @@ class Stats {
 			case "DoT":
 				if (effect.name === "Chaos Thrust") {
 					if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0) {
-						this.CTDamage = effect.dotDamage;
+						this.CTDamage = timedEffect.dotDamage;
 					} else {
 						this.CTDamage = 0;
 					}
@@ -329,24 +330,6 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 				            return;
 	            		}
                     }
-                    
-                    // Compute CT DoT damage
-                    if (ef.name === "Chaos Thrust") {
-                        ef.dotDamage = stats.dotDamage(ef.value);
-                    }
-
-                    // Use a Jump when Dive Ready
-               //      if (eName === "Jump" || eName === "Spineshatter Dive") {
-               //      	var DRIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Dive Ready");
-	            		// if (DRIdx >= 0) {
-	            		// 	var DREffect = effectsToEnd.splice(DRIdx, 1)[0];
-	            		// 	DREffect.endTime = time + DREffect.effect.duration;
-			            //     var idx = 0;
-			            //     while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < DREffect.endTime) { idx++; }
-			            //     effectsToEnd.splice(idx, 0, DREffect);
-				           //  return;
-	            		// }
-               //      }
 
 	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
 	                var beginTime = Number((time + activationTime).toFixed(3));
@@ -367,6 +350,11 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	                idx = 0;
 	                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < endTime) { idx++; }
 	                effectsToEnd.splice(idx, 0, timedEffect);
+                    
+                    // Compute CT DoT damage
+                    if (ef.name === "Chaos Thrust") {
+                        timedEffect.dotDamage = stats.dotDamage(ef.value);
+                    }
 	            });
                 
                 // Consuming effects
@@ -439,13 +427,13 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             	// Check if not already active
             	if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) < 0 || timedEffect.effect.stackable)
                     activeEffects.push(timedEffect.effect);
-            	stats.updateEffects(timedEffect.effect);
+            	stats.updateEffects(timedEffect);
             	eName = timedEffect.effect.name;
             	break;
             case "effectEnd":
             	timedEffect = effectsToEnd.shift();
             	activeEffects.splice(activeEffects.indexOf(timedEffect.effect), 1);
-            	stats.updateEffects(timedEffect.effect);
+            	stats.updateEffects(timedEffect);
             	eName = timedEffect.effect.name;
             	timedEffect.endTime = time;
             	switch(eName) {
@@ -461,7 +449,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 			                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < timedEffect.endTime) { idx++; }
 			                effectsToEnd.splice(idx, 0, timedEffect);
 			            	activeEffects.push(timedEffect.effect);
-			            	stats.updateEffects(timedEffect.effect);
+			            	stats.updateEffects(timedEffect);
 	            		} else {
 	            			timedEffect.effect.eyes = 0;
 	            		}
