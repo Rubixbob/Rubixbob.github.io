@@ -666,6 +666,7 @@ function updateDps() {
                 break;
         }
     });
+    $("#DPSout").val($("#dps").children().last().html());
 }
 
 function resetDps() {
@@ -685,6 +686,7 @@ function clearRotation() {
     $("#timeline").empty();
 	$("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
     $("#cds").empty();
+    $("#DPSout").val("");
     resetDps();
     addTimeUntil(20);
     startTime = 0;
@@ -778,6 +780,31 @@ $("#saveRotation").click(function() {
     });
     savedRotation = JSON.stringify(savedRotationObject);
     console.log(savedRotation);
+});
+
+$("#threeMinRotation").click(function() {
+    clearRotation();
+    var savedRotationObject = threeMinRotation;
+    stats.wd = savedRotationObject.wd;
+    stats.str = savedRotationObject.str;
+    stats.dh = savedRotationObject.dh;
+    stats.crit = savedRotationObject.crit;
+    stats.det = savedRotationObject.det;
+    stats.sks = savedRotationObject.sks;
+    $("#WDin").change();
+    $("#STRin").change();
+    $("#DHin").change();
+    $("#CRITin").change();
+    $("#DETin").change();
+    $("#SKSin").change();
+    savedRotationObject.actions.forEach(ac => {
+        if (ac.hasOwnProperty("d"))
+            openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
+        else
+            openerAddAction(actions[ac.i].name);
+    });
+
+    updateDps();
 });
 
 $("#debugButton").click(function() {
