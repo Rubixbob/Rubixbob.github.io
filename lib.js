@@ -381,6 +381,25 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 		            	}
 	            		break;
             		default:
+                        // Cancel SFC and EWT when using another Weaponskill
+                        if (getType(eName) === "Weaponskill") {
+                            var FCIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Sharper Fang and Claw");
+                            if (FCIdx >= 0 && activeEffects.findIndex(ef => ef.name === "Sharper Fang and Claw") >= 0) {
+                                var FCEffect = effectsToEnd.splice(FCIdx, 1)[0];
+                                if (FCEffect) {
+                                    FCEffect.endTime = time;
+                                    effectsToEnd.unshift(FCEffect);
+                                }
+                            }
+                            var WTIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Enhanced Wheeling Thrust");
+                            if (WTIdx >= 0 && activeEffects.findIndex(ef => ef.name === "Enhanced Wheeling Thrust") >= 0) {
+                                var WTEffect = effectsToEnd.splice(WTIdx, 1)[0];
+                                if (WTEffect) {
+                                    WTEffect.endTime = time;
+                                    effectsToEnd.unshift(WTEffect);
+                                }
+                            }
+                        }
             			break;
 	            }
 
