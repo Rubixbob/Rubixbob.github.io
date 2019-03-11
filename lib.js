@@ -212,7 +212,7 @@ function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
         var beginTime = Number($(this).attr("time"));
         var endTime = Number($(this).attr("endtime"));
         var idx = 0;
-        var timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime};
+        var timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, jobIndex: $(this).attr("jobIndex")};
         while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
         effectsToActivate.splice(idx, 0, timedEffect);
 
@@ -253,6 +253,24 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 		var eAaDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / stats.wDelay * eAaTick;
 		var eDotDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / 3 * eDotTick;
 		var timedEffect;
+        
+        // Overwrite effect
+        if (eType === "effectBegin") {
+            timedEffect = effectsToActivate[0];
+            if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) >= 0 && !timedEffect.effect.stackable) {
+                eType = "effectEnd";
+                
+                var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
+                if (oldTimedEffect !== undefined && oldTimedEffect.beginTime < timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
+                    effectsToEnd.splice(effectsToEnd.indexOf(oldTimedEffect), 1);
+                    oldTimedEffect.endTime = timedEffect.beginTime;
+                    idx = 0;
+                    while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < oldTimedEffect.endTime) { idx++; }
+                    effectsToEnd.splice(idx, 0, oldTimedEffect);
+                }
+            }
+        }
+        
 		switch (eType) {
 			case "action":
 				curAction = nextAction;

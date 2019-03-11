@@ -452,16 +452,35 @@ function drawGroupEffect(name, beginTime, endTime) {
         // if (effect.hasOwnProperty("borderColor"))
             // borderColor = effect.borderColor;
         
-        $("#groupEffects").append($("<div></div>").attr({"class": "effect", "name": name, "jobIndex": raidBuffLightboxJobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
-            .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
-                  "border": `solid 3px ${borderColor}`, "cursor": "pointer"})
-            .click(function() { // TODO : find permanent solution
-                $(this).remove();
-                if ($("#rotation").children().length > 0)
-                    resetAndUpdateDps();
-            }));
+        var wrapper = $("<div></div>");
+        wrapper.attr({"class": "effect", "name": name, "jobIndex": raidBuffLightboxJobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
+        wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
+                     "border": `solid 3px ${borderColor}`, "cursor": "pointer"});
+        wrapper.click(function() { // TODO : find permanent solution
+            $(this).remove();
+            if ($("#rotation").children().length > 0)
+                resetAndUpdateDps();
+        });
+        
+        var overlay = $("<div></div>");
+        overlay.css({"position": "relative", "left": "-3px", "top": "-3px", "width": `${posWidth+6}px`, "height": "0px", "background-color": "black", "opacity": "0.7"});
+        overlay.attr("endtime", endTime);
+        
+        wrapper.append(overlay);
+        $("#groupEffects").append(wrapper);
         addTimeUntil(endTime + 5);
     }
+}
+
+function updateGroupEffectOverlay(name, beginTime, endTime, jobIndex) {
+    var wrapper = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"]`);
+    var overlay = wrapper.children();
+    overlay.attr("endtime", endTime);
+    
+    var posTop = (endTime - beginTime) * scale - 3;
+    var posHeight = (Number(wrapper.attr("endTime")) - endTime) * scale;
+    
+    overlay.css({"top": `${posTop}px`, "height": `${posHeight}px`});
 }
 
 // function drawEffect(name, beginTime, endTime) {
@@ -629,8 +648,13 @@ function updateDps() {
     RotationHistory.forEach(e => {
         if (e.type === "action") {
             displayDps(Math.floor(e.dps), e.time);
-        } else if (e.type === "effectBegin" && e.timedEffect.displaySelf) {
-            drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
+        } else if (e.type === "effectBegin") {
+            if (e.timedEffect.displaySelf) {
+                drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
+            } else if (e.timedEffect.hasOwnProperty("jobIndex")) {
+                // update group effect with overlay
+                updateGroupEffectOverlay(e.name, e.timedEffect.beginTime, e.timedEffect.endTime, e.timedEffect.jobIndex);
+            }
         }
         switch(e.name) {
             case "Blood of the Dragon":
@@ -948,6 +972,12 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
             var posTop = (beginTime - startTime) * scale;
             var posHeight = (endTime - beginTime) * scale - 6;
             $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
+            
+            var overlay = $(this).children();
+            endTime = overlay.attr("endtime");
+            var posTop = (endTime - beginTime) * scale - 3;
+            var posHeight = (Number($(this).attr("endTime")) - endTime) * scale;
+            overlay.css({"top": `${posTop}px`, "height": `${posHeight}px`});
         });
 
         $("#cds").children().each(function(index) {
@@ -1142,7 +1172,8 @@ function refreshGroupMember(index, value) {
 
 $("#raidBuffLightboxConfirm").click(function() {
     drawGroupEffect($("#raidBuffLightboxTitle").val(), Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()) );
-    resetAndUpdateDps();
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
 });
 
 $.widget("custom.iconselectmenu", $.ui.selectmenu, {
