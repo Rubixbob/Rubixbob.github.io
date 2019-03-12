@@ -22,6 +22,10 @@ class Stats {
         this.astralUmbral = 100;
 	}
 
+	copy() {
+		return new Stats(this.wd, this.str, this.dh, this.crit, this.det, this.sks, this.activeEffects);
+	}
+
 	updateEffects(timedEffect){
         var effect = timedEffect.effect;
 		switch (effect.type) {
@@ -29,7 +33,12 @@ class Stats {
 				this.globalDmgMult = 1;
 				this.activeEffects.forEach(ef => {
 					if (ef.type === "Damage") {
-						this.globalDmgMult *= ef.value;
+						if (timedEffect.royalRoad === "Enhanced")
+							this.globalDmgMult *= ef.enhancedValue;
+						else if (timedEffect.royalRoad === "Expanded")
+							this.globalDmgMult *= ef.expandedValue;
+						else
+							this.globalDmgMult *= ef.value;
 					}
 				});
 				break;
@@ -54,7 +63,12 @@ class Stats {
 				this.critRateBonus = 0;
 				this.activeEffects.forEach(ef => {
 					if (ef.type === "Crit") {
-						this.critRateBonus += ef.value;
+						if (timedEffect.royalRoad === "Enhanced")
+							this.critRateBonus += ef.enhancedValue;
+						else if (timedEffect.royalRoad === "Expanded")
+							this.critRateBonus += ef.expandedValue;
+						else
+							this.critRateBonus += ef.value;
 					}
 				});
 				break;
@@ -69,9 +83,14 @@ class Stats {
 			case "Speed":
 				switch (effect.name) {
                     case "The Arrow":
-                        if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0)
-                            this.arrow = effect.value;
-                        else
+                        if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0) {
+							if (timedEffect.royalRoad === "Enhanced")
+								this.arrow = effect.enhancedValue;
+							else if (timedEffect.royalRoad === "Expanded")
+								this.arrow = effect.expandedValue;
+							else
+								this.arrow = effect.value;
+                        } else
                             this.arrow = 0;
                         break;
                     case "Fey Wind":
@@ -148,6 +167,12 @@ class Stats {
         var GCDc = Math.floor(Math.floor(Math.floor(Math.ceil(A * B) * GCDm / 100) * this.riddleOfFire / 1000) * this.astralUmbral / 100);
         return GCDc / 100;
 		// return     Math.floor(2.5 * (1 - Math.floor((this.sks - 364) * 130 / 2170) / 1000) * 100) / 100;
+	}
+
+	aaDelay() {
+        var A = Math.floor(Math.floor(Math.floor((100 - this.arrow) * (100 - this.type1) / 100) * (100 - this.haste) / 100) - this.feyWind);
+        var B = (100 - this.type2) / 100;
+		return Math.floor(Math.floor(Math.floor(this.wDelay * 100 * Math.ceil(A * B) / 10) * this.riddleOfFire / 1000) * this.astralUmbral / 100) / 100;
 	}
 
 	actionDamage(potency) {
@@ -240,6 +265,8 @@ function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
         var endTime = Number($(this).attr("endtime"));
         var idx = 0;
         var timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, jobIndex: $(this).attr("jobIndex")};
+        if (this.hasAttribute("royalRoad"))
+        	timedEffect.royalRoad = $(this).attr("royalRoad");
         while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
         effectsToActivate.splice(idx, 0, timedEffect);
 
@@ -250,8 +277,7 @@ function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
 }
 
 function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
-	var activeEffects = [];
-	stats.activeEffects = activeEffects;
+	var activeEffects = stats.activeEffects;
 	var curAction = rotationDom.first();
 	var nextAction = curAction;
 	var time = Number(curAction.attr("time"));
@@ -277,7 +303,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 		var eDmg = 0;
         var eAaTick = stats.aaDamage();
         var eDotTick = stats.CTDamage;
-		var eAaDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / stats.wDelay * eAaTick;
+		var eAaDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / stats.aaDelay() * eAaTick;
 		var eDotDmg = ((time >= 0 ? time : 0) - (lastTime >= 0 ? lastTime : 0)) / 3 * eDotTick;
 		var timedEffect;
         
@@ -288,7 +314,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                 eType = "effectEnd";
                 
                 var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
-                if (oldTimedEffect !== undefined && oldTimedEffect.beginTime < timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
+                if (oldTimedEffect !== undefined && oldTimedEffect.beginTime <= timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
                     effectsToEnd.splice(effectsToEnd.indexOf(oldTimedEffect), 1);
                     oldTimedEffect.endTime = timedEffect.beginTime;
                     idx = 0;
@@ -552,6 +578,72 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	}
 
 	return rotationHistory;
+}
+
+function generateGcdTimeline(gcdTimeline, stats, groupSpeedEffectsDom) {
+	if (groupSpeedEffectsDom.length <= 0)
+		return;
+	var activeEffects = stats.activeEffects;
+	var effectsToActivate = [];
+	var effectsToEnd = [];
+    initGroupEffects(groupSpeedEffectsDom, effectsToActivate, effectsToEnd);
+	var time = effectsToActivate[0].beginTime;
+
+	var eType = "effectBegin";
+
+	while (eType !== "done") {
+		var timedEffect;
+        
+        // Overwrite effect
+        if (eType === "effectBegin") {
+            timedEffect = effectsToActivate[0];
+            if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) >= 0 && !timedEffect.effect.stackable) {
+                eType = "effectEnd";
+                
+                var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
+                if (oldTimedEffect !== undefined && oldTimedEffect.beginTime <= timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
+                    effectsToEnd.splice(effectsToEnd.indexOf(oldTimedEffect), 1);
+                    oldTimedEffect.endTime = timedEffect.beginTime;
+                    idx = 0;
+                    while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < oldTimedEffect.endTime) { idx++; }
+                    effectsToEnd.splice(idx, 0, oldTimedEffect);
+                }
+            }
+        }
+
+		switch (eType) {
+			case "effectBegin":
+	        	timedEffect = effectsToActivate.shift();
+
+	        	// Check if not already active
+	        	if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) < 0 || timedEffect.effect.stackable)
+	                activeEffects.push(timedEffect.effect);
+	        	stats.updateEffects(timedEffect);
+	        	break;
+	        case "effectEnd":
+	        	timedEffect = effectsToEnd.shift();
+	        	activeEffects.splice(activeEffects.indexOf(timedEffect.effect), 1);
+	        	stats.updateEffects(timedEffect);
+	        	timedEffect.endTime = time;
+	        	break;
+	        default:
+		}
+
+		gcdTimeline.push({ time: time, gcd: stats.gcd() });
+
+		eType = "done";
+		if (effectsToEnd.length > 0) {
+			eType = "effectEnd";
+			time = effectsToEnd[0].endTime;
+		}
+		if (effectsToActivate.length > 0) {
+			if (eType === "done" || effectsToActivate[0].beginTime < time) {
+				eType = "effectBegin";
+				time = effectsToActivate[0].beginTime;
+			}
+		}
+	}
+	console.log(gcdTimeline);
 }
 
 function getAnimationLock(actionName) {

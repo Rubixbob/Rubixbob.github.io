@@ -441,7 +441,7 @@ function drawEffect(name, beginTime, endTime) {
     }
 }
 
-function drawGroupEffect(name, beginTime, endTime) {
+function drawGroupEffect(name, beginTime, endTime, royalRoad) {
     if ($("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).length > 0) {
         var posLeft = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).position().left;
         var posWidth = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).width() - 8;
@@ -458,12 +458,16 @@ function drawGroupEffect(name, beginTime, endTime) {
         
         var wrapper = $("<div></div>");
         wrapper.attr({"class": "effect", "name": name, "jobIndex": raidBuffLightboxJobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
+        if (royalRoad)
+            wrapper.attr("royalRoad", royalRoad);
         wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
                      "border": `solid 3px ${borderColor}`, "cursor": "pointer"});
         wrapper.click(function() { // TODO : find permanent solution
             $(this).remove();
-            updateGcdTimeline(); // TODO : if speed buff
-            updateRotationAfterIndex(0);
+            if (name === "The Arrow" || name === "Fey Wind") {
+                updateGcdTimeline();
+                updateRotationAfterIndex(0);
+            }
             if ($("#rotation").children().length > 0)
                 resetAndUpdateDps();
         });
@@ -1056,7 +1060,19 @@ $("#raidBuffLightboxArrow").change(function() {
 });
 
 function adjustCardDuration() {
-    var duration = getEffectDuration($("#raidBuffLightboxTitle").val()); // TODO: Get from radio button
+    var name;
+    if ($("#raidBuffLightboxBalance").prop("checked"))
+        name = "The Balance";
+    if ($("#raidBuffLightboxSpear").prop("checked"))
+        name = "The Spear";
+    if ($("#raidBuffLightboxArrow").prop("checked"))
+        name = "The Arrow";
+    if (!name) {
+        console.log("Card name not found!");
+        return;
+    }
+
+    var duration = getEffectDuration(name);
     if ($("#raidBuffLightboxExtended").prop("checked"))
         duration *= 2;
     if ($("#raidBuffLightboxCelestialOpposition").prop("checked"))
@@ -1117,12 +1133,15 @@ function setUpRaidBuffLightbox(name) {
             $(`#raidBuffLightbox${name.substring(4)}`).prop("checked", true).change();
             $("#raidBuffLightboxExpanded").prop("checked", true).change();
             $("#raidBuffLightboxCelestialOpposition").prop("checked", true).change();
-            $("#raidBuffLightboxTimeDilation").prop("checked", true).change();
+            $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
             $("#raidBuffLightboxCardsRow").prop("hidden", false);
             $("#raidBuffLightboxRoadRow").prop("hidden", false);
             $("#raidBuffLightboxAstRow").prop("hidden", false);
             break;
         default:
+            $("#raidBuffLightboxNoEffect").prop("checked", true).change();
+            $("#raidBuffLightboxCelestialOpposition").prop("checked", false).change();
+            $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
             $("#raidBuffLightboxCardsRow").prop("hidden", true);
             $("#raidBuffLightboxRoadRow").prop("hidden", true);
             $("#raidBuffLightboxAstRow").prop("hidden", true);
@@ -1177,9 +1196,17 @@ function refreshGroupMember(index, value) {
 }
 
 $("#raidBuffLightboxConfirm").click(function() {
-    drawGroupEffect($("#raidBuffLightboxTitle").val(), Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()) );
-    updateGcdTimeline(); // TODO : if speed buff
-    updateRotationAfterIndex(0);
+    var title = $("#raidBuffLightboxTitle").val()
+    var royalRoad;
+    if ($("#raidBuffLightboxExpanded").prop("checked"))
+        royalRoad = "Expanded";
+    if ($("#raidBuffLightboxEnhanced").prop("checked"))
+        royalRoad = "Enhanced";
+    drawGroupEffect(title, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()), royalRoad);
+    if (title === "The Arrow" || title === "Fey Wind") {
+        updateGcdTimeline();
+        updateRotationAfterIndex(0);
+    }
     if ($("#rotation").children().length > 0)
         resetAndUpdateDps();
 });
@@ -1244,8 +1271,10 @@ function gcdAt(time) {
     return gcdTimeline[idx - 1].gcd;
 }
 
-function updateGcdTimeline() { // TODO
+function updateGcdTimeline() { // Do not call during history generation
     gcdTimeline = [];
-    // var gcdEvent = { time: 1, gcd: 2.5 };
-    // gcdTimeline.push(gcdEvent);
+    var tempStats = stats.copy(); // This will copy buffs if any is active
+    if (tempStats.activeEffects.length !== 0)
+        console.log("Active buff found, this might induce errors");
+    generateGcdTimeline(gcdTimeline, tempStats, $("#groupEffects").children("[name='The Arrow'], [name='Fey Wind']"));
 }
