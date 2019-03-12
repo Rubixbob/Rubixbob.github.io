@@ -13,6 +13,13 @@ class Stats {
 		this.dhRateBonus = 0;
 		this.critRateBonus = 0;
 		this.CTDamage = 0;
+        this.arrow = 0;
+        this.type1 = 0;
+        this.type2 = 0;
+        this.haste = 0;
+        this.feyWind = 0;
+        this.riddleOfFire = 100;
+        this.astralUmbral = 100;
 	}
 
 	updateEffects(timedEffect){
@@ -60,15 +67,30 @@ class Stats {
 				});
 				break;
 			case "Speed":
-				// TODO
+				switch (effect.name) {
+                    case "The Arrow":
+                        if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0)
+                            this.arrow = effect.value;
+                        else
+                            this.arrow = 0;
+                        break;
+                    case "Fey Wind":
+                        if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0)
+                            this.feyWind = effect.value;
+                        else
+                            this.feyWind = 0;
+                        break;
+                    default:
+                        console.log("Effect " + effect.name + " needs to be implemented");
+                        break;
+				}
 				break;
 			case "Special":
 				if (effect.name === "Medicated") {
-					if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0) {
+					if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0)
 						this.str += effect.value;
-					} else {
+					else
 						this.str -= effect.value;
-					}
 				}
 			default:
 				break;
@@ -120,7 +142,12 @@ class Stats {
 	}
 
 	gcd() {
-		return Math.floor(2.5 * (1 - Math.floor((this.sks - 364) * 130 / 2170) / 1000) * 100) / 100;
+        var GCDm = Math.floor(2.5 * (1000 - Math.floor(130 * (this.sks - 364) / 2170)));
+        var A = Math.floor(Math.floor(Math.floor((100 - this.arrow) * (100 - this.type1) / 100) * (100 - this.haste) / 100) - this.feyWind);
+        var B = (100 - this.type2) / 100;
+        var GCDc = Math.floor(Math.floor(Math.floor(Math.ceil(A * B) * GCDm / 100) * this.riddleOfFire / 1000) * this.astralUmbral / 100);
+        return GCDc / 100;
+		// return     Math.floor(2.5 * (1 - Math.floor((this.sks - 364) * 130 / 2170) / 1000) * 100) / 100;
 	}
 
 	actionDamage(potency) {

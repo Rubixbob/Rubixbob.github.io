@@ -4,6 +4,7 @@ var startTime = 0;
 var RotationHistory = [];
 var savedRotation;
 var stats = new Stats(0, 0, 0, 0, 0, 0, []);
+var gcdTimeline = [];
 
 actions.forEach(function (ac) {
     var action = $("<div></div>").attr({name: ac.name, class: `action draggable ${ac.type}`});
@@ -286,8 +287,11 @@ function addActionAtIndex(element, idx, checkDelay = true) {
         // GCD
 		if ($(element).hasClass("Weaponskill")) {
 			var timeGcd = startTime;
-			if (previousGcds.length > 0)
-				timeGcd = (Number(previousGcds.last().attr("time")) * 100 + Number($("#SKSoutGCD").val()) * 100) / 100;
+			if (previousGcds.length > 0) {
+                var previousGcdTime = Number(previousGcds.last().attr("time"));
+                var gcdValue = gcdAt(previousGcdTime);
+				timeGcd = (previousGcdTime * 100 + gcdValue * 100) / 100;
+            }
 			time = Math.max(time, timeGcd);
 		}
 		// CD recast
@@ -458,6 +462,8 @@ function drawGroupEffect(name, beginTime, endTime) {
                      "border": `solid 3px ${borderColor}`, "cursor": "pointer"});
         wrapper.click(function() { // TODO : find permanent solution
             $(this).remove();
+            updateGcdTimeline(); // TODO : if speed buff
+            updateRotationAfterIndex(0);
             if ($("#rotation").children().length > 0)
                 resetAndUpdateDps();
         });
@@ -1172,6 +1178,8 @@ function refreshGroupMember(index, value) {
 
 $("#raidBuffLightboxConfirm").click(function() {
     drawGroupEffect($("#raidBuffLightboxTitle").val(), Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()) );
+    updateGcdTimeline(); // TODO : if speed buff
+    updateRotationAfterIndex(0);
     if ($("#rotation").children().length > 0)
         resetAndUpdateDps();
 });
@@ -1227,3 +1235,17 @@ $("#CRITin").change();
 $("#DETin").change();
 $("#SKSin").change();
 clearRotation();
+
+function gcdAt(time) {
+    if (gcdTimeline === undefined || gcdTimeline.length <= 0 || time < gcdTimeline[0].time)
+        return Number($("#SKSoutGCD").val());
+    var idx = 0;
+    while (gcdTimeline[idx] !== undefined && gcdTimeline[idx].time <= time) { idx++; }
+    return gcdTimeline[idx - 1].gcd;
+}
+
+function updateGcdTimeline() { // TODO
+    gcdTimeline = [];
+    // var gcdEvent = { time: 1, gcd: 2.5 };
+    // gcdTimeline.push(gcdEvent);
+}
