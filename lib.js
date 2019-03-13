@@ -32,27 +32,27 @@ class Stats {
 			case "Damage":
 				this.globalDmgMult = 1;
 				this.activeEffects.forEach(ef => {
-					if (ef.type === "Damage") {
-						if (timedEffect.royalRoad === "Enhanced")
-							this.globalDmgMult *= ef.enhancedValue;
-						else if (timedEffect.royalRoad === "Expanded")
-							this.globalDmgMult *= ef.expandedValue;
+					if (ef.effect.type === "Damage") {
+						if (ef.royalRoad === "Enhanced")
+							this.globalDmgMult *= ef.effect.enhancedValue;
+						else if (ef.royalRoad === "Expanded")
+							this.globalDmgMult *= ef.effect.expandedValue;
 						else
-							this.globalDmgMult *= ef.value;
+							this.globalDmgMult *= ef.effect.value;
 					}
 				});
 				break;
 			case "Piercing":
 				this.piercingDmgMult = 1;
 				this.activeEffects.forEach(ef => {
-					if (ef.type === "Piercing") {
-						this.piercingDmgMult *= ef.value;
+					if (ef.effect.type === "Piercing") {
+						this.piercingDmgMult *= ef.effect.value;
 					}
 				});
 				break;
 			case "DoT":
 				if (effect.name === "Chaos Thrust") {
-					if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0) {
+					if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0) {
 						this.CTDamage = timedEffect.dotDamage;
 					} else {
 						this.CTDamage = 0;
@@ -62,28 +62,28 @@ class Stats {
 			case "Crit":
 				this.critRateBonus = 0;
 				this.activeEffects.forEach(ef => {
-					if (ef.type === "Crit") {
-						if (timedEffect.royalRoad === "Enhanced")
-							this.critRateBonus += ef.enhancedValue;
-						else if (timedEffect.royalRoad === "Expanded")
-							this.critRateBonus += ef.expandedValue;
+					if (ef.effect.type === "Crit") {
+						if (ef.royalRoad === "Enhanced")
+							this.critRateBonus += ef.effect.enhancedValue;
+						else if (ef.royalRoad === "Expanded")
+							this.critRateBonus += ef.effect.expandedValue;
 						else
-							this.critRateBonus += ef.value;
+							this.critRateBonus += ef.effect.value;
 					}
 				});
 				break;
 			case "DH":
 				this.dhRateBonus = 0;
 				this.activeEffects.forEach(ef => {
-					if (ef.type === "DH") {
-						this.dhRateBonus += ef.value;
+					if (ef.effect.type === "DH") {
+						this.dhRateBonus += ef.effect.value;
 					}
 				});
 				break;
 			case "Speed":
 				switch (effect.name) {
                     case "The Arrow":
-                        if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0) {
+                        if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0) {
 							if (timedEffect.royalRoad === "Enhanced")
 								this.arrow = effect.enhancedValue;
 							else if (timedEffect.royalRoad === "Expanded")
@@ -94,7 +94,7 @@ class Stats {
                             this.arrow = 0;
                         break;
                     case "Fey Wind":
-                        if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0)
+                        if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0)
                             this.feyWind = effect.value;
                         else
                             this.feyWind = 0;
@@ -106,7 +106,7 @@ class Stats {
 				break;
 			case "Special":
 				if (effect.name === "Medicated") {
-					if (this.activeEffects.findIndex(ef => ef.name === effect.name) >= 0)
+					if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0)
 						this.str += effect.value;
 					else
 						this.str -= effect.value;
@@ -310,7 +310,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
         // Overwrite effect
         if (eType === "effectBegin") {
             timedEffect = effectsToActivate[0];
-            if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) >= 0 && !timedEffect.effect.stackable) {
+            if (activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name) >= 0 && !timedEffect.effect.stackable) {
                 eType = "effectEnd";
                 
                 var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
@@ -335,23 +335,23 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 				switch(eName) {
 	            	case "Jump":
 	            	case "Spineshatter Dive":
-	            		var BotDEffect = activeEffects.find(ef => ef.name === "Blood of the Dragon") || activeEffects.find(ef => ef.name === "Life of the Dragon");
+	            		var BotDEffect = activeEffects.find(ef => ef.effect.name === "Blood of the Dragon") || activeEffects.find(ef => ef.effect.name === "Life of the Dragon");
 	            		if (BotDEffect)
-	            			ePot *= BotDEffect.value;
+	            			ePot *= BotDEffect.effect.value;
 	            		break;
 	            	case "Fang and Claw":
-	            		var FCEffect = activeEffects.find(ef => ef.name === "Sharper Fang and Claw");
+	            		var FCEffect = activeEffects.find(ef => ef.effect.name === "Sharper Fang and Claw");
 	            		if (FCEffect) {
-	            			ePot += FCEffect.value;
+	            			ePot += FCEffect.effect.value;
 	            		} else {
 	            			ePot = 0;
 	            			// TODO : throw exception
 	            		}
 	            		break;
 	            	case "Wheeling Thrust":
-	            		var WTEffect = activeEffects.find(ef => ef.name === "Enhanced Wheeling Thrust");
+	            		var WTEffect = activeEffects.find(ef => ef.effect.name === "Enhanced Wheeling Thrust");
 	            		if (WTEffect) {
-	            			ePot += WTEffect.value;
+	            			ePot += WTEffect.effect.value;
 	            		} else {
 	            			ePot = 0;
 	            			// TODO : throw exception
@@ -362,7 +362,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            }
 
 	            // Action damage
-                if (getType(eName) === "Weaponskill" && activeEffects.findIndex(ef => ef.name === "Life Surge") >= 0) {
+                if (getType(eName) === "Weaponskill" && activeEffects.findIndex(ef => ef.effect.name === "Life Surge") >= 0) {
                 	eDmg = stats.actionDamageLS(ePot);
                 	// Consuming LS
                     var LSEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Life Surge"), 1)[0];
@@ -376,14 +376,14 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 				getEffects(eName).forEach(ef => {
                     // Lance Mastery
                     if (eName === "Fang and Claw" && ef.name === "Enhanced Wheeling Thrust") {
-                    	var FCEffect = activeEffects.find(ef => ef.name === "Sharper Fang and Claw");
-                    	if (FCEffect && FCEffect.value)
+                    	var FCEffect = activeEffects.find(ef => ef.effect.name === "Sharper Fang and Claw");
+                    	if (FCEffect && FCEffect.effect.value)
                         	return;
                         else
                         	ef.value = 100;
                     } else if (eName === "Wheeling Thrust" && ef.name === "Sharper Fang and Claw") {
-                    	var WTEffect = activeEffects.find(ef => ef.name === "Enhanced Wheeling Thrust");
-                    	if (WTEffect && WTEffect.value)
+                    	var WTEffect = activeEffects.find(ef => ef.effect.name === "Enhanced Wheeling Thrust");
+                    	if (WTEffect && WTEffect.effect.value)
                         	return;
                         else
                         	ef.value = 100;
@@ -457,7 +457,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                         // Cancel SFC and EWT when using another Weaponskill
                         if (getType(eName) === "Weaponskill") {
                             var FCIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Sharper Fang and Claw");
-                            if (FCIdx >= 0 && activeEffects.findIndex(ef => ef.name === "Sharper Fang and Claw") >= 0) {
+                            if (FCIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === "Sharper Fang and Claw") >= 0) {
                                 var FCEffect = effectsToEnd.splice(FCIdx, 1)[0];
                                 if (FCEffect) {
                                     FCEffect.endTime = time;
@@ -465,7 +465,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                                 }
                             }
                             var WTIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Enhanced Wheeling Thrust");
-                            if (WTIdx >= 0 && activeEffects.findIndex(ef => ef.name === "Enhanced Wheeling Thrust") >= 0) {
+                            if (WTIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === "Enhanced Wheeling Thrust") >= 0) {
                                 var WTEffect = effectsToEnd.splice(WTIdx, 1)[0];
                                 if (WTEffect) {
                                     WTEffect.endTime = time;
@@ -517,14 +517,14 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             	timedEffect = effectsToActivate.shift();
 
             	// Check if not already active
-            	if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) < 0 || timedEffect.effect.stackable)
-                    activeEffects.push(timedEffect.effect);
+            	if (activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name) < 0 || timedEffect.effect.stackable)
+                    activeEffects.push(timedEffect);
             	stats.updateEffects(timedEffect);
             	eName = timedEffect.effect.name;
             	break;
             case "effectEnd":
             	timedEffect = effectsToEnd.shift();
-            	activeEffects.splice(activeEffects.indexOf(timedEffect.effect), 1);
+            	activeEffects.splice(activeEffects.indexOf(timedEffect), 1);
             	stats.updateEffects(timedEffect);
             	eName = timedEffect.effect.name;
             	timedEffect.endTime = time;
@@ -540,7 +540,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 			                var idx = 0;
 			                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < timedEffect.endTime) { idx++; }
 			                effectsToEnd.splice(idx, 0, timedEffect);
-			            	activeEffects.push(timedEffect.effect);
+			            	activeEffects.push(timedEffect);
 			            	stats.updateEffects(timedEffect);
 	            		} else {
 	            			timedEffect.effect.eyes = 0;
@@ -597,7 +597,7 @@ function generateGcdTimeline(gcdTimeline, stats, groupSpeedEffectsDom) {
         // Overwrite effect
         if (eType === "effectBegin") {
             timedEffect = effectsToActivate[0];
-            if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) >= 0 && !timedEffect.effect.stackable) {
+            if (activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name) >= 0 && !timedEffect.effect.stackable) {
                 eType = "effectEnd";
                 
                 var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
@@ -616,13 +616,13 @@ function generateGcdTimeline(gcdTimeline, stats, groupSpeedEffectsDom) {
 	        	timedEffect = effectsToActivate.shift();
 
 	        	// Check if not already active
-	        	if (activeEffects.findIndex(ef => ef.name === timedEffect.effect.name) < 0 || timedEffect.effect.stackable)
-	                activeEffects.push(timedEffect.effect);
+	        	if (activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name) < 0 || timedEffect.effect.stackable)
+	                activeEffects.push(timedEffect);
 	        	stats.updateEffects(timedEffect);
 	        	break;
 	        case "effectEnd":
 	        	timedEffect = effectsToEnd.shift();
-	        	activeEffects.splice(activeEffects.indexOf(timedEffect.effect), 1);
+	        	activeEffects.splice(activeEffects.indexOf(timedEffect), 1);
 	        	stats.updateEffects(timedEffect);
 	        	timedEffect.endTime = time;
 	        	break;
