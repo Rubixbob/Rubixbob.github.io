@@ -473,7 +473,7 @@ function drawGroupEffect(name, beginTime, endTime, royalRoad) {
         });
         
         var overlay = $("<div></div>");
-        overlay.css({"position": "relative", "left": "-3px", "top": "-3px", "width": `${posWidth+6}px`, "height": "0px", "background-color": "black", "opacity": "0.7"});
+        overlay.css({"position": "relative", "left": "-3px", "top": "-3px", "width": `${posWidth+6}px`, "height": "0px", "background-color": "#CCC", "opacity": "0.7"});
         overlay.attr("endtime", endTime);
         
         wrapper.append(overlay);
@@ -1045,17 +1045,17 @@ function selectCard(cardName) {
 }
 
 $("#raidBuffLightboxBalance").change(function() {
-    if ($("#raidBuffLightboxBalance").prop("checked"))
+    if (!$("#raidBuffLightboxCardsRow").prop("hidden") && $("#raidBuffLightboxBalance").prop("checked"))
         selectCard("The Balance");
 });
 
 $("#raidBuffLightboxSpear").change(function() {
-    if ($("#raidBuffLightboxSpear").prop("checked"))
+    if (!$("#raidBuffLightboxCardsRow").prop("hidden") && $("#raidBuffLightboxSpear").prop("checked"))
         selectCard("The Spear");
 });
 
 $("#raidBuffLightboxArrow").change(function() {
-    if ($("#raidBuffLightboxArrow").prop("checked"))
+    if (!$("#raidBuffLightboxCardsRow").prop("hidden") && $("#raidBuffLightboxArrow").prop("checked"))
         selectCard("The Arrow");
 });
 
@@ -1084,27 +1084,33 @@ function adjustCardDuration() {
 }
 
 $("#raidBuffLightboxNoEffect").change(function() {
-    adjustCardDuration();
+    if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
+        adjustCardDuration();
 });
 
 $("#raidBuffLightboxExpanded").change(function() {
-    adjustCardDuration();
+    if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
+        adjustCardDuration();
 });
 
 $("#raidBuffLightboxExtended").change(function() {
-    adjustCardDuration();
+    if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
+        adjustCardDuration();
 });
 
 $("#raidBuffLightboxEnhanced").change(function() {
-    adjustCardDuration();
+    if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
+        adjustCardDuration();
 });
 
 $("#raidBuffLightboxCelestialOpposition").change(function() {
-    adjustCardDuration();
+    if (!$("#raidBuffLightboxAstRow").prop("hidden"))
+        adjustCardDuration();
 });
 
 $("#raidBuffLightboxTimeDilation").change(function() {
-    adjustCardDuration();
+    if (!$("#raidBuffLightboxAstRow").prop("hidden"))
+        adjustCardDuration();
 });
 
 function setUpRaidBuffLightbox(name) {
@@ -1130,21 +1136,21 @@ function setUpRaidBuffLightbox(name) {
         case "The Balance":
         case "The Spear":
         case "The Arrow":
+            $("#raidBuffLightboxCardsRow").prop("hidden", false);
+            $("#raidBuffLightboxRoadRow").prop("hidden", false);
+            $("#raidBuffLightboxAstRow").prop("hidden", false);
             $(`#raidBuffLightbox${name.substring(4)}`).prop("checked", true).change();
             $("#raidBuffLightboxExpanded").prop("checked", true).change();
             $("#raidBuffLightboxCelestialOpposition").prop("checked", true).change();
             $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
-            $("#raidBuffLightboxCardsRow").prop("hidden", false);
-            $("#raidBuffLightboxRoadRow").prop("hidden", false);
-            $("#raidBuffLightboxAstRow").prop("hidden", false);
             break;
         default:
-            $("#raidBuffLightboxNoEffect").prop("checked", true).change();
-            $("#raidBuffLightboxCelestialOpposition").prop("checked", false).change();
-            $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
             $("#raidBuffLightboxCardsRow").prop("hidden", true);
             $("#raidBuffLightboxRoadRow").prop("hidden", true);
             $("#raidBuffLightboxAstRow").prop("hidden", true);
+            $("#raidBuffLightboxNoEffect").prop("checked", true).change();
+            $("#raidBuffLightboxCelestialOpposition").prop("checked", false).change();
+            $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
             break;
     }
 }
