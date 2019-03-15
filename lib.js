@@ -643,7 +643,6 @@ function generateGcdTimeline(gcdTimeline, stats, groupSpeedEffectsDom) {
 			}
 		}
 	}
-	console.log(gcdTimeline);
 }
 
 function getAnimationLock(actionName) {

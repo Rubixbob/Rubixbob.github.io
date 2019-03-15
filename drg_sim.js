@@ -421,7 +421,7 @@ function addTimeUntil(time) {
 
 function drawEffect(name, beginTime, endTime) {
     if ($("#effectsHeader").children(`[name="${name}"]`).length > 0) {
-        var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left;
+        var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left + 1;
         var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
         var posTop = (beginTime - startTime) * scale;
         var posHeight = (endTime - beginTime) * scale - 6;
@@ -434,27 +434,35 @@ function drawEffect(name, beginTime, endTime) {
         if (effect.hasOwnProperty("borderColor"))
             borderColor = effect.borderColor;
         
-        $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
-            .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
-                  "border": `solid 3px ${borderColor}`}));
+        var wrapper = $("<div></div>");
+        wrapper.attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
+        wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
+                     "border": `solid 3px ${borderColor}`});
+        
+        var icon = $("<img></img>");
+        icon.attr("src", `images/effects/${name}.png`);
+        icon.css({"position": "sticky", "margin-left": "-4px", "margin-top": "-3px", "margin-bottom": "-3px", "top": "0px"});
+        wrapper.append(icon);
+        
+        $("#effects").append(wrapper);
         addTimeUntil(endTime + 5);
     }
 }
 
 function drawGroupEffect(name, beginTime, endTime, royalRoad) {
     if ($("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).length > 0) {
-        var posLeft = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).position().left;
+        var posLeft = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).position().left + 1;
         var posWidth = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).width() - 8;
         var posTop = (beginTime - startTime) * scale;
         var posHeight = (endTime - beginTime) * scale - 6;
         
         var effect = effects.find(ef => name === ef.name);
         var backgroundColor = "rgb(255,60,60)";
-        // if (effect.hasOwnProperty("backgroundColor"))
-            // backgroundColor = effect.backgroundColor;
+        if (effect.hasOwnProperty("backgroundColor"))
+            backgroundColor = effect.backgroundColor;
         var borderColor = "rgb(128, 30, 30)";
-        // if (effect.hasOwnProperty("borderColor"))
-            // borderColor = effect.borderColor;
+        if (effect.hasOwnProperty("borderColor"))
+            borderColor = effect.borderColor;
         
         var wrapper = $("<div></div>");
         wrapper.attr({"class": "effect", "name": name, "jobIndex": raidBuffLightboxJobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
@@ -472,11 +480,16 @@ function drawGroupEffect(name, beginTime, endTime, royalRoad) {
                 resetAndUpdateDps();
         });
         
-        var overlay = $("<div></div>");
-        overlay.css({"position": "relative", "left": "-3px", "top": "-3px", "width": `${posWidth+6}px`, "height": "0px", "background-color": "#CCC", "opacity": "0.7"});
-        overlay.attr("endtime", endTime);
+        var icon = $("<img></img>");
+        icon.attr("src", `images/effects/${name}.png`);
+        icon.css({"position": "sticky", "margin-left": "-4px", "margin-top": "-3px", "margin-bottom": "-3px", "top": "0px"});
+        wrapper.append(icon);
         
+        var overlay = $("<div></div>");
+        overlay.css({"position": "absolute", "left": "-3px", "top": "-3px", "width": `${posWidth+6}px`, "height": "0px", "background-color": "#CCC", "opacity": "0.7"});
+        overlay.attr("endtime", endTime);
         wrapper.append(overlay);
+        
         $("#groupEffects").append(wrapper);
         addTimeUntil(endTime + 5);
     }
@@ -484,7 +497,7 @@ function drawGroupEffect(name, beginTime, endTime, royalRoad) {
 
 function updateGroupEffectOverlay(name, beginTime, endTime, jobIndex) {
     var wrapper = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"]`);
-    var overlay = wrapper.children();
+    var overlay = wrapper.children("div");
     overlay.attr("endtime", endTime);
     
     var posTop = (endTime - beginTime) * scale - 3;
