@@ -37,6 +37,8 @@ class Stats {
 							this.globalDmgMult *= ef.effect.enhancedValue;
 						else if (ef.royalRoad === "Expanded")
 							this.globalDmgMult *= ef.effect.expandedValue;
+						else if (ef.emboldenStacks > 0)
+							this.globalDmgMult *= (ef.effect.value + ef.emboldenStacks * ef.effect.stackValue);
 						else
 							this.globalDmgMult *= ef.effect.value;
 					}
@@ -267,6 +269,8 @@ function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
         var timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, jobIndex: $(this).attr("jobIndex")};
         if (this.hasAttribute("royalRoad"))
         	timedEffect.royalRoad = $(this).attr("royalRoad");
+        if (this.hasAttribute("emboldenStacks"))
+        	timedEffect.emboldenStacks = $(this).attr("emboldenStacks");
         while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
         effectsToActivate.splice(idx, 0, timedEffect);
 

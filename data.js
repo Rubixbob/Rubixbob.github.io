@@ -584,10 +584,11 @@ var effects = [
 	{ name: "Embolden", // TODO : Code stacks
 	  shortName: "EM",
 	  description: "Physical damage dealt is increased.",
-	  value: 1.1,
+	  value: 1.0,
 	  stackValue: 0.02,
 	  duration: 20,
 	  stackDuration: 4,
+      maxStacks: 5,
 	  recast: 120,
       stackable: false,
       backgroundColor: "rgb(208, 144, 80)",
