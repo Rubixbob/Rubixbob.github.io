@@ -21,6 +21,7 @@ function fitColumns() {
     $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
     $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width}px`); });
     $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${$(this).attr("name")}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
+    $("#scrollableDiv").css("height", `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#scrollableDiv").get(0).getBoundingClientRect().top}px`);
 }
 
 var imagesToLoad = 0;
@@ -83,7 +84,7 @@ effects.forEach(function (ef) {
                 // });
 
                 var scrollValue = parseInt($("#rotation").children().last().css("top"), 10) - 400;
-                $(".scrollable").animate({scrollTop:scrollValue}, 50, "linear");
+                $("#scrollableDiv").animate({scrollTop:scrollValue}, 50, "linear");
                 $(".tooltip").remove();
             });
 			
@@ -963,8 +964,8 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
     if(event.ctrlKey == true)
     {
         event.preventDefault();
-        var scrollTopOffset = Number($(".scrollable").attr("scrollTop")) || 0;
-        var scrollTime = ($(".scrollable").scrollTop() + scrollTopOffset) / scale;
+        var scrollTopOffset = Number($("#scrollableDiv").attr("scrollTop")) || 0;
+        var scrollTime = ($("#scrollableDiv").scrollTop() + scrollTopOffset) / scale;
 
         if(event.originalEvent.deltaY > 0) {
             scale /= 1.1;
@@ -1025,10 +1026,10 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
             var pos = ($(this).attr("time") - startTime) * scale;
             $(this).css("top", `${pos}px`);
         });
-        $(".scrollable").attr("scrollTop", (scrollTime * scale) % 1);
-        $(".scrollable").scrollTop(scrollTime * scale);
+        $("#scrollableDiv").attr("scrollTop", (scrollTime * scale) % 1);
+        $("#scrollableDiv").scrollTop(scrollTime * scale);
     } else {
-        $(".scrollable").attr("scrollTop", 0);
+        $("#scrollableDiv").attr("scrollTop", 0);
     }
 });
 
@@ -1290,11 +1291,12 @@ for (i = 0; i < 6; i++) {
 $("#group tr td select").each(function() {
     $(this).iconselectmenu({ change: function(event, data) {
         refreshGroupMember($("#group tr td select").index($(event.target)), data.item.value);
-}}).iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
+}}).iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); }); // TODO : adjustable height
 
 for (i = 0; i < 7; i++) {
     $("#group tr td select").eq(i).val(standardComp[i]);
     $("#group tr td select").eq(i).iconselectmenu("refresh");
+    $("#group tr td select").eq(i).iconselectmenu("menuWidget").css({"max-height": `calc(100vh - ${97 + 53 * i}px)`, "min-height": "100px"});
     refreshGroupMember(i, standardComp[i]);
 }
 

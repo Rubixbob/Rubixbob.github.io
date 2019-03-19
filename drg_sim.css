@@ -26,9 +26,13 @@
     height: auto;
 }
 
-body {
+#mainDiv {
     display: flex;
     flex-wrap: wrap;
+}
+
+#midDiv {
+    height: calc(100vh - 8px);
 }
 
 input {
@@ -112,9 +116,8 @@ table {
     /*position: relative;*/
 }
 
-.scrollable{
+#scrollableDiv{
     width: fit-content;
-    height: 800px;
     overflow: auto;
     position: relative;
 }

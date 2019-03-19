@@ -15,137 +15,139 @@
 </head>
 
 <body>
-    <div id="actions">
-        <div id="combo1" class="actionGroup">
+    <div id="mainDiv">
+        <div id="actions">
+            <div id="combo1" class="actionGroup">
+            </div>
+            <div id="combo2" class="actionGroup">
+            </div>
+            <div id="miscgcd" class="actionGroup">
+            </div>
+            <div id="buff" class="actionGroup">
+            </div>
+            <div id="ogcd" class="actionGroup">
+            </div>
+            <div id="crossrole" class="actionGroup">
+            </div>
+            <div id="other" class="actionGroup">
+            </div>
         </div>
-        <div id="combo2" class="actionGroup">
-        </div>
-        <div id="miscgcd" class="actionGroup">
-        </div>
-        <div id="buff" class="actionGroup">
-        </div>
-        <div id="ogcd" class="actionGroup">
-        </div>
-        <div id="crossrole" class="actionGroup">
-        </div>
-        <div id="other" class="actionGroup">
-        </div>
-    </div>
-    <div>
-        <button class="mini ui button" id="clearRotation">Clear rotation</button>
-        <button class="mini ui button" id="opener">Recommended opener</button>
-        <button class="mini ui button" id="loadRotation">Load (test)</button>
-        <button class="mini ui button" id="saveRotation">Save (test)</button>
-        <button class="mini ui button" id="threeMinRotation">3 min rotation</button>
-        <button class="mini ui button" id="debugButton">Debug</button>
-        <label for="DPSout">Final DPS: </label>
-        <output id="DPSout"></output>
-        <!-- <label for="GCD">GCD</label>
-        <input id="GCD" type="number" step="0.01" value="2.45" maxlength=4 size="1" min="1.5" max="2.5"></input> -->
-        <table>
-            <tr id="headers">
-                <th>Time</th>
-                <th width="74px">Actions</th>
-                <th width="36px">BotD</th>
-                <th id="effectsHeader" nowrap></th>
-                <th id="groupEffectsHeader" nowrap></th>
-                <th>Cooldowns</th>
-                <th width="40px">DPS</th>
-            </tr>
-        </table>
-        <div class="scrollable">
+        <div id="midDiv">
+            <button class="mini ui button" id="clearRotation">Clear rotation</button>
+            <button class="mini ui button" id="opener">Recommended opener</button>
+            <button class="mini ui button" id="loadRotation">Load (test)</button>
+            <button class="mini ui button" id="saveRotation">Save (test)</button>
+            <button class="mini ui button" id="threeMinRotation">3 min rotation</button>
+            <button class="mini ui button" id="debugButton">Debug</button>
+            <label for="DPSout">Final DPS: </label>
+            <output id="DPSout"></output>
+            <!-- <label for="GCD">GCD</label>
+            <input id="GCD" type="number" step="0.01" value="2.45" maxlength=4 size="1" min="1.5" max="2.5"></input> -->
             <table>
-                <tr id="columns">
-                    <td id="timeline"></td>
-                    <td id="rotation" class="dropper"></td>
-                    <td id="botd"></td>
-                    <td id="effects"></td>
-                    <td id="groupEffects"></td>
-                    <td id="cds"></td>
-                    <td id="dps"></td>
+                <tr id="headers">
+                    <th>Time</th>
+                    <th width="74px">Actions</th>
+                    <th width="36px">BotD</th>
+                    <th id="effectsHeader" nowrap></th>
+                    <th id="groupEffectsHeader" nowrap></th>
+                    <th>Cooldowns</th>
+                    <th width="40px">DPS</th>
+                </tr>
+            </table>
+            <div id="scrollableDiv">
+                <table>
+                    <tr id="columns">
+                        <td id="timeline"></td>
+                        <td id="rotation" class="dropper"></td>
+                        <td id="botd"></td>
+                        <td id="effects"></td>
+                        <td id="groupEffects"></td>
+                        <td id="cds"></td>
+                        <td id="dps"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div>
+            <table id="group">
+                <tr>
+                    <th>Raid group</th>
+                    <!-- <td>+</td> -->
+                </tr>
+                <tr>
+                    <td>
+                        <select>
+                            <optgroup label="Tanks">
+                                <option value="war" data-class="war">WAR</option>
+                                <option value="pld" data-class="pld">PLD</option>
+                                <option value="drk" data-class="drk">DRK</option>
+                            </optgroup>
+                            <optgroup label="Healers">
+                                <option value="sch" data-class="sch">SCH</option>
+                                <option value="ast" data-class="ast">AST</option>
+                                <option value="whm" data-class="whm">WHM</option>
+                            </optgroup>
+                            <optgroup label="DPS">
+                                <option value="drg" data-class="drg">DRG</option>
+                                <option value="nin" data-class="nin">NIN</option>
+                                <option value="mnk" data-class="mnk">MNK</option>
+                                <option value="sam" data-class="sam">SAM</option>
+                                <option value="brd" data-class="brd">BRD</option>
+                                <option value="mch" data-class="mch">MCH</option>
+                                <option value="smn" data-class="smn">SMN</option>
+                                <option value="rdm" data-class="rdm">RDM</option>
+                                <option value="blm" data-class="blm">BLM</option>
+                            </optgroup>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table id="stats">
+                <tr>
+                    <th>Stats</th>
+                    <th></th>
+                    <th>Mod</th>
+                </tr>
+                <tr>
+                    <td><label for="WDin">Weapon Damage</label></td>
+                    <td><input id="WDin" type="number" value="109" min="0" max="9999"></input></td>
+                    <td><output id="WDout"></output></td>
+                </tr>
+                <tr>
+                    <td><label for="STRin">Strength</label></td>
+                    <td><input id="STRin" type="number" value="3207" min="0" max="9999"></input></td>
+                    <td><output id="STRout"></output></td>
+                </tr>
+                <tr>
+                    <td><label for="DHin">Direct Hit Rate</label></td>
+                    <td><input id="DHin" type="number" value="1611" min="0" max="9999"></input></td>
+                    <td><output id="DHout"></output></td>
+                    <td>Chance: <output id="DHoutRate"></output></td>
+                </tr>
+                <tr>
+                    <td><label for="CRITin">Critical Hit Rate</label></td>
+                    <td><input id="CRITin" type="number" value="2557" min="0" max="9999"></input></td>
+                    <td><output id="CRITout"></output></td>
+                    <td>Chance: <output id="CRIToutRate"></output> Damage: <output id="CRIToutDmg"></output></td>
+                </tr>
+                <tr>
+                    <td><label for="DETin">Determination</label></td>
+                    <td><input id="DETin" type="number" value="1796" min="0" max="9999"></input></td>
+                    <td><output id="DETout"></output></td>
+                </tr>
+                <tr>
+                    <td><label for="SKSin">Skill Speed</label></td>
+                    <td><input id="SKSin" type="number" value="655" min="0" max="9999"></input></td>
+                    <td><output id="SKSout"></output></td>
+                    <td>GCD: <output id="SKSoutGCD"></output></td>
+                </tr>
+                <tr>
+                    <td><label for="Latency">Latency</label></td>
+                    <td><input id="Latency" type="number" value="20" min="0" max="9999"></input></td>
                 </tr>
             </table>
         </div>
-    </div>
-    <div>
-        <table id="stats">
-            <tr>
-                <th>Stats</th>
-                <th></th>
-                <th>Mod</th>
-            </tr>
-            <tr>
-                <td><label for="WDin">Weapon Damage</label></td>
-                <td><input id="WDin" type="number" value="109" min="0" max="9999"></input></td>
-                <td><output id="WDout"></output></td>
-            </tr>
-            <tr>
-                <td><label for="STRin">Strength</label></td>
-                <td><input id="STRin" type="number" value="3207" min="0" max="9999"></input></td>
-                <td><output id="STRout"></output></td>
-            </tr>
-            <tr>
-                <td><label for="DHin">Direct Hit Rate</label></td>
-                <td><input id="DHin" type="number" value="1611" min="0" max="9999"></input></td>
-                <td><output id="DHout"></output></td>
-                <td>Chance: <output id="DHoutRate"></output></td>
-            </tr>
-            <tr>
-                <td><label for="CRITin">Critical Hit Rate</label></td>
-                <td><input id="CRITin" type="number" value="2557" min="0" max="9999"></input></td>
-                <td><output id="CRITout"></output></td>
-                <td>Chance: <output id="CRIToutRate"></output> Damage: <output id="CRIToutDmg"></output></td>
-            </tr>
-            <tr>
-                <td><label for="DETin">Determination</label></td>
-                <td><input id="DETin" type="number" value="1796" min="0" max="9999"></input></td>
-                <td><output id="DETout"></output></td>
-            </tr>
-            <tr>
-                <td><label for="SKSin">Skill Speed</label></td>
-                <td><input id="SKSin" type="number" value="655" min="0" max="9999"></input></td>
-                <td><output id="SKSout"></output></td>
-                <td>GCD: <output id="SKSoutGCD"></output></td>
-            </tr>
-            <tr>
-                <td><label for="Latency">Latency</label></td>
-                <td><input id="Latency" type="number" value="20" min="0" max="9999"></input></td>
-            </tr>
-        </table>
-        <br />
-        <table id="group">
-            <tr>
-                <th>Raid group</th>
-                <!-- <td>+</td> -->
-            </tr>
-            <tr>
-                <td>
-                    <select>
-                        <optgroup label="Tanks">
-                            <option value="war" data-class="war">WAR</option>
-                            <option value="pld" data-class="pld">PLD</option>
-                            <option value="drk" data-class="drk">DRK</option>
-                        </optgroup>
-                        <optgroup label="Healers">
-                            <option value="sch" data-class="sch">SCH</option>
-                            <option value="ast" data-class="ast">AST</option>
-                            <option value="whm" data-class="whm">WHM</option>
-                        </optgroup>
-                        <optgroup label="DPS">
-                            <option value="drg" data-class="drg">DRG</option>
-                            <option value="nin" data-class="nin">NIN</option>
-                            <option value="mnk" data-class="mnk">MNK</option>
-                            <option value="sam" data-class="sam">SAM</option>
-                            <option value="brd" data-class="brd">BRD</option>
-                            <option value="mch" data-class="mch">MCH</option>
-                            <option value="smn" data-class="smn">SMN</option>
-                            <option value="rdm" data-class="rdm">RDM</option>
-                            <option value="blm" data-class="blm">BLM</option>
-                        </optgroup>
-                    </select>
-                </td>
-            </tr>
-        </table>
     </div>
     <div id="progress">
         <div>
