@@ -699,10 +699,34 @@ function getEffects(actionName) {
     return actionEffects;
 }
 
-function getEffectDuration(actionName) {
+function getEffectDuration(effectName) {
     var duration = 0;
-    var effect = effects.find(ac => actionName === ac.name);
+    var effect = effects.find(ef => effectName === ef.name);
     if (effect.hasOwnProperty("duration"))
         duration = effect.duration;
     return Number(duration);
+}
+
+function getEffectJob(effectName) {
+    var job = "drg";
+    var effect = effects.find(ef => effectName === ef.name);
+    if (effect.hasOwnProperty("job"))
+        job = effect.job;
+    return job;
+}
+
+function getEffectRecastTime(effectName) {
+    var recast = 0;
+    var effect = effects.find(ef => effectName === ef.name);
+    if (effect.hasOwnProperty("recast"))
+        recast = effect.recast;
+    return Number(recast);
+}
+
+function getEffectDescription(effectName) {
+    var description = "";
+    var effect = effects.find(ef => effectName === ef.name);
+    if (effect.hasOwnProperty("description"))
+        description = effect.description;
+    return description;
 }

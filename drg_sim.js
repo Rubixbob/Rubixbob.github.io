@@ -35,6 +35,7 @@ effects.forEach(function (ef) {
                 fitColumns();
         }).each(function() {
             $("#effectsHeader").append(this);
+            addTooltip(this);
             imagesToLoad++;
             if (this.complete)
                 $(this).trigger('load');
@@ -94,7 +95,7 @@ effects.forEach(function (ef) {
                     target = target.parentNode;
                 }
 				
-				var content = dndHandler.getTooltipContent(target);
+				var content = getTooltipContent(target);
 				$(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
 			});
 			
@@ -225,7 +226,7 @@ effects.forEach(function (ef) {
                     target = target.parentNode;
                 }
 				
-				var content = dndHandler.getTooltipContent(target);
+				var content = getTooltipContent(target);
 				$(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
 			});
 			
@@ -236,34 +237,67 @@ effects.forEach(function (ef) {
 			element.addEventListener('mouseout', function(e) {
 				$(".tooltip").remove();
 			});
-        },
-		
-		getTooltipContent: function(element) {
-			var parentId = $(element.parentNode).attr("id");
-			if (parentId === "rotation") {
-				var name = $(element).attr("name");
-				var time = $(element).attr("time");
-                var damage = $(element).attr("damage");
-                if (Number(damage) > 0)
-                    return name + "<br/>" + "Damage: " + damage + "<br/>" + time + "s";
-                else
-                    return name + "<br/>" + time + "s";
-			} else if (parentId === "cds") {
-				var name = $(element).attr("name");
-				var time = $(element).attr("time");
-				return name + "<br/>" + time + "s";
-			} else {
-				var name = $(element).attr("name");
-				var type = getType(name);
-				var recast = getRecastTime(name);
-				var desc = getDescription(name);
-				return name + "<br/>" + type + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
-			}
-		}
+        }
     };
 
     $(".draggable").each(function(index) { dndHandler.applyActionsEvents(this); });
     $(".dropper").each(function(index) { dndHandler.applyDropEvents(this); });
+	
+function addTooltip(element) {
+    $(element).mouseover(function(e) {
+        var content = getTooltipContent(element);
+        $(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
+    }).mousemove(function(e) {
+        $(".tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`});
+    }).mouseout(function(e) {
+        $(".tooltip").remove();
+    }).click(function(e) {
+        $(".tooltip").remove();
+    });
+}
+	
+function getTooltipContent(element) {
+    var parentId = $(element.parentNode).attr("id");
+    if (parentId === "rotation") {
+        var name = $(element).attr("name");
+        var time = $(element).attr("time");
+        var damage = $(element).attr("damage");
+        if (Number(damage) > 0)
+            return name + "<br/>" + "Damage: " + damage + "<br/>" + time + "s";
+        else
+            return name + "<br/>" + time + "s";
+    } else if (parentId === "cds") {
+        var name = $(element).attr("name");
+        var time = $(element).attr("time");
+        return name + "<br/>" + time + "s";
+    } else if (parentId === "effects") {
+        var name = $(element).attr("name");
+        var time = $(element).attr("time");
+        var endTime = $(element).attr("endTime");
+        return name + "<br/>" + "Starts at " + time + "s" + "<br/>" + "Ends at " + endTime + "s";
+    } else if (parentId === "groupEffects") {
+        var name = $(element).attr("name");
+        var time = $(element).attr("time");
+        var endTime = $(element).children("div").attr("endTime");
+        return name + "<br/>" + "Starts at " + time + "s" + "<br/>" + "Ends at " + endTime + "s";
+    } else if (parentId === "effectsHeader") {
+        var name = $(element).attr("name");
+        var desc = getEffectDescription(name);
+        return name + "<br/>" + desc;
+    } else if (parentId === "groupEffectsHeader") {
+        var name = $(element).attr("name");
+        var job = getEffectJob(name);
+        var recast = getEffectRecastTime(name);
+        var desc = getEffectDescription(name);
+        return name + "<br/>" + job.toUpperCase() + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
+    } else {
+        var name = $(element).attr("name");
+        var type = getType(name);
+        var recast = getRecastTime(name);
+        var desc = getDescription(name);
+        return name + "<br/>" + type + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
+    }
+}
 
 function addActionAtIndex(element, idx, checkDelay = true) {
 	// Saves associated next possible usage
@@ -444,7 +478,7 @@ function drawEffect(name, beginTime, endTime) {
             borderColor = effect.borderColor;
         
         var wrapper = $("<div></div>");
-        wrapper.attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
+        wrapper.attr({"class": "effect", "name": name, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
         wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
                      "border": `solid 3px ${borderColor}`});
         
@@ -454,6 +488,7 @@ function drawEffect(name, beginTime, endTime) {
         wrapper.append(icon);
         
         $("#effects").append(wrapper);
+        addTooltip(wrapper.get(0));
         addTimeUntil(endTime + 5);
     }
 }
@@ -509,10 +544,11 @@ function drawGroupEffect(name, beginTime, endTime, royalRoad, emboldenStacks) {
         
         var overlay = $("<div></div>");
         overlay.css({"position": "absolute", "left": "-3px", "top": "-3px", "width": `${posWidth+6}px`, "height": "0px", "background-color": "#CCC", "opacity": "0.7"});
-        overlay.attr("endtime", endTime);
+        overlay.attr("endtime", `${endTime.toFixed(3)}`);
         wrapper.append(overlay);
         
         $("#groupEffects").append(wrapper);
+        addTooltip(wrapper.get(0));
         addTimeUntil(endTime + 5);
     }
 }
@@ -520,7 +556,7 @@ function drawGroupEffect(name, beginTime, endTime, royalRoad, emboldenStacks) {
 function updateGroupEffectOverlay(name, beginTime, endTime, jobIndex) {
     var wrapper = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"]`);
     var overlay = wrapper.children("div");
-    overlay.attr("endtime", endTime);
+    overlay.attr("endtime", `${endTime.toFixed(3)}`);
     
     var posTop = (endTime - beginTime) * scale - 3;
     var posHeight = (Number(wrapper.attr("endTime")) - endTime) * scale;
@@ -693,10 +729,7 @@ function updateDps() {
     RotationHistory.forEach(e => {
         if (e.type === "action") {
             displayDps(Math.floor(e.dps), e.time);
-            if (getType(e.name) === "Weaponskill") // TODO : Remove test
-                $("#rotation").children(`[time='${e.time.toFixed(3)}']`).attr("damage", Math.round(e.actionDamage));
-            else
-                $("#rotation").children(`[time='${e.time.toFixed(3)}']`).attr("damage", e.actionDamage.toFixed(2));
+            $("#rotation").children(`[time='${e.time.toFixed(3)}']`).attr("damage", Math.round(e.actionDamage));
         } else if (e.type === "effectBegin") {
             if (e.timedEffect.displaySelf) {
                 drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
@@ -1228,6 +1261,7 @@ function refreshGroupMember(index, value) {
                     $("#groupEffectsHeader").children().eq(idx-1).after(wrapper);
                 else
                     $("#groupEffectsHeader").prepend(wrapper);
+                addTooltip(wrapper.get(0));
                 
                 idx++;
                 raidImagesToLoad++;
