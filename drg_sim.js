@@ -240,7 +240,15 @@ effects.forEach(function (ef) {
 		
 		getTooltipContent: function(element) {
 			var parentId = $(element.parentNode).attr("id");
-			if (parentId === "rotation" || parentId === "cds") {
+			if (parentId === "rotation") {
+				var name = $(element).attr("name");
+				var time = $(element).attr("time");
+                var damage = $(element).attr("damage");
+                if (Number(damage) > 0)
+                    return name + "<br/>" + "Damage: " + damage + "<br/>" + time + "s";
+                else
+                    return name + "<br/>" + time + "s";
+			} else if (parentId === "cds") {
 				var name = $(element).attr("name");
 				var time = $(element).attr("time");
 				return name + "<br/>" + time + "s";
@@ -685,6 +693,10 @@ function updateDps() {
     RotationHistory.forEach(e => {
         if (e.type === "action") {
             displayDps(Math.floor(e.dps), e.time);
+            if (getType(e.name) === "Weaponskill") // TODO : Remove test
+                $("#rotation").children(`[time='${e.time.toFixed(3)}']`).attr("damage", Math.round(e.actionDamage));
+            else
+                $("#rotation").children(`[time='${e.time.toFixed(3)}']`).attr("damage", e.actionDamage.toFixed(2));
         } else if (e.type === "effectBegin") {
             if (e.timedEffect.displaySelf) {
                 drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
@@ -1291,7 +1303,7 @@ for (i = 0; i < 6; i++) {
 $("#group tr td select").each(function() {
     $(this).iconselectmenu({ change: function(event, data) {
         refreshGroupMember($("#group tr td select").index($(event.target)), data.item.value);
-}}).iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); }); // TODO : adjustable height
+}}).iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
 
 for (i = 0; i < 7; i++) {
     $("#group tr td select").eq(i).val(standardComp[i]);
