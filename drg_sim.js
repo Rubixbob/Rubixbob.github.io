@@ -1,4 +1,6 @@
 var raidBuffLightboxJobIndex = 0; // Will have to be passed as a parameter maybe
+var raidBuffLightboxEditMode = false;
+var raidBuffLightboxEditElement;
 var standardComp = ["war", "pld", "sch", "ast", "nin", "brd", "smn"];
 var startTime = 0;
 var RotationHistory = [];
@@ -256,6 +258,51 @@ function addTooltip(element) {
     });
 }
 	
+function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo tooltip to effect shouldn't move tooltip
+    var tooltipTimer;
+    var tooltip;
+    $(element).mouseover(function(e) {
+        clearTimeout(tooltipTimer);
+        $(".tooltip").remove();
+        var content = getTooltipContent(element);
+        tooltip = $("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY - 10}px`, "left": `${element.getBoundingClientRect().right}px`, "min-width": "150px"}).html(content);
+        
+        var buttonLine = $("<div></div>").css({"display": "flex", "justify-content": "flex-end"});
+        
+        var deleteButton = $("<button class='ui icon button'><i class='icon trash'></i></button>").css({"padding": "4px"});
+        $(deleteButton).click(function() {
+            $(".tooltip").remove();
+            deleteGroupEffect(element);
+        });
+        buttonLine.append(deleteButton);
+        
+        var editButton = $("<button class='ui icon button'><i class='icon cog'></i></button>").css({"padding": "4px"});
+        $(editButton).click(function() {
+            $(".tooltip").remove();
+            raidBuffLightboxEditMode = true;
+            raidBuffLightboxEditElement = element;
+            setUpRaidBuffLightbox($(element).attr("name"), element);
+            raidBuffLightboxJobIndex = Number($(element).attr("jobIndex"));
+            $("#raidBuffLightbox").modal("show");
+        });
+        buttonLine.append(editButton);
+        
+        tooltip.append(buttonLine);
+        
+        $(document.body).append(tooltip);
+        $(tooltip).mouseover(function(e) {
+            clearTimeout(tooltipTimer);
+        }).mousemove(function(e) {
+            clearTimeout(tooltipTimer);
+        }).mouseout(function(e) {
+            tooltipTimer = setTimeout(function() { $(tooltip).remove(); }, 200);
+        });
+    }).mouseout(function(e) {
+        tooltipTimer = setTimeout(function() { $(tooltip).remove(); }, 200);
+    });
+    
+}
+	
 function getTooltipContent(element) {
     var parentId = $(element.parentNode).attr("id");
     if (parentId === "rotation") {
@@ -274,12 +321,12 @@ function getTooltipContent(element) {
         var name = $(element).attr("name");
         var time = $(element).attr("time");
         var endTime = $(element).attr("endTime");
-        return name + "<br/>" + "Starts at " + time + "s" + "<br/>" + "Ends at " + endTime + "s";
-    } else if (parentId === "groupEffects") {
+        return name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s";
+    } else if (parentId === "groupEffects") { // cog / trash alternate / edit / edit outline
         var name = $(element).attr("name");
         var time = $(element).attr("time");
         var endTime = $(element).children("div").attr("endTime");
-        return name + "<br/>" + "Starts at " + time + "s" + "<br/>" + "Ends at " + endTime + "s";
+        return name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s";
     } else if (parentId === "effectsHeader") {
         var name = $(element).attr("name");
         var desc = getEffectDescription(name);
@@ -493,7 +540,7 @@ function drawEffect(name, beginTime, endTime) {
     }
 }
 
-function drawGroupEffect(name, beginTime, endTime, royalRoad, emboldenStacks) {
+function drawGroupEffect(name, beginTime, endTime, royalRoad, celestialOpposition, timeDilation, emboldenStacks) {
     if ($("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).length > 0) { // TODO : name = draw for cards
         var posLeft = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).position().left + 1;
         var posWidth = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).width() - 8;
@@ -512,27 +559,14 @@ function drawGroupEffect(name, beginTime, endTime, royalRoad, emboldenStacks) {
         wrapper.attr({"class": "effect", "name": name, "jobIndex": raidBuffLightboxJobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
         if (royalRoad)
             wrapper.attr("royalRoad", royalRoad);
+        if (celestialOpposition)
+            wrapper.attr("celestialOpposition", celestialOpposition);
+        if (timeDilation)
+            wrapper.attr("timeDilation", timeDilation);
         if (emboldenStacks)
             wrapper.attr("emboldenStacks", emboldenStacks);
         wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
                      "border": `solid 3px ${borderColor}`, "cursor": "pointer"});
-        wrapper.click(function() { // TODO : find permanent solution
-            if (name === "Embolden") {
-                var emboldenEffect = effects.find(ef => ef.name === "Embolden");
-                var emboldenBeginTime = (beginTime - (emboldenEffect.maxStacks - emboldenStacks) * emboldenEffect.stackDuration).toFixed(3);
-                for (var currentStacks = emboldenEffect.maxStacks; currentStacks > 0; currentStacks--) {
-                    var currentTime = (Number(emboldenBeginTime) + (emboldenEffect.maxStacks - currentStacks) * emboldenEffect.stackDuration).toFixed(3);
-                    $("#groupEffects").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"][time="${currentTime}"]`).first().remove();
-                }
-            } else
-                $(this).remove();
-            if (name === "The Arrow" || name === "Fey Wind") {
-                updateGcdTimeline();
-                updateRotationAfterIndex(0);
-            }
-            if ($("#rotation").children().length > 0)
-                resetAndUpdateDps();
-        });
         
         var icon = $("<img></img>");
         if (emboldenStacks)
@@ -548,13 +582,17 @@ function drawGroupEffect(name, beginTime, endTime, royalRoad, emboldenStacks) {
         wrapper.append(overlay);
         
         $("#groupEffects").append(wrapper);
-        addTooltip(wrapper.get(0));
+        addGroupEffectTooltip(wrapper.get(0));
         addTimeUntil(endTime + 5);
     }
 }
 
-function updateGroupEffectOverlay(name, beginTime, endTime, jobIndex) {
-    var wrapper = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"]`);
+function updateGroupEffectOverlay(name, beginTime, endTime, jobIndex, emboldenStacks) {
+    var wrapper = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"][time="${beginTime.toFixed(3)}"]`);
+    if (emboldenStacks > 1 && endTime < Number(wrapper.attr("endtime"))) {
+        var nextStackTime = beginTime + effects.find(ef => ef.name === "Embolden").stackDuration;
+        updateGroupEffectOverlay(name, nextStackTime, nextStackTime, jobIndex, emboldenStacks - 1);
+    }
     var overlay = wrapper.children("div");
     overlay.attr("endtime", `${endTime.toFixed(3)}`);
     
@@ -562,6 +600,24 @@ function updateGroupEffectOverlay(name, beginTime, endTime, jobIndex) {
     var posHeight = (Number(wrapper.attr("endTime")) - endTime) * scale;
     
     overlay.css({"top": `${posTop}px`, "height": `${posHeight}px`});
+}
+
+function deleteGroupEffect(element) {
+    if ($(element).attr("name") === "Embolden") {
+        var emboldenEffect = effects.find(ef => ef.name === "Embolden");
+        var emboldenBeginTime = ($(element).attr("time") - (emboldenEffect.maxStacks - $(element).attr("emboldenStacks")) * emboldenEffect.stackDuration).toFixed(3);
+        for (var currentStacks = emboldenEffect.maxStacks; currentStacks > 0; currentStacks--) {
+            var currentTime = (Number(emboldenBeginTime) + (emboldenEffect.maxStacks - currentStacks) * emboldenEffect.stackDuration).toFixed(3);
+            $("#groupEffects").children(`[name="${$(element).attr("name")}"][jobIndex="${$(element).attr("jobIndex")}"][time="${currentTime}"]`).first().remove();
+        }
+    } else
+        $(element).remove();
+    if ($(element).attr("name") === "The Arrow" || $(element).attr("name") === "Fey Wind") {
+        updateGcdTimeline();
+        updateRotationAfterIndex(0);
+    }
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
 }
 
 // function drawEffect(name, beginTime, endTime) {
@@ -735,7 +791,10 @@ function updateDps() {
                 drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
             } else if (e.timedEffect.hasOwnProperty("jobIndex")) {
                 // update group effect with overlay
-                updateGroupEffectOverlay(e.name, e.timedEffect.beginTime, e.timedEffect.endTime, e.timedEffect.jobIndex);
+                var emboldenStacks;
+                if (e.timedEffect.hasOwnProperty("emboldenStacks"))
+                    emboldenStacks = e.timedEffect.emboldenStacks;
+                updateGroupEffectOverlay(e.name, e.timedEffect.beginTime, e.timedEffect.endTime, e.timedEffect.jobIndex, emboldenStacks);
             }
         }
         switch(e.name) {
@@ -924,15 +983,6 @@ function trimInput(element) {
         element.val(element.attr("max"));
 }
 
-// $("#GCD").blur(function(){ // TODO : Replace by stats
-//     trimInput($("#GCD"));
-//     $("#GCD").val(Math.trunc($("#GCD").val() * 100) / 100);
-//     if ($("#rotation").children().length > 0) {
-//         updateStartTime();
-//         updateRotationAfterIndex(0);
-//         resetAndUpdateDps();
-//     }
-// });
 $("#Latency").blur(function(){
     trimInput($("#Latency"));
     $("#Latency").val(Math.trunc($("#Latency").val()));
@@ -966,7 +1016,7 @@ $("#DHin").change(function() {
     $("#DHin").val(Math.trunc($("#DHin").val()));
     stats.dh = Number($("#DHin").val());
     $("#DHout").val(stats.dhMod());
-    $("#DHoutRate").val(stats.dhRate());
+    $("#DHoutRate").val((stats.dhRate() * 100).toFixed(1) + "%");
     if ($("#rotation").children().length > 0)
         resetAndUpdateDps();
 });
@@ -975,9 +1025,9 @@ $("#CRITin").change(function() {
     trimInput($("#CRITin"));
     $("#CRITin").val(Math.trunc($("#CRITin").val()));
     stats.crit = Number($("#CRITin").val());
-    $("#CRITout").val(stats.critMod());
-    $("#CRIToutRate").val(stats.critRate());
-    $("#CRIToutDmg").val(stats.critDamage());
+    $("#CRITout").val(stats.critMod().toFixed(6));
+    $("#CRIToutRate").val((stats.critRate() * 100).toFixed(1) + "%");
+    $("#CRIToutDmg").val((stats.critDamage() * 100).toFixed(1) + "%");
     if ($("#rotation").children().length > 0)
         resetAndUpdateDps();
 });
@@ -1185,12 +1235,28 @@ $("#raidBuffLightboxTimeDilation").change(function() {
         adjustCardDuration();
 });
 
-function setUpRaidBuffLightbox(name) {
+function setUpRaidBuffLightbox(name, element) {
     $("#raidBuffLightboxTitle").val(name); // Don't delete, this value is used in the OK call
     $("#raidBuffLightboxImg").attr("src", `images/effects/${name}.png`);
-    $("#raidBuffLightboxStartTimeInput").val(0);
-    $("#raidBuffLightboxDurationInput").val(getEffectDuration(name));
-    $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name));
+    if (raidBuffLightboxEditMode) {
+        $("#raidBuffLightboxTitleMode").val("Edit");
+        if (name === "Embolden") {
+            var emboldenEffect = effects.find(ef => ef.name === "Embolden");
+            var emboldenBeginTime = ($(element).attr("time") - (emboldenEffect.maxStacks - $(element).attr("emboldenStacks")) * emboldenEffect.stackDuration).toFixed(3);
+            $("#raidBuffLightboxStartTimeInput").val(emboldenBeginTime);
+            $("#raidBuffLightboxDurationInput").val(getEffectDuration(name));
+            $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name));
+        } else {
+            $("#raidBuffLightboxStartTimeInput").val($(element).attr("time"));
+            $("#raidBuffLightboxDurationInput").val(Number($(element).attr("endTime")) - Number($(element).attr("time")));
+            $("#raidBuffLightboxDurationOutput").val(Number($(element).attr("endTime")) - Number($(element).attr("time")));
+        }
+    } else {
+        $("#raidBuffLightboxTitleMode").val("Add");
+        $("#raidBuffLightboxStartTimeInput").val(0); // TODO : Opener value or used on CD
+        $("#raidBuffLightboxDurationInput").val(getEffectDuration(name));
+        $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name));
+    }
     switch(name) {
         case "Hypercharge":
         case "Critical Up":
@@ -1212,9 +1278,15 @@ function setUpRaidBuffLightbox(name) {
             $("#raidBuffLightboxRoadRow").prop("hidden", false);
             $("#raidBuffLightboxAstRow").prop("hidden", false);
             $(`#raidBuffLightbox${name.substring(4)}`).prop("checked", true).change();
-            $("#raidBuffLightboxExpanded").prop("checked", true).change();
-            $("#raidBuffLightboxCelestialOpposition").prop("checked", true).change();
-            $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
+            if (raidBuffLightboxEditMode) {
+                $(`#raidBuffLightbox${$(element).attr("royalRoad")}`).prop("checked", true).change();
+                $("#raidBuffLightboxCelestialOpposition").prop("checked", element.hasAttribute("CelestialOpposition")).change();
+                $("#raidBuffLightboxTimeDilation").prop("checked", element.hasAttribute("TimeDilation")).change();
+            } else {
+                $("#raidBuffLightboxExpanded").prop("checked", true).change();
+                $("#raidBuffLightboxCelestialOpposition").prop("checked", true).change();
+                $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
+            }
             break;
         default:
             $("#raidBuffLightboxCardsRow").prop("hidden", true);
@@ -1250,6 +1322,7 @@ function refreshGroupMember(index, value) {
             }).each(function() {
                 var plusButton = $("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "display": "block"});
                 $(plusButton).click(function() {
+                    raidBuffLightboxEditMode = false;
                     setUpRaidBuffLightbox(ef.name);
                     raidBuffLightboxJobIndex = index;
                     $("#raidBuffLightbox").modal("show");
@@ -1275,24 +1348,36 @@ function refreshGroupMember(index, value) {
 }
 
 $("#raidBuffLightboxConfirm").click(function() {
+    if (raidBuffLightboxEditMode)
+        deleteGroupEffect(raidBuffLightboxEditElement);
     var title = $("#raidBuffLightboxTitle").val();
     var royalRoad;
+    var celestialOpposition;
+    var timeDilation;
     var emboldenStacks;
     if ($("#raidBuffLightboxExpanded").prop("checked"))
         royalRoad = "Expanded";
     if ($("#raidBuffLightboxEnhanced").prop("checked"))
         royalRoad = "Enhanced";
+    if ($("#raidBuffLightboxExtended").prop("checked"))
+        royalRoad = "Extended";
+    if ($("#raidBuffLightboxNoEffect").prop("checked"))
+        royalRoad = "NoEffect";
+    if ($("#raidBuffLightboxCelestialOpposition").prop("checked"))
+        celestialOpposition = true;
+    if ($("#raidBuffLightboxTimeDilation").prop("checked"))
+        timeDilation = true;
     if (title === "Embolden") {
         var emboldenEffect = effects.find(ef => ef.name === "Embolden");
         var beginTime = Number($("#raidBuffLightboxStartTimeInput").val());
         emboldenStacks = emboldenEffect.maxStacks;
         while (emboldenStacks > 0) {
-            drawGroupEffect(title, beginTime, beginTime + emboldenEffect.stackDuration, royalRoad, emboldenStacks);
+            drawGroupEffect(title, beginTime, beginTime + emboldenEffect.stackDuration, royalRoad, celestialOpposition, timeDilation, emboldenStacks);
             beginTime += emboldenEffect.stackDuration;
             emboldenStacks--;
         }
     } else
-        drawGroupEffect(title, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()), royalRoad, emboldenStacks);
+        drawGroupEffect(title, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()), royalRoad, celestialOpposition, timeDilation, emboldenStacks);
     if (title === "The Arrow" || title === "Fey Wind") {
         updateGcdTimeline();
         updateRotationAfterIndex(0);

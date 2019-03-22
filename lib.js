@@ -270,7 +270,7 @@ function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
         if (this.hasAttribute("royalRoad"))
         	timedEffect.royalRoad = $(this).attr("royalRoad");
         if (this.hasAttribute("emboldenStacks"))
-        	timedEffect.emboldenStacks = $(this).attr("emboldenStacks");
+        	timedEffect.emboldenStacks = Number($(this).attr("emboldenStacks"));
         while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
         effectsToActivate.splice(idx, 0, timedEffect);
 
@@ -314,7 +314,10 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
         // Overwrite effect
         if (eType === "effectBegin") {
             timedEffect = effectsToActivate[0];
-            if (activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name) >= 0 && !timedEffect.effect.stackable) {
+            var activeIdx = activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name);
+            if (activeIdx >= 0 && !timedEffect.effect.stackable) {
+                if (timedEffect.effect.name === "Embolden" && timedEffect.emboldenStacks < activeEffects[activeIdx].emboldenStacks)
+                    ; // Dunno what to do here, fuck embolden really
                 eType = "effectEnd";
                 
                 var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
@@ -324,6 +327,17 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                     idx = 0;
                     while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < oldTimedEffect.endTime) { idx++; }
                     effectsToEnd.splice(idx, 0, oldTimedEffect);
+                
+                    // Embolden : Delete all next stacks toActivate/toEnd
+                    if (timedEffect.effect.name === "Embolden") {
+                        var emboldenEffect = effects.find(ef => ef.name === "Embolden");
+                        var emboldenBeginTime = (oldTimedEffect.beginTime - (emboldenEffect.maxStacks - oldTimedEffect.emboldenStacks) * emboldenEffect.stackDuration).toFixed(3);
+                        for (var currentStacks = oldTimedEffect.emboldenStacks - 1; currentStacks > 0; currentStacks--) {
+                            var currentTime = (Number(emboldenBeginTime) + (emboldenEffect.maxStacks - currentStacks) * emboldenEffect.stackDuration).toFixed(3);
+                            effectsToActivate.splice(effectsToActivate.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime), 1);
+                            effectsToEnd.splice(effectsToEnd.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime), 1);
+                        }
+                    }
                 }
             }
         }

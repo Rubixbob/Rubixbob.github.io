@@ -41,8 +41,6 @@
             <button class="mini ui button" id="debugButton">Debug</button>
             <label for="DPSout">Final DPS: </label>
             <output id="DPSout"></output>
-            <!-- <label for="GCD">GCD</label>
-            <input id="GCD" type="number" step="0.01" value="2.45" maxlength=4 size="1" min="1.5" max="2.5"></input> -->
             <table>
                 <tr id="headers">
                     <th>Time</th>
@@ -72,7 +70,6 @@
             <table id="group">
                 <tr>
                     <th>Raid group</th>
-                    <!-- <td>+</td> -->
                 </tr>
                 <tr>
                     <td>
@@ -206,7 +203,7 @@
     <div id="raidBuffLightbox" class="ui modal">
         <i class="close icon"></i>
         <div class="header">
-            Add <output id="raidBuffLightboxTitle"></output>
+            <output id="raidBuffLightboxTitleMode"></output> <output id="raidBuffLightboxTitle"></output>
         </div>
         <div class="image content">
             <div class="ui medium image">
