@@ -260,23 +260,32 @@ function deleteAfter(rotationHistory, beginTime) {
 // 	// console.log("Added " + (rotationHistory.length - actionsNb) + " actions, from " + actionsNb + " to " + rotationHistory.length);
 // }
 
+function addToActivate(effect, list) {
+    addToList(effect, list, "beginTime");
+}
+
+function addToEnd(effect, list) {
+    addToList(effect, list, "endTime");
+}
+
+function addToList(effect, list, property) {
+    var idx = 0;
+    while (list[idx] !== undefined && list[idx][property] < effect[property]) { idx++; }
+    list.splice(idx, 0, effect);
+}
+
 function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
     $(groupEffectsDom).each(function() {
         var ef = effects.find(e => e.name === $(this).attr("name"));
         var beginTime = Number($(this).attr("time"));
         var endTime = Number($(this).attr("endtime"));
-        var idx = 0;
         var timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, jobIndex: $(this).attr("jobIndex")};
         if (this.hasAttribute("royalRoad"))
         	timedEffect.royalRoad = $(this).attr("royalRoad");
         if (this.hasAttribute("emboldenStacks"))
         	timedEffect.emboldenStacks = Number($(this).attr("emboldenStacks"));
-        while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
-        effectsToActivate.splice(idx, 0, timedEffect);
-
-        idx = 0;
-        while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < endTime) { idx++; }
-        effectsToEnd.splice(idx, 0, timedEffect);
+        addToActivate(timedEffect, effectsToActivate);
+        addToEnd(timedEffect, effectsToEnd);
     });
 }
 
@@ -294,7 +303,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
     
     initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd);
     if (effectsToActivate.length > 0) {
-        if (effectsToActivate[0].beginTime < time) {
+        if (effectsToActivate[0].beginTime <= time) {
             eType = "effectBegin";
             time = effectsToActivate[0].beginTime;
             lastTime = time;
@@ -314,19 +323,25 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
         // Overwrite effect
         if (eType === "effectBegin") {
             timedEffect = effectsToActivate[0];
+            // If fresh Embolden application, place low stack first so it will be overwritten by fresh Embolden
+            if (timedEffect.effect.name === "Embolden" && timedEffect.emboldenStacks === effects.find(ef => ef.name === "Embolden").maxStacks) {
+                var emboldenList = effectsToActivate.filter(ef => ef.effect.name === "Embolden" && ef.beginTime === time);
+                if (emboldenList.length > 1) {
+                    effectsToActivate.splice(effectsToActivate.indexOf(emboldenList[1]), 1);
+                    effectsToActivate.unshift(emboldenList[1]);
+                }
+            }
+            
             var activeIdx = activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name);
             if (activeIdx >= 0 && !timedEffect.effect.stackable) {
-                if (timedEffect.effect.name === "Embolden" && timedEffect.emboldenStacks < activeEffects[activeIdx].emboldenStacks)
-                    ; // Dunno what to do here, fuck embolden really
                 eType = "effectEnd";
                 
-                var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
+                // var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
+                var oldTimedEffect = activeEffects[activeIdx];
                 if (oldTimedEffect !== undefined && oldTimedEffect.beginTime <= timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
                     effectsToEnd.splice(effectsToEnd.indexOf(oldTimedEffect), 1);
                     oldTimedEffect.endTime = timedEffect.beginTime;
-                    idx = 0;
-                    while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < oldTimedEffect.endTime) { idx++; }
-                    effectsToEnd.splice(idx, 0, oldTimedEffect);
+                    effectsToEnd.unshift(oldTimedEffect);
                 
                     // Embolden : Delete all next stacks toActivate/toEnd
                     if (timedEffect.effect.name === "Embolden") {
@@ -334,8 +349,8 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                         var emboldenBeginTime = (oldTimedEffect.beginTime - (emboldenEffect.maxStacks - oldTimedEffect.emboldenStacks) * emboldenEffect.stackDuration).toFixed(3);
                         for (var currentStacks = oldTimedEffect.emboldenStacks - 1; currentStacks > 0; currentStacks--) {
                             var currentTime = (Number(emboldenBeginTime) + (emboldenEffect.maxStacks - currentStacks) * emboldenEffect.stackDuration).toFixed(3);
-                            effectsToActivate.splice(effectsToActivate.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime), 1);
-                            effectsToEnd.splice(effectsToEnd.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime), 1);
+                            effectsToActivate.splice(effectsToActivate.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime && e.jobIndex === oldTimedEffect.jobIndex && e.emboldenStacks === currentStacks), 1);
+                            effectsToEnd.splice(effectsToEnd.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime && e.jobIndex === oldTimedEffect.jobIndex && e.emboldenStacks === currentStacks), 1);
                         }
                     }
                 }
@@ -414,9 +429,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            			if (!effectsToEnd[BotDIdx].effect.life) {
 		            			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
 		            			BotDEffect.endTime = Math.max(BotDEffect.endTime, time + 20);
-				                var idx = 0;
-				                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < BotDEffect.endTime) { idx++; }
-				                effectsToEnd.splice(idx, 0, BotDEffect);
+                                addToEnd(BotDEffect, effectsToEnd);
 				            }
 				            return;
 	            		}
@@ -425,22 +438,16 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
 	                var beginTime = Number((time + activationTime).toFixed(3));
 	                var endTime = Number((beginTime + ef.duration).toFixed(3));
-	                var idx = 0;
 	                timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, displaySelf: true};
-	                while (effectsToActivate[idx] !== undefined && effectsToActivate[idx].beginTime < beginTime) { idx++; }
-	                effectsToActivate.splice(idx, 0, timedEffect);
+                    addToActivate(timedEffect, effectsToActivate);
 
 	                var oldTimedEffect = effectsToEnd.find(e => e.effect.name === ef.name);
             		if (oldTimedEffect !== undefined && oldTimedEffect.beginTime < timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime && !ef.stackable) {
                         effectsToEnd.splice(effectsToEnd.indexOf(oldTimedEffect), 1);
             			oldTimedEffect.endTime = timedEffect.beginTime;
-                        idx = 0;
-                        while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < oldTimedEffect.endTime) { idx++; }
-                        effectsToEnd.splice(idx, 0, oldTimedEffect);
+                        addToEnd(oldTimedEffect, effectsToEnd);
             		}
-	                idx = 0;
-	                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < endTime) { idx++; }
-	                effectsToEnd.splice(idx, 0, timedEffect);
+                    addToEnd(timedEffect, effectsToEnd);
                     
                     // Compute CT DoT damage
                     if (ef.name === "Chaos Thrust") {
@@ -503,9 +510,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            		if (BotDIdx >= 0 && !effectsToEnd[BotDIdx].effect.life) {
 	            			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
 	            			BotDEffect.endTime = Math.min(BotDEffect.endTime + 10, time + 30);
-			                var idx = 0;
-			                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < BotDEffect.endTime) { idx++; }
-			                effectsToEnd.splice(idx, 0, BotDEffect);
+                            addToEnd(BotDEffect, effectsToEnd);
 	            		}
 	            		break;
 	            	case "Mirage Dive":
@@ -521,9 +526,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            			if (BotDEffect.endTime < time + 20) {
 	            				effectsToEnd.splice(effectsToEnd.indexOf(BotDEffect), 1);
 		            			BotDEffect.endTime = Math.max(BotDEffect.endTime, time + 20);
-				                var idx = 0;
-				                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < BotDEffect.endTime) { idx++; }
-				                effectsToEnd.splice(idx, 0, BotDEffect);
+                                addToEnd(BotDEffect, effectsToEnd);
 	            			}
 	            		}
 	            		break;
@@ -555,9 +558,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            		if (timedEffect.effect.life) {
 	            			timedEffect.effect.life = false;
 	            			timedEffect.endTime = time + 20;
-			                var idx = 0;
-			                while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < timedEffect.endTime) { idx++; }
-			                effectsToEnd.splice(idx, 0, timedEffect);
+                            addToEnd(timedEffect, effectsToEnd);
 			            	activeEffects.push(timedEffect);
 			            	stats.updateEffects(timedEffect);
 	            		} else {
@@ -622,9 +623,7 @@ function generateGcdTimeline(gcdTimeline, stats, groupSpeedEffectsDom) {
                 if (oldTimedEffect !== undefined && oldTimedEffect.beginTime <= timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
                     effectsToEnd.splice(effectsToEnd.indexOf(oldTimedEffect), 1);
                     oldTimedEffect.endTime = timedEffect.beginTime;
-                    idx = 0;
-                    while (effectsToEnd[idx] !== undefined && effectsToEnd[idx].endTime < oldTimedEffect.endTime) { idx++; }
-                    effectsToEnd.splice(idx, 0, oldTimedEffect);
+                    effectsToEnd.unshift(oldTimedEffect);
                 }
             }
         }
