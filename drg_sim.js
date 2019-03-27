@@ -31,16 +31,29 @@ var imagesLoaded = 0;
 
 effects.forEach(function (ef) {
     if (ef.displaySelf) {
-        var effect = $("<img></img>").attr({name: ef.name, class: `${ef.type}`, src: `images/effects/${ef.name}.png`}).one("load", function() {
+        var wrapper = $("<div></div>").attr("name", ef.name).css("display", "inline-block");
+        var checkBox = $("<input type='checkbox' checked/>").css({"display": "none", "margin": "auto"});
+        var effect = $("<img></img>").attr("src", `images/effects/${ef.name}.png`).one("load", function() {
             imagesLoaded++;
             if (imagesLoaded === imagesToLoad)
                 fitColumns();
         }).each(function() {
-            $("#effectsHeader").append(this);
+            $(wrapper).append(this);
+            $(wrapper).append(checkBox);
+            $("#effectsHeader").append(wrapper);
             addTooltip(this);
             imagesToLoad++;
             if (this.complete)
                 $(this).trigger('load');
+        }).click(function() {
+            $(checkBox).prop("checked", !$(checkBox).prop("checked"));
+            checkBox.change();
+        });
+        checkBox.change(function() {
+            if (checkBox.css("display") === "none") {
+                effect.prop("hidden", !$(checkBox).prop("checked"));
+                fitColumns();
+            }
         });
     }
 });
@@ -322,15 +335,15 @@ function getTooltipContent(element) {
         var time = $(element).attr("time");
         var endTime = $(element).attr("endTime");
         return name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s";
-    } else if (parentId === "groupEffects") { // cog / trash alternate / edit / edit outline
+    } else if (parentId === "groupEffects") {
         var name = $(element).attr("name");
         var time = $(element).attr("time");
         var endTime = $(element).children("div").attr("endTime");
         return name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s";
-    } else if (parentId === "effectsHeader") {
-        var name = $(element).attr("name");
+    } else if ($(element.parentNode.parentNode).attr("id") === "effectsHeader") {
+        var name = $(element.parentNode).attr("name");
         var desc = getEffectDescription(name);
-        return name + "<br/>" + desc;
+        return name + "<br/>" + desc + "<br/>" + "<br/>" + "Click to Hide";
     } else if (parentId === "groupEffectsHeader") {
         var name = $(element).attr("name");
         var job = getEffectJob(name);
@@ -974,6 +987,21 @@ $("#threeMinRotation").click(function() {
 
 $("#debugButton").click(function() {
     RotationHistory.forEach(function(item) { item.display(); });
+});
+
+$("#hideEffectsButton").click(function() {
+    $("#effectsHeader").children().each(function() {
+        var effectImg = $(this).children("img");
+        var checkBox = $(this).children("input");
+        var checkBoxDisplay = checkBox.css("display") === "none" ? "block" : "none";
+        checkBox.css("display", checkBoxDisplay);
+        if (checkBoxDisplay === "block") {
+            effectImg.prop("hidden", false);
+        } else {
+            effectImg.prop("hidden", !checkBox.prop("checked"));
+        }
+    });
+    fitColumns();
 });
 
 function trimInput(element) {
