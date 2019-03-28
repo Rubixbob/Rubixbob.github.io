@@ -24,6 +24,13 @@ function fitColumns() {
     $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width}px`); });
     $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${$(this).attr("name")}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
     $("#scrollableDiv").css("height", `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#scrollableDiv").get(0).getBoundingClientRect().top}px`);
+    $("#effects").children().each(function(index) {
+        var hide = $("#effectsHeader").children(`[name="${$(this).attr("name")}"]`).children("img").prop("hidden");
+        var posLeft = $("#effectsHeader").children(`[name="${$(this).attr("name")}"]`).position().left + 1;
+        var posWidth = $("#effectsHeader").children(`[name="${$(this).attr("name")}"]`).width() - 8;
+        $(this).css({"left": `${posLeft}px`, "width": `${posWidth}px`});
+        $(this).prop("hidden", hide);
+    });
 }
 
 var imagesToLoad = 0;
@@ -524,6 +531,7 @@ function addTimeUntil(time) {
 
 function drawEffect(name, beginTime, endTime) {
     if ($("#effectsHeader").children(`[name="${name}"]`).length > 0) {
+        var hide = $("#effectsHeader").children(`[name="${name}"]`).children("img").prop("hidden");
         var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left + 1;
         var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
         var posTop = (beginTime - startTime) * scale;
@@ -541,6 +549,7 @@ function drawEffect(name, beginTime, endTime) {
         wrapper.attr({"class": "effect", "name": name, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
         wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
                      "border": `solid 3px ${borderColor}`});
+        wrapper.prop("hidden", hide);
         
         var icon = $("<img></img>");
         icon.attr("src", `images/effects/${name}.png`);
