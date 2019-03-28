@@ -1091,7 +1091,7 @@ $("#SKSin").change(function() {
     }
 });
 
-$(window).bind('mousewheel DOMMouseScroll', function(event) 
+window.addEventListener("mousewheel", function(event)
 {
     if(event.ctrlKey == true)
     {
@@ -1099,7 +1099,7 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
         var scrollTopOffset = Number($("#scrollableDiv").attr("scrollTop")) || 0;
         var scrollTime = ($("#scrollableDiv").scrollTop() + scrollTopOffset) / scale;
 
-        if(event.originalEvent.deltaY > 0) {
+        if(event.deltaY > 0) {
             scale /= 1.1;
         } else {
             scale *= 1.1;
@@ -1163,7 +1163,7 @@ $(window).bind('mousewheel DOMMouseScroll', function(event)
     } else {
         $("#scrollableDiv").attr("scrollTop", 0);
     }
-});
+}, { passive: false} );
 
 var resizeTimer;
 $(window).resize(function() {
