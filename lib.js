@@ -327,7 +327,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             if (timedEffect.effect.name === "Embolden" && timedEffect.emboldenStacks === effects.find(ef => ef.name === "Embolden").maxStacks) {
                 var emboldenList = effectsToActivate.filter(ef => ef.effect.name === "Embolden" && ef.beginTime === time);
                 if (emboldenList.length > 1) {
-                    effectsToActivate.splice(effectsToActivate.indexOf(emboldenList[1]), 1);
+                    effectsToActivate.splice(effectsToActivate.indexOf(emboldenList[1]), 1); // Assumes list order is preserved
                     effectsToActivate.unshift(emboldenList[1]);
                 }
             }
@@ -336,9 +336,8 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             if (activeIdx >= 0 && !timedEffect.effect.stackable) {
                 eType = "effectEnd";
                 
-                // var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
                 var oldTimedEffect = activeEffects[activeIdx];
-                if (oldTimedEffect !== undefined && oldTimedEffect.beginTime <= timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
+                if (effectsToEnd.indexOf(oldTimedEffect) >= 0 && oldTimedEffect.beginTime <= timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
                     effectsToEnd.splice(effectsToEnd.indexOf(oldTimedEffect), 1);
                     oldTimedEffect.endTime = timedEffect.beginTime;
                     effectsToEnd.unshift(oldTimedEffect);
@@ -742,4 +741,12 @@ function getEffectDescription(effectName) {
     if (effect.hasOwnProperty("description"))
         description = effect.description;
     return description;
+}
+
+function getEffectOpenerTime(effectName) {
+    var openerTime = 0;
+    var effect = effects.find(ef => effectName === ef.name);
+    if (effect.hasOwnProperty("openerTime"))
+        openerTime = effect.openerTime;
+    return Number(openerTime);
 }

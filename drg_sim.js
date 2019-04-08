@@ -1290,7 +1290,7 @@ function setUpRaidBuffLightbox(name, element) {
         }
     } else {
         $("#raidBuffLightboxTitleMode").val("Add");
-        $("#raidBuffLightboxStartTimeInput").val(0); // TODO : Opener value or used on CD
+        $("#raidBuffLightboxStartTimeInput").val(getEffectOpenerTime(name)); // TODO : Opener value or used on CD
         $("#raidBuffLightboxDurationInput").val(getEffectDuration(name));
         $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name));
     }
