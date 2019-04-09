@@ -1290,9 +1290,15 @@ function setUpRaidBuffLightbox(name, element) {
         }
     } else {
         $("#raidBuffLightboxTitleMode").val("Add");
-        $("#raidBuffLightboxStartTimeInput").val(getEffectOpenerTime(name)); // TODO : Opener value or used on CD
-        $("#raidBuffLightboxDurationInput").val(getEffectDuration(name));
-        $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name));
+        var previousEffects = $("#groupEffects").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`);
+        var useNumber = previousEffects.length;
+        var useTime = getEffectOpenerTime(name);
+        if (useNumber > 0) // TODO : save use pattern
+            useTime = Number(previousEffects.sort((a, b) => {return Number($(a).attr("time")) - Number($(b).attr("time"))}).last().attr("time")) + getEffectRecastTime(name, useNumber - 1);
+        
+        $("#raidBuffLightboxStartTimeInput").val(useTime);
+        $("#raidBuffLightboxDurationInput").val(getEffectDuration(name, useNumber));
+        $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name, useNumber));
     }
     switch(name) {
         case "Hypercharge":

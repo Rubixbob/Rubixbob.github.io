@@ -711,10 +711,12 @@ function getEffects(actionName) {
     return actionEffects;
 }
 
-function getEffectDuration(effectName) {
+function getEffectDuration(effectName, use) {
     var duration = 0;
     var effect = effects.find(ef => effectName === ef.name);
-    if (effect.hasOwnProperty("duration"))
+    if (effectName === "Foe Requiem" && use !== undefined && use % 2 === 1 && effect.hasOwnProperty("altDuration"))
+        duration = effect.altDuration;
+    else if (effect.hasOwnProperty("duration"))
         duration = effect.duration;
     return Number(duration);
 }
@@ -727,10 +729,12 @@ function getEffectJob(effectName) {
     return job;
 }
 
-function getEffectRecastTime(effectName) {
+function getEffectRecastTime(effectName, use) {
     var recast = 0;
     var effect = effects.find(ef => effectName === ef.name);
-    if (effect.hasOwnProperty("recast"))
+    if ((effectName === "Critical Up" || effectName === "Foe Requiem") && use !== undefined && effect.hasOwnProperty("usePattern"))
+        recast = effect.usePattern[use % effect.usePattern.length];
+    else if (effect.hasOwnProperty("recast"))
         recast = effect.recast;
     return Number(recast);
 }
