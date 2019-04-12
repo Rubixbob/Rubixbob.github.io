@@ -732,7 +732,7 @@ function getEffectJob(effectName) {
 function getEffectRecastTime(effectName, use) {
     var recast = 0;
     var effect = effects.find(ef => effectName === ef.name);
-    if ((effectName === "Critical Up" || effectName === "Foe Requiem") && use !== undefined && effect.hasOwnProperty("usePattern"))
+    if ((effectName === "Critical Up" || effectName === "Foe Requiem" || effectName === "Piercing Resistance Down") && use !== undefined && effect.hasOwnProperty("usePattern"))
         recast = effect.usePattern[use % effect.usePattern.length];
     else if (effect.hasOwnProperty("recast"))
         recast = effect.recast;

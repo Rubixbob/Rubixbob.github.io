@@ -95,6 +95,7 @@ effects.forEach(function (ef) {
                 dndHandler.applyRotationEvents(clonedElement);
                 addActionAtIndex(clonedElement, $("#rotation").children().length);
 
+                autoFillRaidBuffs(false);
                 resetAndUpdateDps();
                 // playUntil($("#rotation").children(), RotationHistory, Number($(clonedElement).attr("time")));
                 // var lastEvent = RotationHistory[RotationHistory.length - 1];
@@ -194,8 +195,10 @@ effects.forEach(function (ef) {
                     }
                 }
 
-                if (RotationHistory.length === 0)
+                if (RotationHistory.length === 0) {
+                    autoFillRaidBuffs(false);
                     updateDps();
+                }
 				// $("#rotation").children().filter(function(index) {
 				// 	return index > idx && $(this).attr("name") === $(dndHandler.draggedElement).attr("name");
 				// }).each(function(index) {
@@ -301,8 +304,7 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
             $(".tooltip").remove();
             raidBuffLightboxEditMode = true;
             raidBuffLightboxEditElement = element;
-            setUpRaidBuffLightbox($(element).attr("name"), element);
-            raidBuffLightboxJobIndex = Number($(element).attr("jobIndex"));
+            setUpRaidBuffLightbox($(element).attr("name"), Number($(element).attr("jobIndex")), element);
             $("#raidBuffLightbox").modal("show");
         });
         buttonLine.append(editButton);
@@ -562,51 +564,57 @@ function drawEffect(name, beginTime, endTime) {
     }
 }
 
-function drawGroupEffect(name, beginTime, endTime, royalRoad, celestialOpposition, timeDilation, emboldenStacks) {
-    if ($("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).length > 0) { // TODO : name = draw for cards
-        var posLeft = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).position().left + 1;
-        var posWidth = $("#groupEffectsHeader").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`).width() - 8;
-        var posTop = (beginTime - startTime) * scale;
-        var posHeight = (endTime - beginTime) * scale - 6;
-        
-        var effect = effects.find(ef => name === ef.name);
-        var backgroundColor = "rgb(255,60,60)";
-        if (effect.hasOwnProperty("backgroundColor"))
-            backgroundColor = effect.backgroundColor;
-        var borderColor = "rgb(128, 30, 30)";
-        if (effect.hasOwnProperty("borderColor"))
-            borderColor = effect.borderColor;
-        
-        var wrapper = $("<div></div>");
-        wrapper.attr({"class": "effect", "name": name, "jobIndex": raidBuffLightboxJobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
-        if (royalRoad)
-            wrapper.attr("royalRoad", royalRoad);
-        if (celestialOpposition)
-            wrapper.attr("celestialOpposition", celestialOpposition);
-        if (timeDilation)
-            wrapper.attr("timeDilation", timeDilation);
-        if (emboldenStacks)
-            wrapper.attr("emboldenStacks", emboldenStacks);
-        wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
-                     "border": `solid 3px ${borderColor}`, "cursor": "pointer"});
-        
-        var icon = $("<img></img>");
-        if (emboldenStacks)
-            icon.attr("src", `images/effects/${name+emboldenStacks}.png`);
-        else
-            icon.attr("src", `images/effects/${name}.png`);
-        icon.css({"position": "sticky", "margin-left": "-4px", "margin-top": "-3px", "margin-bottom": "-3px", "top": "0px"});
-        wrapper.append(icon);
-        
-        var overlay = $("<div></div>");
-        overlay.css({"position": "absolute", "left": "-3px", "top": "-3px", "width": `${posWidth+6}px`, "height": "0px", "background-color": "#CCC", "opacity": "0.7"});
-        overlay.attr("endtime", `${endTime.toFixed(3)}`);
-        wrapper.append(overlay);
-        
-        $("#groupEffects").append(wrapper);
-        addGroupEffectTooltip(wrapper.get(0));
-        addTimeUntil(endTime + 5);
+function drawGroupEffect(name, jobIndex, beginTime, endTime, royalRoad, celestialOpposition, timeDilation, emboldenStacks) {
+    var columnName = name;
+    if (name === "The Balance" || name === "The Spear" || name === "The Arrow")
+        columnName = "The Balance";
+    
+    if ($("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).length <= 0) { // TODO : name = draw for cards
+        console.log("coucou");
+        return;
     }
+    var posLeft = $("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).position().left + 1;
+    var posWidth = $("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).width() - 6;
+    var posTop = (beginTime - startTime) * scale;
+    var posHeight = (endTime - beginTime) * scale - 6;
+    
+    var effect = effects.find(ef => name === ef.name);
+    var backgroundColor = "rgb(255,60,60)";
+    if (effect.hasOwnProperty("backgroundColor"))
+        backgroundColor = effect.backgroundColor;
+    var borderColor = "rgb(128, 30, 30)";
+    if (effect.hasOwnProperty("borderColor"))
+        borderColor = effect.borderColor;
+    
+    var wrapper = $("<div></div>");
+    wrapper.attr({"class": "effect", "name": name, "jobIndex": jobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
+    if (royalRoad)
+        wrapper.attr("royalRoad", royalRoad);
+    if (celestialOpposition)
+        wrapper.attr("celestialOpposition", celestialOpposition);
+    if (timeDilation)
+        wrapper.attr("timeDilation", timeDilation);
+    if (emboldenStacks)
+        wrapper.attr("emboldenStacks", emboldenStacks);
+    wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
+                 "border": `solid 3px ${borderColor}`, "cursor": "pointer"});
+    
+    var icon = $("<img></img>");
+    if (emboldenStacks)
+        icon.attr("src", `images/effects/${name+emboldenStacks}.png`);
+    else
+        icon.attr("src", `images/effects/${name}.png`);
+    icon.css({"position": "sticky", "margin-left": "-4px", "margin-top": "-3px", "margin-bottom": "-3px", "top": "0px"});
+    wrapper.append(icon);
+    
+    var overlay = $("<div></div>");
+    overlay.css({"position": "absolute", "left": "-3px", "top": "-3px", "width": `${posWidth+6}px`, "height": "0px", "background-color": "#CCC", "opacity": "0.7"});
+    overlay.attr("endtime", `${endTime.toFixed(3)}`);
+    wrapper.append(overlay);
+    
+    $("#groupEffects").append(wrapper);
+    addGroupEffectTooltip(wrapper.get(0));
+    addTimeUntil(endTime + 5);
 }
 
 function updateGroupEffectOverlay(name, beginTime, endTime, jobIndex, emboldenStacks) {
@@ -920,6 +928,7 @@ $("#opener").click(function(){
     openerAddAction("Fang and Claw");
     openerAddAction("Wheeling Thrust");
 
+    autoFillRaidBuffs(false);
     updateDps();
 });
 
@@ -945,6 +954,7 @@ $("#loadRotation").click(function() {
             openerAddAction(actions[ac.i].name);
     });
 
+    autoFillRaidBuffs(false);
     updateDps();
 });
 
@@ -991,6 +1001,7 @@ $("#threeMinRotation").click(function() {
             openerAddAction(actions[ac.i].name);
     });
 
+    autoFillRaidBuffs(false);
     updateDps();
 });
 
@@ -1272,9 +1283,10 @@ $("#raidBuffLightboxTimeDilation").change(function() {
         adjustCardDuration();
 });
 
-function setUpRaidBuffLightbox(name, element) {
+function setUpRaidBuffLightbox(name, jobIndex, element) {
     $("#raidBuffLightboxTitle").val(name); // Don't delete, this value is used in the OK call
     $("#raidBuffLightboxImg").attr("src", `images/effects/${name}.png`);
+    raidBuffLightboxJobIndex = jobIndex;
     if (raidBuffLightboxEditMode) {
         $("#raidBuffLightboxTitleMode").val("Edit");
         if (name === "Embolden") {
@@ -1290,7 +1302,7 @@ function setUpRaidBuffLightbox(name, element) {
         }
     } else {
         $("#raidBuffLightboxTitleMode").val("Add");
-        var previousEffects = $("#groupEffects").children(`[name="${name}"][jobIndex="${raidBuffLightboxJobIndex}"]`);
+        var previousEffects = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"]`);
         var useNumber = previousEffects.length;
         var useTime = getEffectOpenerTime(name);
         if (useNumber > 0) // TODO : save use pattern
@@ -1343,10 +1355,12 @@ function setUpRaidBuffLightbox(name, element) {
 }
 
 function refreshGroupMember(index, value) {
+    var updateSpeed = false;
+    var loopCount = $("#groupEffects").children(`[jobIndex="${index}"]`).length;
+     if ($("#groupEffects").children(`[jobIndex="${index}"][name="The Arrow"], [jobIndex="${index}"][name="Fey Wind"]`).length > 0)
+         updateSpeed = true;
     $("#groupEffectsHeader").children(`[jobIndex="${index}"]`).remove();
     $("#groupEffects").children(`[jobIndex="${index}"]`).remove();
-    if ($("#rotation").children().length > 0)
-        resetAndUpdateDps();
     
     memberEffects = effects.filter(ef => ef.job === value);
     if (memberEffects.length > 0) {
@@ -1357,21 +1371,45 @@ function refreshGroupMember(index, value) {
         memberEffects.forEach(function (ef) {
             var wrapper = $("<div></div>").attr({name: ef.name, class: "raidBuff", jobIndex: index});
             // wrapper.append($("<span class='ui-icon ui-icon-plus'></span>").css({"position": "absolute", "top": "36px", "left": "4px"}));
+            var path;
+            switch (ef.name) {
+                case "The Balance":
+                    path = "group/Draw";
+                    break;
+                case "The Spear":
+                case "The Arrow":
+                    return;
+                case "Piercing Resistance Down":
+                    path = "group/Disembowel";
+                    break;
+                case "Left Eye":
+                    path = "group/Dragon Sight";
+                    break;
+                case "Critical Up":
+                    path = "group/The Wanderer's Minuet";
+                    // path = "effects/Critical Up";
+                    break;
+                default:
+                    path = "group/" + ef.name;
+                    break;
+            }
 
-            var effect = $("<img></img>").attr({class: ef.type, src: `images/effects/${ef.name}.png`}).one("load", function() {
+            var effect = $("<img></img>").attr({class: ef.type, src: `images/${path}.png`}).css({"width": 22}).one("load", function() {
                 raidImagesLoaded++;
                 if (raidImagesLoaded === raidImagesToLoad)
                     fitColumns();
             }).each(function() {
                 var plusButton = $("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "display": "block"});
-                $(plusButton).click(function() {
+                $(wrapper).click(function() {
                     raidBuffLightboxEditMode = false;
-                    setUpRaidBuffLightbox(ef.name);
-                    raidBuffLightboxJobIndex = index;
+                    setUpRaidBuffLightbox(ef.name, index);
                     $("#raidBuffLightbox").modal("show");
                 });
+                
+                // if (ef.name === "Critical Up")
+                    // $(this).css({"width": 28, "margin-top": "-6px", "margin-left": "-3px"});
                 wrapper.append(this);
-                wrapper.append(plusButton);
+                // wrapper.append(plusButton);
                 
                 if (idx > 0)
                     $("#groupEffectsHeader").children().eq(idx-1).after(wrapper);
@@ -1387,6 +1425,16 @@ function refreshGroupMember(index, value) {
         });
     } else {
         fitColumns();
+    }
+    
+    if ($("#group tr td input").eq(index).prop("checked"))
+        loopCount += autoFillRaidBuffsOfJob(index, false);
+    if (updateSpeed) {
+        updateGcdTimeline();
+        updateRotationAfterIndex(0);
+    }
+    if ($("#rotation").children().length > 0 && loopCount > 0) {
+        resetAndUpdateDps();
     }
 }
 
@@ -1415,12 +1463,12 @@ $("#raidBuffLightboxConfirm").click(function() {
         var beginTime = Number($("#raidBuffLightboxStartTimeInput").val());
         emboldenStacks = emboldenEffect.maxStacks;
         while (emboldenStacks > 0) {
-            drawGroupEffect(title, beginTime, beginTime + emboldenEffect.stackDuration, royalRoad, celestialOpposition, timeDilation, emboldenStacks);
+            drawGroupEffect(title, raidBuffLightboxJobIndex, beginTime, beginTime + emboldenEffect.stackDuration, royalRoad, celestialOpposition, timeDilation, emboldenStacks);
             beginTime += emboldenEffect.stackDuration;
             emboldenStacks--;
         }
     } else
-        drawGroupEffect(title, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()), royalRoad, celestialOpposition, timeDilation, emboldenStacks);
+        drawGroupEffect(title, raidBuffLightboxJobIndex, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()), royalRoad, celestialOpposition, timeDilation, emboldenStacks);
     if (title === "The Arrow" || title === "Fey Wind") {
         updateGcdTimeline();
         updateRotationAfterIndex(0);
@@ -1473,6 +1521,109 @@ for (i = 0; i < 7; i++) {
     $("#group tr td select").eq(i).iconselectmenu("menuWidget").css({"max-height": `calc(100vh - ${97 + 53 * i}px)`, "min-height": "100px"});
     refreshGroupMember(i, standardComp[i]);
 }
+
+function autoFillSingleRaidBuff(name, jobIndex) {
+    if ($("#rotation").children().length === 0)
+        return 0;
+    var rotationTime = Number($("#rotation").children().last().attr("time"));
+    var loopCount = 0;
+    
+    while (true) {
+        var royalRoad;
+        var celestialOpposition;
+        var timeDilation;
+        var emboldenStacks;
+        var previousEffects = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"]`);
+        var useNumber = previousEffects.length;
+        var useTime = getEffectOpenerTime(name);
+        var duration = getEffectDuration(name, useNumber);
+        if (useNumber > 0) { // TODO : save use pattern
+            if (name === "The Balance" || name === "The Spear" || name === "The Arrow" || name === "Fey Wind" || name === "Radiant Shield")
+                break;
+            useTime = Number(previousEffects.sort((a, b) => {return Number($(a).attr("time")) - Number($(b).attr("time"))}).last().attr("time")) + getEffectRecastTime(name, useNumber - 1);
+        }
+        
+        if (useTime > rotationTime + 5)
+            break;
+        
+        if (name === "The Balance" || name === "The Spear" || name === "The Arrow") {
+            royalRoad = "Expanded";
+            celestialOpposition = true;
+            duration += 10;
+            timeDilation = false;
+        }
+        
+        if (name === "Embolden") {
+            var emboldenEffect = effects.find(ef => ef.name === "Embolden");
+            var beginTime = useTime;
+            emboldenStacks = emboldenEffect.maxStacks;
+            while (emboldenStacks > 0) {
+                drawGroupEffect(name, jobIndex, beginTime, beginTime + emboldenEffect.stackDuration, royalRoad, celestialOpposition, timeDilation, emboldenStacks);
+                beginTime += emboldenEffect.stackDuration;
+                emboldenStacks--;
+            }
+        } else
+            drawGroupEffect(name, jobIndex, useTime, useTime + duration, royalRoad, celestialOpposition, timeDilation, emboldenStacks);
+        loopCount++;
+    }
+    
+    if (loopCount > 0) {
+        if (name === "The Arrow" || name === "Fey Wind") {
+            updateGcdTimeline();
+            updateRotationAfterIndex(0);
+        }
+    }
+    return loopCount;
+}
+
+function autoFillRaidBuffsOfJob(jobIndex, update) {
+    if ($("#rotation").children().length === 0)
+        return 0;
+    var loopCount = 0;
+    $("#groupEffectsHeader").children(`[jobIndex="${jobIndex}"]`).each(function() {
+        loopCount += autoFillSingleRaidBuff($(this).attr("name"), jobIndex);
+    });
+    
+    if (loopCount > 0 && update)
+        resetAndUpdateDps();
+    return loopCount;
+}
+
+function autoFillRaidBuffs(update) {
+    if ($("#rotation").children().length === 0)
+        return;
+    var loopCount = 0;
+    $("#groupEffectsHeader").children().each(function() {
+        if ($("#group tr td input").eq(Number($(this).attr("jobIndex"))).prop("checked"))
+            loopCount += autoFillSingleRaidBuff($(this).attr("name"), Number($(this).attr("jobIndex")));
+    });
+    
+    if (loopCount > 0 && update)
+        resetAndUpdateDps();
+}
+
+$("#group tr td input").change(function(event) {
+    if ($(this).prop("checked")) {
+        $("#raidBuffAuto").attr("checkCount", Number($("#raidBuffAuto").attr("checkCount")) + 1);
+        autoFillRaidBuffsOfJob($("#group tr td input").index(this), true);
+    } else
+        $("#raidBuffAuto").attr("checkCount", Number($("#raidBuffAuto").attr("checkCount")) - 1);
+    
+    if (Number($("#raidBuffAuto").attr("checkCount")) === 0)
+        $("#raidBuffAuto").prop("checked", false).prop("indeterminate", false);
+    else if (Number($("#raidBuffAuto").attr("checkCount")) === 7)
+        $("#raidBuffAuto").prop("checked", true).prop("indeterminate", false);
+    else
+        $("#raidBuffAuto").prop("checked", false).prop("indeterminate", true);
+});
+
+$("#raidBuffAuto").change(function(event) {
+    $("#raidBuffAuto").attr("checkCount", $(this).prop("checked") ? 7 : 0);
+    $("#group tr td input").prop("checked", $(this).prop("checked"));
+    
+    if ($(this).prop("checked"))
+        autoFillRaidBuffs(true);
+});
 
 $("#WDin").change();
 $("#STRin").change();

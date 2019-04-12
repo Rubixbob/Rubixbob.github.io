@@ -105,8 +105,14 @@ input {
 }
 .raidBuff {
     /* position: relative; */
-    /* height: 156px; */
-    width: 24px;
+    margin-left: 1px;
+    margin-right: 1px;
+    height: 22px;
+    width: 22px;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px black;
+    cursor: pointer;
+    overflow: hidden;
     display: inline-block;
 }
 
@@ -120,6 +126,11 @@ table {
     width: fit-content;
     overflow: auto;
     position: relative;
+}
+
+#group input {
+    display: block;
+    margin: auto;
 }
 
 ::-webkit-scrollbar {
