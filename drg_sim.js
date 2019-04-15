@@ -570,7 +570,6 @@ function drawGroupEffect(name, jobIndex, beginTime, endTime, royalRoad, celestia
         columnName = "The Balance";
     
     if ($("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).length <= 0) { // TODO : name = draw for cards
-        console.log("coucou");
         return;
     }
     var posLeft = $("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).position().left + 1;
