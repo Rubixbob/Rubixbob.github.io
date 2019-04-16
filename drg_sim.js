@@ -21,7 +21,7 @@ actions.forEach(function (ac) {
 function fitColumns() {
     // TODO : Adjust width of elements inside
     $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
-    $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width}px`); });
+    $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width-$("#dps").get(0).getBoundingClientRect().width}px`); });
     $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${$(this).attr("name")}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
     $("#scrollableDiv").css("height", `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#scrollableDiv").get(0).getBoundingClientRect().top}px`);
     $("#effects").children().each(function(index) {
@@ -515,10 +515,28 @@ function updateRotationBeforeIndex(idx) {
     });
 }
 
+function hideTimelineOverlap() {
+    var values = [1, 2, 5, 10, 20, 30, 60, 120, 300];
+    var divider = Math.min(Math.ceil(20/scale), 300);
+    if (!values.includes(divider)) {
+        var itr = 0;
+        while (values[itr] < divider) {
+            itr++;
+        }
+        divider = values[itr];
+    }
+    $("#timeline").children().each(function() {
+        if (Number($(this).attr("time")) % divider === 0)
+            this.style.visibility = "visible";
+        else
+            this.style.visibility = "hidden";
+    });
+}
+
 function timeDiv(time) {
 	var tDiv = $(`<div>${time}</div>`).attr("time", `${time.toFixed(3)}`).css("height", `${scale}px`);
 	var rect = $("#columns").get(0).getBoundingClientRect();
-	tDiv.prepend($("<div></div>").css({"position": "absolute", "left": "0px", "height": "1px", "width": `${rect.width}px`, "background-color": "black", "z-index": "1"}));
+	tDiv.prepend($("<div></div>").css({"position": "absolute", "left": "0px", "height": "1px", "width": `${$("#columns").get(0).getBoundingClientRect().width-$("#dps").get(0).getBoundingClientRect().width}px`, "background-color": "black", "z-index": "1"}));
     return tDiv;
 }
 
@@ -529,6 +547,7 @@ function addTimeUntil(time) {
     for (i = currentMax + 1; i <= time; i++) {
         $("#timeline").append(timeDiv(i));
     }
+    hideTimelineOverlap();
 }
 
 function drawEffect(name, beginTime, endTime) {
@@ -799,9 +818,29 @@ function removeEffectsAfter(beginTime) {
 	$("#effects").children().filter(function(index) {return Number($(this).attr("time")) > beginTime;}).remove();
 }
 
+function hideDpsOverlap() {
+    var elt = $("#dps").children().first();
+    var lastVisible = elt;
+    while (elt.next().length > 0) {
+        elt = elt.next();
+        var lastVisibleDps = lastVisible.children();
+        var eltDps = elt.children();
+        if (parseInt(lastVisible.css("top")) + lastVisibleDps.get(0).getBoundingClientRect().height < parseInt(elt.css("top"))) {
+            elt.prop("hidden", false);
+            lastVisible = elt;
+        } else {
+            elt.prop("hidden", true);
+        }
+    }
+}
+
 function displayDps(dps, time) {
-    var pos = (time - startTime) * scale;
-    $("#dps").append($(`<div>${dps}</div>`).attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "left": "0px", "top": `${pos}px`}));
+    var pos = (time - startTime) * scale + 1;
+    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "left": "2px", "top": `${pos}px`, "height": "1px", "width": `${$("#dps").get(0).getBoundingClientRect().width}px`, "background-color": "black", "z-index": "2"});
+    var dpsText = $(`<div>${dps}</div>`).css({"margin-top": "-8px", "background-color": "#CCC", "width": "fit-content", "margin-left": "auto", "margin-right": "auto"});
+    wrapper.append(dpsText);
+    $("#dps").append(wrapper);
+    // console.log(parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10));
 }
 
 function removeDpsAfter(beginTime) {
@@ -860,7 +899,8 @@ function updateDps() {
                 break;
         }
     });
-    $("#DPSout").val($("#dps").children().last().html());
+    hideDpsOverlap();
+    $("#DPSout").val($("#dps").children().last().children().html());
 }
 
 function resetDps() {
@@ -1117,6 +1157,7 @@ window.addEventListener("mousewheel", function(event)
         $("#timeline").children().css("height", `${scale}px`);
         var value = $("#timeline").children().eq(0).attr("time");
         $("#timeline").children().eq(0).css("height", `${(Math.ceil(value)-value) * scale}px`);
+        hideTimelineOverlap();
 
         $("#rotation").children().each(function(index) {
             var position = ($(this).attr("time") - startTime) * scale;
@@ -1152,8 +1193,8 @@ window.addEventListener("mousewheel", function(event)
             var posHeight = (endTime - beginTime) * scale - 6;
             $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
             
-            var overlay = $(this).children();
-            endTime = overlay.attr("endtime");
+            var overlay = $(this).children("div");
+            endTime = Number(overlay.attr("endtime"));
             var posTop = (endTime - beginTime) * scale - 3;
             var posHeight = (Number($(this).attr("endTime")) - endTime) * scale;
             overlay.css({"top": `${posTop}px`, "height": `${posHeight}px`});
@@ -1165,9 +1206,11 @@ window.addEventListener("mousewheel", function(event)
         });
 
         $("#dps").children().each(function(index) {
-            var pos = ($(this).attr("time") - startTime) * scale;
+            var pos = ($(this).attr("time") - startTime) * scale + 1;
             $(this).css("top", `${pos}px`);
         });
+        hideDpsOverlap();
+        
         $("#scrollableDiv").attr("scrollTop", (scrollTime * scale) % 1);
         $("#scrollableDiv").scrollTop(scrollTime * scale);
     } else {
@@ -1200,6 +1243,7 @@ function setStartTime(value) {
         var posHeight = (endTime - beginTime) * scale - 6;
         $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
     });
+    hideTimelineOverlap();
 }
 
 function updateStartTime() {
