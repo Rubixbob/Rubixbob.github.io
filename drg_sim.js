@@ -355,9 +355,9 @@ function getTooltipContent(element) {
         return name + "<br/>" + desc + "<br/>" + "<br/>" + "Click to Hide";
     } else if (parentId === "groupEffectsHeader") {
         var name = $(element).attr("name");
-        var job = getEffectJob(name);
-        var recast = getEffectRecastTime(name);
-        var desc = getEffectDescription(name);
+        var job = getGroupJob(name);
+        var recast = getGroupDisplayRecastTime(name);
+        var desc = getGroupDescription(name);
         return name + "<br/>" + job.toUpperCase() + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
     } else {
         var name = $(element).attr("name");
@@ -584,9 +584,8 @@ function drawEffect(name, beginTime, endTime) {
 }
 
 function drawGroupEffect(name, jobIndex, beginTime, endTime, royalRoad, celestialOpposition, timeDilation, emboldenStacks) {
-    var columnName = name;
-    if (name === "The Balance" || name === "The Spear" || name === "The Arrow")
-        columnName = "The Balance";
+    var effect = effects.find(ef => name === ef.name);
+    var columnName = effect.groupAction;
     
     if ($("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).length <= 0) { // TODO : name = draw for cards
         return;
@@ -596,13 +595,8 @@ function drawGroupEffect(name, jobIndex, beginTime, endTime, royalRoad, celestia
     var posTop = (beginTime - startTime) * scale;
     var posHeight = (endTime - beginTime) * scale - 6;
     
-    var effect = effects.find(ef => name === ef.name);
-    var backgroundColor = "rgb(255,60,60)";
-    if (effect.hasOwnProperty("backgroundColor"))
-        backgroundColor = effect.backgroundColor;
-    var borderColor = "rgb(128, 30, 30)";
-    if (effect.hasOwnProperty("borderColor"))
-        borderColor = effect.borderColor;
+    var backgroundColor = effect.backgroundColor;
+    var borderColor = effect.borderColor;
     
     var wrapper = $("<div></div>");
     wrapper.attr({"class": "effect", "name": name, "jobIndex": jobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
@@ -858,7 +852,7 @@ function updateDps() {
             if (e.timedEffect.displaySelf) {
                 drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
             } else if (e.timedEffect.hasOwnProperty("jobIndex")) {
-                // update group effect with overlay
+                // Update group effect with overlay
                 var emboldenStacks;
                 if (e.timedEffect.hasOwnProperty("emboldenStacks"))
                     emboldenStacks = e.timedEffect.emboldenStacks;
@@ -1330,11 +1324,11 @@ function setUpRaidBuffLightbox(name, jobIndex, element) {
     $("#raidBuffLightboxTitle").val(name); // Don't delete, this value is used in the OK call
     $("#raidBuffLightboxImg").attr("src", `images/effects/${name}.png`);
     raidBuffLightboxJobIndex = jobIndex;
+    var currentEffect = effects.find(ef => ef.name === name);
     if (raidBuffLightboxEditMode) {
         $("#raidBuffLightboxTitleMode").val("Edit");
         if (name === "Embolden") {
-            var emboldenEffect = effects.find(ef => ef.name === "Embolden");
-            var emboldenBeginTime = ($(element).attr("time") - (emboldenEffect.maxStacks - $(element).attr("emboldenStacks")) * emboldenEffect.stackDuration).toFixed(3);
+            var emboldenBeginTime = ($(element).attr("time") - (currentEffect.maxStacks - $(element).attr("emboldenStacks")) * currentEffect.stackDuration).toFixed(3);
             $("#raidBuffLightboxStartTimeInput").val(emboldenBeginTime);
             $("#raidBuffLightboxDurationInput").val(getEffectDuration(name));
             $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name));
@@ -1346,10 +1340,16 @@ function setUpRaidBuffLightbox(name, jobIndex, element) {
     } else {
         $("#raidBuffLightboxTitleMode").val("Add");
         var previousEffects = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"]`);
+        if (currentEffect.groupAction === "Draw") {
+            var groupAc = groupActions.find(ac => ac.name === currentEffect.groupAction);
+            previousEffects = $("#groupEffects").children(`[jobIndex="${jobIndex}"]`).filter((idx, ef) => {return groupAc.effects.includes($(ef).attr("name"))});
+        }
+        if (name === "Embolden")
+            previousEffects = previousEffects.filter((idx, ef) => {return Number($(ef).attr("emboldenStacks")) === currentEffect.maxStacks});
         var useNumber = previousEffects.length;
-        var useTime = getEffectOpenerTime(name);
-        if (useNumber > 0) // TODO : save use pattern
-            useTime = Number(previousEffects.sort((a, b) => {return Number($(a).attr("time")) - Number($(b).attr("time"))}).last().attr("time")) + getEffectRecastTime(name, useNumber - 1);
+        var useTime = getGroupOpenerTime(currentEffect.groupAction);
+        if (useNumber > 0)
+            useTime = Number(previousEffects.sort((a, b) => {return Number($(a).attr("time")) - Number($(b).attr("time"))}).last().attr("time")) + getGroupRecastTime(currentEffect.groupAction, useNumber - 1);
         
         $("#raidBuffLightboxStartTimeInput").val(useTime);
         $("#raidBuffLightboxDurationInput").val(getEffectDuration(name, useNumber));
@@ -1405,54 +1405,27 @@ function refreshGroupMember(index, value) {
     $("#groupEffectsHeader").children(`[jobIndex="${index}"]`).remove();
     $("#groupEffects").children(`[jobIndex="${index}"]`).remove();
     
-    memberEffects = effects.filter(ef => ef.job === value);
-    if (memberEffects.length > 0) {
+    memberActions = groupActions.filter(ac => ac.job === value);
+    if (memberActions.length > 0) {
         var raidImagesToLoad = 0;
         var raidImagesLoaded = 0;
         var idx = 0;
         while (idx < $("#groupEffectsHeader").children().length && $("#groupEffectsHeader").children().eq(idx).attr("jobIndex") <= index) { idx++; }
-        memberEffects.forEach(function (ef) {
-            var wrapper = $("<div></div>").attr({name: ef.name, class: "raidBuff", jobIndex: index});
-            // wrapper.append($("<span class='ui-icon ui-icon-plus'></span>").css({"position": "absolute", "top": "36px", "left": "4px"}));
-            var path;
-            switch (ef.name) {
-                case "The Balance":
-                    path = "group/Draw";
-                    break;
-                case "The Spear":
-                case "The Arrow":
-                    return;
-                case "Piercing Resistance Down":
-                    path = "group/Disembowel";
-                    break;
-                case "Left Eye":
-                    path = "group/Dragon Sight";
-                    break;
-                case "Critical Up":
-                    path = "group/The Wanderer's Minuet";
-                    // path = "effects/Critical Up";
-                    break;
-                default:
-                    path = "group/" + ef.name;
-                    break;
-            }
+        memberActions.forEach(function (ac) {
+            var wrapper = $("<div></div>").attr({name: ac.name, class: "raidBuff", jobIndex: index});
 
-            var effect = $("<img></img>").attr({class: ef.type, src: `images/${path}.png`}).css({"width": 22}).one("load", function() {
+            var effect = $("<img></img>").attr({src: `images/group/${ac.name}.png`}).css({"width": 22}).one("load", function() {
                 raidImagesLoaded++;
                 if (raidImagesLoaded === raidImagesToLoad)
                     fitColumns();
             }).each(function() {
-                var plusButton = $("<button class='circular ui icon button'><i class='icon plus'></i></button>").css({"padding": "4px", "display": "block"});
                 $(wrapper).click(function() {
                     raidBuffLightboxEditMode = false;
-                    setUpRaidBuffLightbox(ef.name, index);
+                    setUpRaidBuffLightbox(ac.effects[0], index);
                     $("#raidBuffLightbox").modal("show");
                 });
                 
-                // if (ef.name === "Critical Up")
-                    // $(this).css({"width": 28, "margin-top": "-6px", "margin-left": "-3px"});
                 wrapper.append(this);
-                // wrapper.append(plusButton);
                 
                 if (idx > 0)
                     $("#groupEffectsHeader").children().eq(idx-1).after(wrapper);
@@ -1570,26 +1543,33 @@ function autoFillSingleRaidBuff(name, jobIndex) {
         return 0;
     var rotationTime = Number($("#rotation").children().last().attr("time"));
     var loopCount = 0;
+    var effectName = groupActions.find(ac => ac.name === name).effects[0];
+    
+    var emboldenEffect;
+    if (name === "Embolden")
+        emboldenEffect = effects.find(ef => ef.name === "Embolden");
     
     while (true) {
         var royalRoad;
         var celestialOpposition;
         var timeDilation;
         var emboldenStacks;
-        var previousEffects = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"]`);
+        var previousEffects = $("#groupEffects").children(`[name="${effectName}"][jobIndex="${jobIndex}"]`);
+        if (name === "Embolden")
+            previousEffects = previousEffects.filter((idx, ef) => {return Number($(ef).attr("emboldenStacks")) === emboldenEffect.maxStacks});
         var useNumber = previousEffects.length;
-        var useTime = getEffectOpenerTime(name);
-        var duration = getEffectDuration(name, useNumber);
-        if (useNumber > 0) { // TODO : save use pattern
-            if (name === "The Balance" || name === "The Spear" || name === "The Arrow" || name === "Fey Wind" || name === "Radiant Shield")
+        var useTime = getGroupOpenerTime(name);
+        var duration = getEffectDuration(effectName, useNumber);
+        if (useNumber > 0) {
+            if (name === "Draw" || name === "Fey Wind" || name === "Radiant Shield")
                 break;
-            useTime = Number(previousEffects.sort((a, b) => {return Number($(a).attr("time")) - Number($(b).attr("time"))}).last().attr("time")) + getEffectRecastTime(name, useNumber - 1);
+            previousEffects = previousEffects.sort((a, b) => {return Number($(a).attr("time")) - Number($(b).attr("time"))});
+            useTime = Number(previousEffects.last().attr("time")) + getGroupRecastTime(name, useNumber - 1);
         }
-        
         if (useTime > rotationTime + 5)
             break;
         
-        if (name === "The Balance" || name === "The Spear" || name === "The Arrow") {
+        if (name === "Draw") {
             royalRoad = "Expanded";
             celestialOpposition = true;
             duration += 10;
@@ -1597,21 +1577,20 @@ function autoFillSingleRaidBuff(name, jobIndex) {
         }
         
         if (name === "Embolden") {
-            var emboldenEffect = effects.find(ef => ef.name === "Embolden");
             var beginTime = useTime;
             emboldenStacks = emboldenEffect.maxStacks;
             while (emboldenStacks > 0) {
-                drawGroupEffect(name, jobIndex, beginTime, beginTime + emboldenEffect.stackDuration, royalRoad, celestialOpposition, timeDilation, emboldenStacks);
+                drawGroupEffect(effectName, jobIndex, beginTime, beginTime + emboldenEffect.stackDuration, royalRoad, celestialOpposition, timeDilation, emboldenStacks);
                 beginTime += emboldenEffect.stackDuration;
                 emboldenStacks--;
             }
         } else
-            drawGroupEffect(name, jobIndex, useTime, useTime + duration, royalRoad, celestialOpposition, timeDilation, emboldenStacks);
+            drawGroupEffect(effectName, jobIndex, useTime, useTime + duration, royalRoad, celestialOpposition, timeDilation, emboldenStacks);
         loopCount++;
     }
     
     if (loopCount > 0) {
-        if (name === "The Arrow" || name === "Fey Wind") {
+        if (effectName === "The Arrow" || effectName === "Fey Wind") {
             updateGcdTimeline();
             updateRotationAfterIndex(0);
         }

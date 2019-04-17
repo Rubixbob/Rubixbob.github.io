@@ -721,22 +721,12 @@ function getEffectDuration(effectName, use) {
     return Number(duration);
 }
 
-function getEffectJob(effectName) {
+function getEffectJob(effectName) { // keep or delete
     var job = "drg";
     var effect = effects.find(ef => effectName === ef.name);
     if (effect.hasOwnProperty("job"))
         job = effect.job;
     return job;
-}
-
-function getEffectRecastTime(effectName, use) {
-    var recast = 0;
-    var effect = effects.find(ef => effectName === ef.name);
-    if ((effectName === "Critical Up" || effectName === "Foe Requiem" || effectName === "Piercing Resistance Down") && use !== undefined && effect.hasOwnProperty("usePattern"))
-        recast = effect.usePattern[use % effect.usePattern.length];
-    else if (effect.hasOwnProperty("recast"))
-        recast = effect.recast;
-    return Number(recast);
 }
 
 function getEffectDescription(effectName) {
@@ -747,10 +737,44 @@ function getEffectDescription(effectName) {
     return description;
 }
 
-function getEffectOpenerTime(effectName) {
+function getGroupOpenerTime(actionName) {
     var openerTime = 0;
-    var effect = effects.find(ef => effectName === ef.name);
-    if (effect.hasOwnProperty("openerTime"))
-        openerTime = effect.openerTime;
+    var groupAction = groupActions.find(ac => actionName === ac.name);
+    if (groupAction.hasOwnProperty("openerTime"))
+        openerTime = groupAction.openerTime;
     return Number(openerTime);
+}
+
+function getGroupJob(actionName) {
+    var job = "drg";
+    var groupAction = groupActions.find(ac => actionName === ac.name);
+    if (groupAction.hasOwnProperty("job"))
+        job = groupAction.job;
+    return job;
+}
+
+function getGroupRecastTime(actionName, use) {
+    var recast = 0;
+    var groupAction = groupActions.find(ac => actionName === ac.name);
+    if ((actionName === "The Wanderer's Minuet" || actionName === "Foe Requiem" || actionName === "Disembowel") && use !== undefined && groupAction.hasOwnProperty("usePattern"))
+        recast = groupAction.usePattern[use % groupAction.usePattern.length];
+    else if (groupAction.hasOwnProperty("recast"))
+        recast = groupAction.recast;
+    return Number(recast);
+}
+
+function getGroupDisplayRecastTime(actionName, use) {
+    var recast = 0;
+    var groupAction = groupActions.find(ac => actionName === ac.name);
+    if (groupAction.hasOwnProperty("recast"))
+        recast = groupAction.recast;
+    return Number(recast);
+}
+
+function getGroupDescription(actionName) {
+    var description = "";
+    var groupAction = groupActions.find(ac => actionName === ac.name);
+    if (groupAction.hasOwnProperty("description"))
+        description = groupAction.description;
+    return description;
 }
