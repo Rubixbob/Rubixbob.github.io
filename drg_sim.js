@@ -286,9 +286,11 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
     var tooltip;
     $(element).mouseover(function(e) {
         clearTimeout(tooltipTimer);
+        if (tooltip)
+            return;
         $(".tooltip").remove();
         var content = getTooltipContent(element);
-        tooltip = $("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY - 10}px`, "left": `${element.getBoundingClientRect().right}px`, "min-width": "150px"}).html(content);
+        tooltip = $("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY - 10}px`, "left": `${element.getBoundingClientRect().right}px`, "min-width": "150px", "max-width": "250px"}).html(content);
         
         var buttonLine = $("<div></div>").css({"display": "flex", "justify-content": "flex-end"});
         
@@ -299,7 +301,7 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
         });
         buttonLine.append(deleteButton);
         
-        var editButton = $("<button class='ui icon button'><i class='icon cog'></i></button>").css({"padding": "4px"});
+        var editButton = $("<button class='ui icon button'><i class='icon cog'></i></button>").css({"padding": "4px", "margin-right": "0px"});
         $(editButton).click(function() {
             $(".tooltip").remove();
             raidBuffLightboxEditMode = true;
@@ -317,10 +319,10 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
         }).mousemove(function(e) {
             clearTimeout(tooltipTimer);
         }).mouseout(function(e) {
-            tooltipTimer = setTimeout(function() { $(tooltip).remove(); }, 200);
+            tooltipTimer = setTimeout(function() { $(tooltip).remove(); tooltip = null; }, 200);
         });
     }).mouseout(function(e) {
-        tooltipTimer = setTimeout(function() { $(tooltip).remove(); }, 200);
+        tooltipTimer = setTimeout(function() { $(tooltip).remove(); tooltip = null; }, 200);
     });
     
 }
@@ -348,7 +350,8 @@ function getTooltipContent(element) {
         var name = $(element).attr("name");
         var time = $(element).attr("time");
         var endTime = $(element).children("div").attr("endTime");
-        return name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s";
+        var desc = getEffectDescription(name);
+        return name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s" + "<br/>" + desc;
     } else if ($(element.parentNode.parentNode).attr("id") === "effectsHeader") {
         var name = $(element.parentNode).attr("name");
         var desc = getEffectDescription(name);
@@ -1127,6 +1130,8 @@ $("#SKSin").change(function() {
     $("#SKSin").val(Math.trunc($("#SKSin").val()));
     stats.sks = Number($("#SKSin").val());
     $("#SKSout").val(stats.sksMod());
+    if (Number($("#SKSoutGCD").val()) !== stats.gcd())
+        updateGcdTimeline();
     $("#SKSoutGCD").val(stats.gcd());
     if ($("#rotation").children().length > 0) {
         updateStartTime();
@@ -1645,6 +1650,36 @@ $("#raidBuffAuto").change(function(event) {
     
     if ($(this).prop("checked"))
         autoFillRaidBuffs(true);
+});
+
+$("#group tr td button").click(function(event) {
+    var updateSpeed = false;
+    $("#groupEffects").children(`[jobIndex=${$("#group tr td button").index(this)}]`).each(function() {
+        if (!updateSpeed && ($(this).attr("name") === "The Arrow" || $(this).attr("name") === "Fey Wind"))
+            updateSpeed = true;
+        $(this).remove();
+    });
+    if (updateSpeed) {
+        updateGcdTimeline();
+        updateRotationAfterIndex(0);
+    }
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
+});
+
+$("#raidBuffClear").click(function(event) {
+    var updateSpeed = false;
+    $("#groupEffects").children().each(function() {
+        if (!updateSpeed && ($(this).attr("name") === "The Arrow" || $(this).attr("name") === "Fey Wind"))
+            updateSpeed = true;
+        $(this).remove();
+    });
+    if (updateSpeed) {
+        updateGcdTimeline();
+        updateRotationAfterIndex(0);
+    }
+    if ($("#rotation").children().length > 0)
+        resetAndUpdateDps();
 });
 
 $("#WDin").change();
