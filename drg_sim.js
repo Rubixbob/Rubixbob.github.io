@@ -294,7 +294,7 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
         
         var buttonLine = $("<div></div>").css({"display": "flex", "justify-content": "flex-end"});
         
-        var deleteButton = $("<button class='ui icon button'><i class='icon trash'></i></button>").css({"padding": "4px"});
+        var deleteButton = $("<button class='ui icon button'><i class='icon trash alternate'></i></button>").css({"padding": "4px"});
         $(deleteButton).click(function() {
             $(".tooltip").remove();
             deleteGroupEffect(element);
@@ -1621,7 +1621,7 @@ function autoFillRaidBuffs(update) {
         return;
     var loopCount = 0;
     $("#groupEffectsHeader").children().each(function() {
-        if ($("#group tr td input").eq(Number($(this).attr("jobIndex"))).prop("checked"))
+        if ($(".checkboxButton:not(#raidBuffAuto)").children("input").eq(Number($(this).attr("jobIndex"))).prop("checked"))
             loopCount += autoFillSingleRaidBuff($(this).attr("name"), Number($(this).attr("jobIndex")));
     });
     
@@ -1629,27 +1629,59 @@ function autoFillRaidBuffs(update) {
         resetAndUpdateDps();
 }
 
-$("#group tr td input").change(function(event) {
-    if ($(this).prop("checked")) {
-        $("#raidBuffAuto").attr("checkCount", Number($("#raidBuffAuto").attr("checkCount")) + 1);
-        autoFillRaidBuffsOfJob($("#group tr td input").index(this), true);
-    } else
-        $("#raidBuffAuto").attr("checkCount", Number($("#raidBuffAuto").attr("checkCount")) - 1);
-    
-    if (Number($("#raidBuffAuto").attr("checkCount")) === 0)
-        $("#raidBuffAuto").prop("checked", false).prop("indeterminate", false);
-    else if (Number($("#raidBuffAuto").attr("checkCount")) === 7)
-        $("#raidBuffAuto").prop("checked", true).prop("indeterminate", false);
-    else
-        $("#raidBuffAuto").prop("checked", false).prop("indeterminate", true);
-});
+function changeCheckboxButton(element, action) {
+    switch(action) {
+        case "check":
+            $(element).children("input").prop("checked", true);
+            $(element).children("input").prop("indeterminate", false);
+            break;
+        case "uncheck":
+            $(element).children("input").prop("checked", false);
+            $(element).children("input").prop("indeterminate", false);
+            break;
+        case "toggle":
+            $(element).children("input").prop("checked", !$(element).children("input").prop("checked"));
+            $(element).children("input").prop("indeterminate", false);
+            break;
+        default: // indeterminate
+            $(element).children("input").prop("checked", false);
+            $(element).children("input").prop("indeterminate", true);
+            break;
+    }
+    $(element).children("i").each((idx, elt) => {
+        if ($(elt).hasClass("check"))
+            $(elt).css("display", !$(element).children("input").prop("indeterminate") && $(element).children("input").prop("checked") ? "block" : "none");
+        else if ($(elt).hasClass("minus"))
+            $(elt).css("display", $(element).children("input").prop("indeterminate") ? "block" : "none");
+        else
+            $(elt).css("display", !$(element).children("input").prop("indeterminate") && !$(element).children("input").prop("checked") ? "block" : "none");
+    });
+}
 
-$("#raidBuffAuto").change(function(event) {
-    $("#raidBuffAuto").attr("checkCount", $(this).prop("checked") ? 7 : 0);
-    $("#group tr td input").prop("checked", $(this).prop("checked"));
-    
-    if ($(this).prop("checked"))
-        autoFillRaidBuffs(true);
+$(".checkboxButton").click(function(event) {
+    if ($(this).attr("id") === "raidBuffAuto") {
+        changeCheckboxButton(this, "toggle");
+        
+        $(this).attr("checkCount", $(this).children("input").prop("checked") ? 7 : 0);
+        $(".checkboxButton:not(#raidBuffAuto)").each((idx, elt) => {changeCheckboxButton(elt, $(this).children("input").prop("checked") ? "check" : "uncheck");});
+        
+        if ($(this).children("input").prop("checked"))
+            autoFillRaidBuffs(true);
+    } else {
+        changeCheckboxButton(this, "toggle");
+        if ($(this).children("input").prop("checked")) {
+            $("#raidBuffAuto").attr("checkCount", Number($("#raidBuffAuto").attr("checkCount")) + 1);
+            autoFillRaidBuffsOfJob($(".checkboxButton:not(#raidBuffAuto)").index(this), true);
+        } else
+            $("#raidBuffAuto").attr("checkCount", Number($("#raidBuffAuto").attr("checkCount")) - 1);
+        
+        if (Number($("#raidBuffAuto").attr("checkCount")) === 0)
+            changeCheckboxButton($("#raidBuffAuto").get(0), "uncheck");
+        else if (Number($("#raidBuffAuto").attr("checkCount")) === 7)
+            changeCheckboxButton($("#raidBuffAuto").get(0), "check");
+        else
+            changeCheckboxButton($("#raidBuffAuto").get(0), "indeterminate");
+    }
 });
 
 $("#group tr td button").click(function(event) {

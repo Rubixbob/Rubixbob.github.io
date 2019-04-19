@@ -128,9 +128,14 @@ table {
     position: relative;
 }
 
-#group input, #group button {
+.checkboxButton, .clearGroupButton {
     display: block;
     margin: auto;
+    padding: 4px;
+}
+
+.checkboxButton input {
+    display: none;
 }
 
 ::-webkit-scrollbar {
@@ -159,7 +164,7 @@ table {
 	/*height: 200px;*/
     border-radius: 4px;
     max-width: 400px;
-    padding: 4px 4px 4px 4px;
+    padding: 4px;
 }
 
 #progress {

@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="./jquery-ui/jquery-ui.min.css">
-    <link rel="stylesheet" href="./UI-Icon-master/icon.min.css">
-    <link rel="stylesheet" href="./UI-Button-master/button.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/button.min.css">
     <link rel="stylesheet" href="./UI-Transition-master/transition.min.css">
     <link rel="stylesheet" href="./UI-Dimmer-master/dimmer.min.css">
     <link rel="stylesheet" href="./UI-Modal-master/modal.min.css">
@@ -73,7 +73,12 @@
                     <th>Raid group</th>
                     <th>
                         <label for="raidBuffAuto">Auto</label>
-                        <input id="raidBuffAuto" type="checkbox" checked checkCount="7"/>
+                        <button id="raidBuffAuto" class="mini ui icon button checkboxButton" checkCount="7">
+                            <input type="checkbox" checked />
+                            <i class="big icon square outline" style="display:none"></i>
+                            <i class="big icon square outline check"></i>
+                            <i class="big icon square outline minus" style="display:none"></i>
+                        </button>
                     </th>
                     <th>
                         Clear
@@ -106,8 +111,14 @@
                             </optgroup>
                         </select>
                     </td>
-                    <td><input type="checkbox" checked /></td>
-                    <td><button class="mini circular ui icon button"><i class="icon close"></i></button></td>
+                    <td>
+                        <button class="mini ui icon button checkboxButton">
+                            <input type="checkbox" checked />
+                            <i class="big icon square outline" style="display:none"></i>
+                            <i class="big icon square outline check"></i>
+                        </button>
+                    </td>
+                    <td><button class="mini circular ui icon button clearGroupButton"><i class="icon close"></i></button></td>
                 </tr>
             </table>
             <br />
