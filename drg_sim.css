@@ -128,10 +128,25 @@ table {
     position: relative;
 }
 
-.checkboxButton, .clearGroupButton {
+#raidBuffAuto, #raidBuffClear {
     display: block;
-    margin: auto;
-    padding: 4px;
+}
+
+.checkboxButton {
+    display: block !important;
+    padding: 0px !important;
+    margin: auto !important;
+}
+
+.clearGroupButton {
+    display: block !important;
+    padding: 3px 4.79px 2px 4.79px !important;
+    margin: auto !important;
+}
+
+.checkboxButton i, .clearGroupButton i {
+    width: auto !important;
+    height: auto !important;
 }
 
 .checkboxButton input {

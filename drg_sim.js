@@ -22,10 +22,10 @@ function fitColumns() {
     // TODO : Adjust width of elements inside
     $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
     $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width-$("#dps").get(0).getBoundingClientRect().width}px`); });
-    $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${$(this).attr("name")}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
+    $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${effects.find(ef => $(this).attr("name") === ef.name).groupAction}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
     $("#scrollableDiv").css("height", `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#scrollableDiv").get(0).getBoundingClientRect().top}px`);
     $("#effects").children().each(function(index) {
-        var hide = $("#effectsHeader").children(`[name="${$(this).attr("name")}"]`).children("img").prop("hidden");
+        var hide = !$("#effectsHeader").children(`[name="${$(this).attr("name")}"]`).children("input").prop("checked");
         var posLeft = $("#effectsHeader").children(`[name="${$(this).attr("name")}"]`).position().left + 1;
         var posWidth = $("#effectsHeader").children(`[name="${$(this).attr("name")}"]`).width() - 8;
         $(this).css({"left": `${posLeft}px`, "width": `${posWidth}px`});
@@ -40,7 +40,7 @@ effects.forEach(function (ef) {
     if (ef.displaySelf) {
         var wrapper = $("<div></div>").attr("name", ef.name).css("display", "inline-block");
         var checkBox = $("<input type='checkbox' checked/>").css({"display": "none", "margin": "auto"});
-        var effect = $("<img></img>").attr("src", `images/effects/${ef.name}.png`).one("load", function() {
+        var effect = $("<img></img>").css("cursor", "pointer").attr("src", `images/effects/${ef.name}.png`).one("load", function() {
             imagesLoaded++;
             if (imagesLoaded === imagesToLoad)
                 fitColumns();
@@ -59,8 +59,8 @@ effects.forEach(function (ef) {
         checkBox.change(function() {
             if (checkBox.css("display") === "none") {
                 effect.prop("hidden", !$(checkBox).prop("checked"));
-                fitColumns();
             }
+            fitColumns();
         });
     }
 });
@@ -355,7 +355,7 @@ function getTooltipContent(element) {
     } else if ($(element.parentNode.parentNode).attr("id") === "effectsHeader") {
         var name = $(element.parentNode).attr("name");
         var desc = getEffectDescription(name);
-        return name + "<br/>" + desc + "<br/>" + "<br/>" + "Click to Hide";
+        return name + "<br/>" + desc + "<br/>" + "<br/>" + "Click to Hide/Unhide";
     } else if (parentId === "groupEffectsHeader") {
         var name = $(element).attr("name");
         var job = getGroupJob(name);
@@ -1630,10 +1630,12 @@ function autoFillRaidBuffs(update) {
 }
 
 function changeCheckboxButton(element, action) {
+    $(element).children("i").removeClass("check minus");
     switch(action) {
         case "check":
             $(element).children("input").prop("checked", true);
             $(element).children("input").prop("indeterminate", false);
+            $(element).children("i").addClass("check");
             break;
         case "uncheck":
             $(element).children("input").prop("checked", false);
@@ -1642,20 +1644,15 @@ function changeCheckboxButton(element, action) {
         case "toggle":
             $(element).children("input").prop("checked", !$(element).children("input").prop("checked"));
             $(element).children("input").prop("indeterminate", false);
+            if ($(element).children("input").prop("checked"))
+                $(element).children("i").addClass("check");
             break;
         default: // indeterminate
             $(element).children("input").prop("checked", false);
             $(element).children("input").prop("indeterminate", true);
+            $(element).children("i").addClass("minus");
             break;
     }
-    $(element).children("i").each((idx, elt) => {
-        if ($(elt).hasClass("check"))
-            $(elt).css("display", !$(element).children("input").prop("indeterminate") && $(element).children("input").prop("checked") ? "block" : "none");
-        else if ($(elt).hasClass("minus"))
-            $(elt).css("display", $(element).children("input").prop("indeterminate") ? "block" : "none");
-        else
-            $(elt).css("display", !$(element).children("input").prop("indeterminate") && !$(element).children("input").prop("checked") ? "block" : "none");
-    });
 }
 
 $(".checkboxButton").click(function(event) {
@@ -1684,24 +1681,15 @@ $(".checkboxButton").click(function(event) {
     }
 });
 
-$("#group tr td button").click(function(event) {
+$(".clearGroupButton").click(function(event) {
     var updateSpeed = false;
-    $("#groupEffects").children(`[jobIndex=${$("#group tr td button").index(this)}]`).each(function() {
-        if (!updateSpeed && ($(this).attr("name") === "The Arrow" || $(this).attr("name") === "Fey Wind"))
-            updateSpeed = true;
-        $(this).remove();
-    });
-    if (updateSpeed) {
-        updateGcdTimeline();
-        updateRotationAfterIndex(0);
+    var groupEffectsChildren;
+    if ($(this).attr("id") === "raidBuffClear") {
+        groupEffectsChildren = $("#groupEffects").children();
+    } else {
+        groupEffectsChildren = $("#groupEffects").children(`[jobIndex=${$(".clearGroupButton:not(#raidBuffClear)").index(this)}]`);
     }
-    if ($("#rotation").children().length > 0)
-        resetAndUpdateDps();
-});
-
-$("#raidBuffClear").click(function(event) {
-    var updateSpeed = false;
-    $("#groupEffects").children().each(function() {
+    groupEffectsChildren.each(function() {
         if (!updateSpeed && ($(this).attr("name") === "The Arrow" || $(this).attr("name") === "Fey Wind"))
             updateSpeed = true;
         $(this).remove();
