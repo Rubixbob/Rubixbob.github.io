@@ -128,10 +128,6 @@ table {
     position: relative;
 }
 
-#raidBuffAuto, #raidBuffClear {
-    display: block;
-}
-
 .checkboxButton {
     display: block !important;
     padding: 0px !important;

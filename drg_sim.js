@@ -362,6 +362,16 @@ function getTooltipContent(element) {
         var recast = getGroupDisplayRecastTime(name);
         var desc = getGroupDescription(name);
         return name + "<br/>" + job.toUpperCase() + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
+    } else if ($(element).hasClass("checkboxButton")) {
+        if ($(element).attr("id") === "raidBuffAuto")
+            return "(Recommended) Automatically adds all raid buffs";
+        var job = $("#group .ui-selectmenu-text").get($(".checkboxButton:not(#raidBuffAuto)").index(element)).textContent;
+        return "(Recommended) Automatically adds raid buffs for this job (" + job + ")";
+    } else if ($(element).hasClass("clearGroupButton")) {
+        if ($(element).attr("id") === "raidBuffClear")
+            return "Clears all raid buffs";
+        var job = $("#group .ui-selectmenu-text").get($(".clearGroupButton:not(#raidBuffClear)").index(element)).textContent;
+        return "Clears all raid buffs of this job (" + job + ")";
     } else {
         var name = $(element).attr("name");
         var type = getType(name);
@@ -1542,6 +1552,8 @@ for (i = 0; i < 7; i++) {
     $("#group tr td select").eq(i).iconselectmenu("menuWidget").css({"max-height": `calc(100vh - ${97 + 53 * i}px)`, "min-height": "100px"});
     refreshGroupMember(i, standardComp[i]);
 }
+
+$(".checkboxButton, .clearGroupButton").each((idx, elt) => addTooltip(elt));
 
 function autoFillSingleRaidBuff(name, jobIndex) {
     if ($("#rotation").children().length === 0)

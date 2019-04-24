@@ -274,11 +274,11 @@ function addToList(effect, list, property) {
     list.splice(idx, 0, effect);
 }
 
-function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
+function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd, useOverlayEndTime) {
     $(groupEffectsDom).each(function() {
         var ef = effects.find(e => e.name === $(this).attr("name"));
         var beginTime = Number($(this).attr("time"));
-        var endTime = Number($(this).attr("endtime"));
+        var endTime = useOverlayEndTime ? Number($(this).children("div").attr("endtime")) : Number($(this).attr("endtime"));
         var timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, jobIndex: $(this).attr("jobIndex")};
         if (this.hasAttribute("royalRoad"))
         	timedEffect.royalRoad = $(this).attr("royalRoad");
@@ -301,7 +301,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 
 	var eType = "action";
     
-    initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd);
+    initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd, false);
     if (effectsToActivate.length > 0) {
         if (effectsToActivate[0].beginTime <= time) {
             eType = "effectBegin";
@@ -333,6 +333,8 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             }
             
             var activeIdx = activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name);
+            if (timedEffect.effect.groupAction === "Draw")
+                activeIdx = activeEffects.findIndex(ef => ef.effect.groupAction === "Draw");
             if (activeIdx >= 0 && !timedEffect.effect.stackable) {
                 eType = "effectEnd";
                 
@@ -604,7 +606,7 @@ function generateGcdTimeline(gcdTimeline, stats, groupSpeedEffectsDom) {
 	var activeEffects = stats.activeEffects;
 	var effectsToActivate = [];
 	var effectsToEnd = [];
-    initGroupEffects(groupSpeedEffectsDom, effectsToActivate, effectsToEnd);
+    initGroupEffects(groupSpeedEffectsDom, effectsToActivate, effectsToEnd, true);
 	var time = effectsToActivate[0].beginTime;
 
 	var eType = "effectBegin";
