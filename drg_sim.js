@@ -667,7 +667,7 @@ function deleteGroupEffect(element) {
         }
     } else
         $(element).remove();
-    if ($(element).attr("name") === "The Arrow" || $(element).attr("name") === "Fey Wind") {
+    if ($(element).attr("name") === "The Balance" || $(element).attr("name") === "The Spear" || $(element).attr("name") === "The Arrow" || $(element).attr("name") === "Fey Wind") {
         updateGcdTimeline();
         updateRotationAfterIndex(0);
     }
@@ -1415,7 +1415,7 @@ function setUpRaidBuffLightbox(name, jobIndex, element) {
 function refreshGroupMember(index, value) {
     var updateSpeed = false;
     var loopCount = $("#groupEffects").children(`[jobIndex="${index}"]`).length;
-     if ($("#groupEffects").children(`[jobIndex="${index}"][name="The Arrow"], [jobIndex="${index}"][name="Fey Wind"]`).length > 0)
+     if ($("#groupEffects").children(`[jobIndex="${index}"][name="The Balance"], [jobIndex="${index}"][name="The Spear"], [jobIndex="${index}"][name="The Arrow"], [jobIndex="${index}"][name="Fey Wind"]`).length > 0)
          updateSpeed = true;
     $("#groupEffectsHeader").children(`[jobIndex="${index}"]`).remove();
     $("#groupEffects").children(`[jobIndex="${index}"]`).remove();
@@ -1500,7 +1500,7 @@ $("#raidBuffLightboxConfirm").click(function() {
         }
     } else
         drawGroupEffect(title, raidBuffLightboxJobIndex, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()), royalRoad, celestialOpposition, timeDilation, emboldenStacks);
-    if (title === "The Arrow" || title === "Fey Wind") {
+    if (title === "The Balance" || title === "The Spear" || title === "The Arrow" || title === "Fey Wind") {
         updateGcdTimeline();
         updateRotationAfterIndex(0);
     }
@@ -1606,11 +1606,9 @@ function autoFillSingleRaidBuff(name, jobIndex) {
         loopCount++;
     }
     
-    if (loopCount > 0) {
-        if (effectName === "The Arrow" || effectName === "Fey Wind") {
-            updateGcdTimeline();
-            updateRotationAfterIndex(0);
-        }
+    if (loopCount > 0 && (effectName === "The Balance" || effectName === "The Spear" || effectName === "The Arrow" || effectName === "Fey Wind")) {
+        updateGcdTimeline();
+        updateRotationAfterIndex(0);
     }
     return loopCount;
 }
@@ -1702,7 +1700,7 @@ $(".clearGroupButton").click(function(event) {
         groupEffectsChildren = $("#groupEffects").children(`[jobIndex=${$(".clearGroupButton:not(#raidBuffClear)").index(this)}]`);
     }
     groupEffectsChildren.each(function() {
-        if (!updateSpeed && ($(this).attr("name") === "The Arrow" || $(this).attr("name") === "Fey Wind"))
+        if (!updateSpeed && ($(this).attr("name") === "The Balance" || $(this).attr("name") === "The Spear" || $(this).attr("name") === "The Arrow" || $(this).attr("name") === "Fey Wind"))
             updateSpeed = true;
         $(this).remove();
     });
@@ -1735,5 +1733,5 @@ function updateGcdTimeline() { // Do not call during history generation
     var tempStats = stats.copy(); // This will copy buffs if any is active
     if (tempStats.activeEffects.length !== 0)
         console.log("Active buff found, this might induce errors");
-    generateGcdTimeline(gcdTimeline, tempStats, $("#groupEffects").children("[name='The Arrow'], [name='Fey Wind']"));
+    generateGcdTimeline(gcdTimeline, tempStats, $("#groupEffects").children("[name='The Balance'], [name='The Spear'], [name='The Arrow'], [name='Fey Wind']"));
 }

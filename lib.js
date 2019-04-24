@@ -274,11 +274,11 @@ function addToList(effect, list, property) {
     list.splice(idx, 0, effect);
 }
 
-function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd, useOverlayEndTime) {
+function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
     $(groupEffectsDom).each(function() {
         var ef = effects.find(e => e.name === $(this).attr("name"));
         var beginTime = Number($(this).attr("time"));
-        var endTime = useOverlayEndTime ? Number($(this).children("div").attr("endtime")) : Number($(this).attr("endtime"));
+        var endTime = Number($(this).attr("endtime"));
         var timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, jobIndex: $(this).attr("jobIndex")};
         if (this.hasAttribute("royalRoad"))
         	timedEffect.royalRoad = $(this).attr("royalRoad");
@@ -301,7 +301,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 
 	var eType = "action";
     
-    initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd, false);
+    initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd);
     if (effectsToActivate.length > 0) {
         if (effectsToActivate[0].beginTime <= time) {
             eType = "effectBegin";
@@ -606,7 +606,7 @@ function generateGcdTimeline(gcdTimeline, stats, groupSpeedEffectsDom) {
 	var activeEffects = stats.activeEffects;
 	var effectsToActivate = [];
 	var effectsToEnd = [];
-    initGroupEffects(groupSpeedEffectsDom, effectsToActivate, effectsToEnd, true);
+    initGroupEffects(groupSpeedEffectsDom, effectsToActivate, effectsToEnd);
 	var time = effectsToActivate[0].beginTime;
 
 	var eType = "effectBegin";
@@ -617,11 +617,15 @@ function generateGcdTimeline(gcdTimeline, stats, groupSpeedEffectsDom) {
         // Overwrite effect
         if (eType === "effectBegin") {
             timedEffect = effectsToActivate[0];
-            if (activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name) >= 0 && !timedEffect.effect.stackable) {
+            
+            var activeIdx = activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name);
+            if (timedEffect.effect.groupAction === "Draw")
+                activeIdx = activeEffects.findIndex(ef => ef.effect.groupAction === "Draw");
+            if (activeIdx >= 0 && !timedEffect.effect.stackable) {
                 eType = "effectEnd";
                 
-                var oldTimedEffect = effectsToEnd.find(e => e.effect.name === timedEffect.effect.name);
-                if (oldTimedEffect !== undefined && oldTimedEffect.beginTime <= timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
+                var oldTimedEffect = activeEffects[activeIdx];
+                if (effectsToEnd.indexOf(oldTimedEffect) >= 0 && oldTimedEffect.beginTime <= timedEffect.beginTime && oldTimedEffect.endTime > timedEffect.beginTime) {
                     effectsToEnd.splice(effectsToEnd.indexOf(oldTimedEffect), 1);
                     oldTimedEffect.endTime = timedEffect.beginTime;
                     effectsToEnd.unshift(oldTimedEffect);
@@ -647,7 +651,8 @@ function generateGcdTimeline(gcdTimeline, stats, groupSpeedEffectsDom) {
 	        default:
 		}
 
-		gcdTimeline.push({ time: time, gcd: stats.gcd() });
+		if (gcdTimeline.length === 0 || gcdTimeline[gcdTimeline.length - 1].gcd != stats.gcd())
+			gcdTimeline.push({ time: time, gcd: stats.gcd() });
 
 		eType = "done";
 		if (effectsToEnd.length > 0) {
