@@ -128,16 +128,18 @@ table {
     position: relative;
 }
 
-.checkboxButton {
+.checkboxButton, .clearGroupButton {
     display: block !important;
-    padding: 0px !important;
     margin: auto !important;
+    background-color: rgb(0, 0, 0, 0) !important;
+}
+
+.checkboxButton {
+    padding: 0px !important;
 }
 
 .clearGroupButton {
-    display: block !important;
     padding: 3px 4.79px 2px 4.79px !important;
-    margin: auto !important;
 }
 
 .checkboxButton i, .clearGroupButton i {
