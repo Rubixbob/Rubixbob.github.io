@@ -723,14 +723,6 @@ function getEffectDuration(effectName, use) {
     return Number(duration);
 }
 
-function getEffectJob(effectName) { // keep or delete
-    var job = "drg";
-    var effect = effects.find(ef => effectName === ef.name);
-    if (effect.hasOwnProperty("job"))
-        job = effect.job;
-    return job;
-}
-
 function getEffectDescription(effectName) {
     var description = "";
     var effect = effects.find(ef => effectName === ef.name);
