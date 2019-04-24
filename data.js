@@ -319,7 +319,6 @@ var effects = [
 	  value: 1.05,
 	  duration: 30,
 	  activationTime: 1.6,
-	  usePattern: [27],
       stackable: false,
       backgroundColor: "rgb(160, 32, 32)",
       borderColor: "rgb(160, 160, 160)",
