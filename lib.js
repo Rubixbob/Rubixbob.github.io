@@ -368,6 +368,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 				// Potency modifiers
 				switch(eName) {
 	            	case "Jump":
+	            	case "High Jump":
 	            	case "Spineshatter Dive":
 	            		var BotDEffect = activeEffects.find(ef => ef.effect.name === "Blood of the Dragon") || activeEffects.find(ef => ef.effect.name === "Life of the Dragon");
 	            		if (BotDEffect)
@@ -409,18 +410,24 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                 // Activating effects
 				getEffects(eName).forEach(ef => {
                     // Lance Mastery
-                    if (eName === "Fang and Claw" && ef.name === "Enhanced Wheeling Thrust") {
+                    if (eName === "Fang and Claw") {
                     	var FCEffect = activeEffects.find(ef => ef.effect.name === "Sharper Fang and Claw");
-                    	if (FCEffect && FCEffect.effect.value)
-                        	return;
-                        else
-                        	ef.value = 100;
-                    } else if (eName === "Wheeling Thrust" && ef.name === "Sharper Fang and Claw") {
+                    	if (ef.name === "Enhanced Wheeling Thrust") {
+	                    	if (FCEffect && FCEffect.effect.value)
+	                        	return;
+	                        else
+	                        	ef.value = 100;
+	                    } else if (ef.name === "Raiden Thrust Ready" && !(FCEffect && FCEffect.effect.value))
+	                    	return;
+                    } else if (eName === "Wheeling Thrust") {
                     	var WTEffect = activeEffects.find(ef => ef.effect.name === "Enhanced Wheeling Thrust");
-                    	if (WTEffect && WTEffect.effect.value)
-                        	return;
-                        else
-                        	ef.value = 100;
+                    	if (ef.name === "Sharper Fang and Claw") {
+	                    	if (WTEffect && WTEffect.effect.value)
+	                        	return;
+	                        else
+	                        	ef.value = 100;
+	                    } else if (ef.name === "Raiden Thrust Ready" && !(WTEffect && WTEffect.effect.value))
+	                    	return;
                     }
 
                     // Re-use BotD
@@ -429,7 +436,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            		if (BotDIdx >= 0) {
 	            			if (!effectsToEnd[BotDIdx].effect.life) {
 		            			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
-		            			BotDEffect.endTime = Math.max(BotDEffect.endTime, time + 20);
+		            			BotDEffect.endTime = time + 30;
                                 addToEnd(BotDEffect, effectsToEnd);
 				            }
 				            return;
@@ -465,6 +472,13 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 		            		effectsToEnd.unshift(MDEffect);
 		            	}
 	            		break;
+	            	case "Raiden Thrust":
+	            		var RTEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Raiden Thrust Ready"), 1)[0];
+	            		if (RTEffect) {
+		            		RTEffect.endTime = time;
+		            		effectsToEnd.unshift(RTEffect);
+		            	}
+	            		break;
 	            	case "Fang and Claw":
 	            		var FCEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Sharper Fang and Claw"), 1)[0];
 	            		if (FCEffect) {
@@ -480,7 +494,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 		            	}
 	            		break;
             		default:
-                        // Cancel SFC and EWT when using another Weaponskill
+                        // Cancel SFC, EWT and RTR when using another Weaponskill
                         if (getType(eName) === "Weaponskill") {
                             var FCIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Sharper Fang and Claw");
                             if (FCIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === "Sharper Fang and Claw") >= 0) {
@@ -498,6 +512,14 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                                     effectsToEnd.unshift(WTEffect);
                                 }
                             }
+                            var RTIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Raiden Thrust Ready");
+                            if (RTIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === "Raiden Thrust Ready") >= 0) {
+                                var RTEffect = effectsToEnd.splice(RTIdx, 1)[0];
+                                if (RTEffect) {
+                                    RTEffect.endTime = time;
+                                    effectsToEnd.unshift(RTEffect);
+                                }
+                            }
                         }
             			break;
 	            }
@@ -507,6 +529,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            	case "Fang and Claw":
 	            	case "Wheeling Thrust":
 	            	case "Sonic Thrust":
+	            	case "Coerthan Torment":
 	            		var BotDIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Blood of the Dragon");
 	            		if (BotDIdx >= 0 && !effectsToEnd[BotDIdx].effect.life) {
 	            			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
@@ -517,18 +540,16 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            	case "Mirage Dive":
 	            		var BotDEffect = effectsToEnd.find(ef => ef.effect.name === "Blood of the Dragon");
 	            		if (BotDEffect)
-	            			BotDEffect.effect.eyes = Math.min(BotDEffect.effect.eyes + 1, 3);
+	            			BotDEffect.effect.eyes = Math.min(BotDEffect.effect.eyes + 1, 2);
 	            		break;
 	            	case "Geirskogul":
 	            		var BotDEffect = effectsToEnd.find(ef => ef.effect.name === "Blood of the Dragon");
-	            		if (BotDEffect && BotDEffect.effect.eyes === 3) {
+	            		if (BotDEffect && BotDEffect.effect.eyes === 2) {
 	            			BotDEffect.effect.eyes = 0;
 	            			BotDEffect.effect.life = true;
-	            			if (BotDEffect.endTime < time + 20) {
-	            				effectsToEnd.splice(effectsToEnd.indexOf(BotDEffect), 1);
-		            			BotDEffect.endTime = Math.max(BotDEffect.endTime, time + 20);
-                                addToEnd(BotDEffect, effectsToEnd);
-	            			}
+            				effectsToEnd.splice(effectsToEnd.indexOf(BotDEffect), 1);
+	            			BotDEffect.endTime = time + 30;
+                            addToEnd(BotDEffect, effectsToEnd);
 	            		}
 	            		break;
             		default:
@@ -558,7 +579,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            	case "Blood of the Dragon":
 	            		if (timedEffect.effect.life) {
 	            			timedEffect.effect.life = false;
-	            			timedEffect.endTime = time + 20;
+	            			timedEffect.endTime = time + 30;
                             addToEnd(timedEffect, effectsToEnd);
 			            	activeEffects.push(timedEffect);
 			            	stats.updateEffects(timedEffect);
@@ -681,6 +702,8 @@ function getRecastTime(actionName) {
     var action = actions.find(ac => actionName === ac.name);
     if (action.hasOwnProperty("recast"))
         recast = action.recast;
+    else if (action.hasOwnProperty("chargeTime"))
+        recast = action.chargeTime;
 	return Number(recast);
 }
 

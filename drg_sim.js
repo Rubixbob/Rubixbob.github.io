@@ -766,7 +766,7 @@ function deleteGroupEffect(element) {
 
 function drawBotd(type, botdObject, eTime) {
     var posLeft = 1;
-    var posWidth = 36;
+    var posWidth = 25;
     var zIndex = 1;
     var beginTime, backgroundColor;
     var effect = effects.find(ef => "Blood of the Dragon" === ef.name);
@@ -889,7 +889,7 @@ function updateDps() {
                 }
                 break;
             case "Geirskogul":
-                if (botdObject.eyeCount === 3) { // Blood end | Life start
+                if (botdObject.eyeCount === 2) { // Blood end | Life start
                     drawBotd("blood", botdObject, e.time);
                     drawBotd("eye", botdObject, e.time);
                     botdObject.eyeCount = 0;
@@ -899,7 +899,7 @@ function updateDps() {
             case "Mirage Dive":
                 if (botdObject.eyeCount >= 0) { // When blood/life up
                     botdObject.eyeTime[botdObject.eyeCount] = e.time;
-                    botdObject.eyeCount = Math.min(botdObject.eyeCount + 1, 3);
+                    botdObject.eyeCount = Math.min(botdObject.eyeCount + 1, 2);
                 }
                 break;
             default:
@@ -948,31 +948,31 @@ function openerAddAction(actionName, delayed) {
 
 $("#opener").click(function(){
     clearRotation();
-    openerAddAction("Blood of the Dragon");
-    openerAddAction("Elusive Jump");
-    openerAddAction("Heavy Thrust");
-    openerAddAction("Diversion");
-    openerAddAction("Dragon Sight");
-    openerAddAction("Impulse Drive");
-    openerAddAction("Battle Litany");
-    openerAddAction("Blood for Blood");
-    openerAddAction("Disembowel");
-    openerAddAction("Potion");
-    openerAddAction("Chaos Thrust");
-    openerAddAction("Jump");
-    openerAddAction("Wheeling Thrust");
-    openerAddAction("Geirskogul");
-    openerAddAction("Mirage Dive");
-    openerAddAction("Fang and Claw");
-    openerAddAction("Dragonfire Dive");
-    openerAddAction("True Thrust");
-    openerAddAction("Spineshatter Dive");
-    openerAddAction("Vorpal Thrust");
-    openerAddAction("Life Surge");
-    openerAddAction("Mirage Dive");
-    openerAddAction("Full Thrust");
-    openerAddAction("Fang and Claw");
-    openerAddAction("Wheeling Thrust");
+    // openerAddAction("Blood of the Dragon");
+    // openerAddAction("Elusive Jump");
+    // openerAddAction("Heavy Thrust");
+    // openerAddAction("Diversion");
+    // openerAddAction("Dragon Sight");
+    // openerAddAction("Impulse Drive");
+    // openerAddAction("Battle Litany");
+    // openerAddAction("Blood for Blood");
+    // openerAddAction("Disembowel");
+    // openerAddAction("Potion");
+    // openerAddAction("Chaos Thrust");
+    // openerAddAction("Jump");
+    // openerAddAction("Wheeling Thrust");
+    // openerAddAction("Geirskogul");
+    // openerAddAction("Mirage Dive");
+    // openerAddAction("Fang and Claw");
+    // openerAddAction("Dragonfire Dive");
+    // openerAddAction("True Thrust");
+    // openerAddAction("Spineshatter Dive");
+    // openerAddAction("Vorpal Thrust");
+    // openerAddAction("Life Surge");
+    // openerAddAction("Mirage Dive");
+    // openerAddAction("Full Thrust");
+    // openerAddAction("Fang and Claw");
+    // openerAddAction("Wheeling Thrust");
 
     autoFillRaidBuffs(false);
     updateDps();
@@ -1040,12 +1040,12 @@ $("#threeMinRotation").click(function() {
     $("#CRITin").change();
     $("#DETin").change();
     $("#SKSin").change();
-    savedRotationObject.actions.forEach(ac => {
-        if (ac.hasOwnProperty("d"))
-            openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
-        else
-            openerAddAction(actions[ac.i].name);
-    });
+    // savedRotationObject.actions.forEach(ac => {
+    //     if (ac.hasOwnProperty("d"))
+    //         openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
+    //     else
+    //         openerAddAction(actions[ac.i].name);
+    // });
 
     autoFillRaidBuffs(false);
     updateDps();
