@@ -1,7 +1,8 @@
 var raidBuffLightboxJobIndex = 0; // Will have to be passed as a parameter maybe
 var raidBuffLightboxEditMode = false;
 var raidBuffLightboxEditElement;
-var standardComp = ["war", "pld", "sch", "ast", "nin", "brd", "smn"];
+// var standardComp = ["war", "pld", "sch", "ast", "nin", "brd", "smn"];
+var standardComp = ["nin", "war", "war", "war", "war", "war", "war"];
 var startTime = 0;
 var RotationHistory = [];
 var savedRotation;
@@ -948,31 +949,27 @@ function openerAddAction(actionName, delayed) {
 
 $("#opener").click(function(){
     clearRotation();
-    // openerAddAction("Blood of the Dragon");
-    // openerAddAction("Elusive Jump");
-    // openerAddAction("Heavy Thrust");
-    // openerAddAction("Diversion");
-    // openerAddAction("Dragon Sight");
-    // openerAddAction("Impulse Drive");
-    // openerAddAction("Battle Litany");
-    // openerAddAction("Blood for Blood");
-    // openerAddAction("Disembowel");
-    // openerAddAction("Potion");
-    // openerAddAction("Chaos Thrust");
-    // openerAddAction("Jump");
-    // openerAddAction("Wheeling Thrust");
-    // openerAddAction("Geirskogul");
-    // openerAddAction("Mirage Dive");
-    // openerAddAction("Fang and Claw");
-    // openerAddAction("Dragonfire Dive");
-    // openerAddAction("True Thrust");
-    // openerAddAction("Spineshatter Dive");
-    // openerAddAction("Vorpal Thrust");
-    // openerAddAction("Life Surge");
-    // openerAddAction("Mirage Dive");
-    // openerAddAction("Full Thrust");
-    // openerAddAction("Fang and Claw");
-    // openerAddAction("Wheeling Thrust");
+    openerAddAction("Blood of the Dragon");
+    openerAddAction("Potion");
+    openerAddAction("True Thrust");
+    openerAddAction("Dragon Sight");
+    openerAddAction("Disembowel");
+    openerAddAction("Battle Litany");
+    openerAddAction("Lance Charge");
+    openerAddAction("Chaos Thrust");
+    openerAddAction("Wheeling Thrust");
+    openerAddAction("Fang and Claw");
+    openerAddAction("Geirskogul", true);
+    openerAddAction("Raiden Thrust");
+    openerAddAction("High Jump");
+    openerAddAction("Vorpal Thrust");
+    openerAddAction("Life Surge");
+    openerAddAction("Mirage Dive");
+    openerAddAction("Full Thrust");
+    openerAddAction("Spineshatter Dive");
+    openerAddAction("Fang and Claw");
+    openerAddAction("Mirage Dive");
+    openerAddAction("Wheeling Thrust");
 
     autoFillRaidBuffs(false);
     updateDps();
@@ -981,12 +978,12 @@ $("#opener").click(function(){
 $("#loadRotation").click(function() {
     clearRotation();
     var savedRotationObject = JSON.parse(savedRotation);
-    stats.wd = savedRotationObject.wd;
-    stats.str = savedRotationObject.str;
-    stats.dh = savedRotationObject.dh;
-    stats.crit = savedRotationObject.crit;
-    stats.det = savedRotationObject.det;
-    stats.sks = savedRotationObject.sks;
+    $("#WDin").val(savedRotationObject.wd);
+    $("#STRin").val(savedRotationObject.str);
+    $("#DHin").val(savedRotationObject.dh);
+    $("#CRITin").val(savedRotationObject.crit);
+    $("#DETin").val(savedRotationObject.det);
+    $("#SKSin").val(savedRotationObject.sks);
     $("#WDin").change();
     $("#STRin").change();
     $("#DHin").change();
@@ -1028,24 +1025,24 @@ $("#saveRotation").click(function() {
 $("#threeMinRotation").click(function() {
     clearRotation();
     var savedRotationObject = threeMinRotation;
-    stats.wd = savedRotationObject.wd;
-    stats.str = savedRotationObject.str;
-    stats.dh = savedRotationObject.dh;
-    stats.crit = savedRotationObject.crit;
-    stats.det = savedRotationObject.det;
-    stats.sks = savedRotationObject.sks;
+    $("#WDin").val(savedRotationObject.wd);
+    $("#STRin").val(savedRotationObject.str);
+    $("#DHin").val(savedRotationObject.dh);
+    $("#CRITin").val(savedRotationObject.crit);
+    $("#DETin").val(savedRotationObject.det);
+    $("#SKSin").val(savedRotationObject.sks);
     $("#WDin").change();
     $("#STRin").change();
     $("#DHin").change();
     $("#CRITin").change();
     $("#DETin").change();
     $("#SKSin").change();
-    // savedRotationObject.actions.forEach(ac => {
-    //     if (ac.hasOwnProperty("d"))
-    //         openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
-    //     else
-    //         openerAddAction(actions[ac.i].name);
-    // });
+    savedRotationObject.actions.forEach(ac => {
+        if (ac.hasOwnProperty("d"))
+            openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
+        else
+            openerAddAction(actions[ac.i].name);
+    });
 
     autoFillRaidBuffs(false);
     updateDps();
