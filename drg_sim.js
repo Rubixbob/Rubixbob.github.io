@@ -968,7 +968,7 @@ $("#opener").click(function(){
     openerAddAction("Full Thrust");
     openerAddAction("Spineshatter Dive");
     openerAddAction("Fang and Claw");
-    openerAddAction("Mirage Dive");
+    openerAddAction("Dragonfire Dive");
     openerAddAction("Wheeling Thrust");
 
     autoFillRaidBuffs(false);
