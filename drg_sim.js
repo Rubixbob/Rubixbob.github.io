@@ -1554,7 +1554,7 @@ for (i = 0; i < 7; i++) {
 
 $(".checkboxButton, .clearGroupButton").each((idx, elt) => addTooltip(elt));
 
-$("#suggestions").draggable();
+$("#suggestions").draggable({cancel: ".action"});
 
 function addSuggestion(name) {
     var action = actions.find(ac => name === ac.name);
