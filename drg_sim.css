@@ -151,6 +151,17 @@ table {
     display: none;
 }
 
+#suggestions {
+    position: absolute;
+    display: flex;
+    background-color: #F0F0F0;
+    padding: 10px;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 16px;
+    z-index: 2;
+}
+
 ::-webkit-scrollbar {
     width: 10px;
 }

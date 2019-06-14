@@ -909,6 +909,7 @@ function updateDps() {
     });
     hideDpsOverlap();
     $("#DPSout").val($("#dps").children().last().children().html());
+    updateSuggestions();
 }
 
 function resetDps() {
@@ -932,6 +933,7 @@ function clearRotation() {
     $("#DPSout").val("");
     resetDps();
     addTimeUntil(20);
+    $("#scrollableDiv").attr("scrollTop", 0);
 }
 
 $("#clearRotation").click(clearRotation);
@@ -1551,6 +1553,44 @@ for (i = 0; i < 7; i++) {
 }
 
 $(".checkboxButton, .clearGroupButton").each((idx, elt) => addTooltip(elt));
+
+$("#suggestions").draggable();
+
+function addSuggestion(name) {
+    var action = actions.find(ac => name === ac.name);
+    var target = $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).get(0);
+    var clonedElement = target.cloneNode(true);
+    dndHandler.applyActionsEvents(clonedElement);
+    $("#suggestions").append(clonedElement)
+}
+
+function resetSuggestions() {
+    $("#suggestions").children(".action").remove();
+}
+
+function updateSuggestions() {
+    resetSuggestions();
+    
+    //suggestion logic here
+    //start with end of anim lock of last action
+    var lastAc = $("#rotation").children().last();
+    var lastWs = $("#rotation").children(".Weaponskill").last();
+    var currentTime = 0;
+    if (lastAc.length)
+        currentTime = Number(lastAc.attr("time")) + getAnimationLock(lastAc.attr("name"));
+    console.log(currentTime);
+    if (lastWs.length) {
+        addSuggestion("Disembowel");
+        addSuggestion("Battle Litany");
+    } else {
+        addSuggestion("True Thrust");
+    }
+}
+
+updateSuggestions();
+
+$("#suggestions").css({"left": `${$("#scrollableDiv").get(0).getBoundingClientRect().left+$("#scrollableDiv").get(0).getBoundingClientRect().width/2-$("#suggestions").get(0).getBoundingClientRect().width/2}px`,
+                       "top": `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#suggestions").get(0).getBoundingClientRect().height}px`});
 
 function autoFillSingleRaidBuff(name, jobIndex) {
     if ($("#rotation").children().length === 0)
