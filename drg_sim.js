@@ -501,7 +501,7 @@ function addActionAtIndex(element, idx, checkDelay = true) {
 
 function removeAction(element) {
 	// Removing associated next possible usage
-	$("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === Number($(element).attr("time")) + getRecastTime($(element).attr("name"));}).remove();
+	$("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === (Number($(element).attr("time")) * 1000 + getRecastTime($(element).attr("name")) * 1000) / 1000;}).remove();
 	
     resetDps();
 
@@ -513,8 +513,10 @@ function removeAction(element) {
     $(element).remove();
     updateRotationAfterIndex(idx);
 
-    if ($("#rotation").children().length >0)
+    if ($("#rotation").children().length > 0)
         updateDps();
+    else
+        updateSuggestions();
 }
 
 function updateRotationAfterIndex(idx) {
@@ -772,8 +774,8 @@ function drawBotd(type, botdObject, eTime) {
     var beginTime, backgroundColor;
     var effect = effects.find(ef => "Blood of the Dragon" === ef.name);
     
-    var botdDiv = function(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex) {
-        return $("<div></div>").attr({"time": `${beginTime.toFixed(3)}`, "endTime": `${eTime.toFixed(3)}`})
+    var botdDiv = function(name, beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex) {
+        return $("<div></div>").attr({"name": name, "time": `${beginTime.toFixed(3)}`, "endTime": `${eTime.toFixed(3)}`})
         .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`, "z-index": `${zIndex}`});
     };
     
@@ -783,14 +785,14 @@ function drawBotd(type, botdObject, eTime) {
             backgroundColor = effect.backgroundColor;
             var posTop = Math.round((beginTime - startTime) * scale + 1);
             var posHeight = Math.round((eTime - beginTime) * scale);
-            $("#botd").append(botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex));
+            $("#botd").append(botdDiv(type, beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex));
             break;
         case "life":
             beginTime = botdObject.lifeStart;
             backgroundColor = effect.lifeColor;
             var posTop = Math.round((beginTime - startTime) * scale + 1);
             var posHeight = Math.round((eTime - beginTime) * scale);
-            var lifeDiv = botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex);
+            var lifeDiv = botdDiv(type, beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex);
             
             for (var i = 1; i <= 2; i++) {
             var posTop = Math.round((eTime - 10 * i - beginTime) * scale);
@@ -808,7 +810,7 @@ function drawBotd(type, botdObject, eTime) {
                 zIndex = 2;
                 var posTop = Math.round((beginTime - startTime) * scale + 1);
                 var posHeight = Math.round((eTime - beginTime) * scale);
-                $("#botd").append(botdDiv(beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex).css("border-radius", "3px"));
+                $("#botd").append(botdDiv(type + (i + 1), beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex).css("border-radius", "3px"));
             }
             break;
         default:
@@ -933,7 +935,8 @@ function clearRotation() {
     $("#DPSout").val("");
     resetDps();
     addTimeUntil(20);
-    $("#scrollableDiv").attr("scrollTop", 0);
+    $("#scrollableDiv").scrollTop(0);
+    updateSuggestions();
 }
 
 $("#clearRotation").click(clearRotation);
@@ -1348,8 +1351,8 @@ function setUpRaidBuffLightbox(name, jobIndex, element) {
             $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name));
         } else {
             $("#raidBuffLightboxStartTimeInput").val($(element).attr("time"));
-            $("#raidBuffLightboxDurationInput").val(Number($(element).attr("endTime")) - Number($(element).attr("time")));
-            $("#raidBuffLightboxDurationOutput").val(Number($(element).attr("endTime")) - Number($(element).attr("time")));
+            $("#raidBuffLightboxDurationInput").val((Number($(element).attr("endTime")) * 1000 - Number($(element).attr("time")) * 1000) / 1000);
+            $("#raidBuffLightboxDurationOutput").val((Number($(element).attr("endTime")) * 1000 - Number($(element).attr("time")) * 1000) / 1000);
         }
     } else {
         $("#raidBuffLightboxTitleMode").val("Add");
@@ -1556,6 +1559,24 @@ $(".checkboxButton, .clearGroupButton").each((idx, elt) => addTooltip(elt));
 
 $("#suggestions").draggable({cancel: ".action"});
 
+function isEffectUpAt(name, time) {
+    var result = false;
+    $("#effects").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = true;});
+    return result;
+}
+
+function isBotDUpAt(type, time) {
+    var result = false;
+    $("#botd").children(`[name="${type}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = true;});
+    return result;
+}
+
+function isOffCdAt(name, time) {
+    var result = true;
+    $("#cds").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("time")) > time) result = false;});
+    return result;
+}
+
 function addSuggestion(name) {
     var action = actions.find(ac => name === ac.name);
     var target = $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).get(0);
@@ -1571,26 +1592,68 @@ function resetSuggestions() {
 function updateSuggestions() {
     resetSuggestions();
     
-    //suggestion logic here
-    //start with end of anim lock of last action
     var lastAc = $("#rotation").children().last();
     var lastWs = $("#rotation").children(".Weaponskill").last();
     var currentTime = 0;
+    // Start with end of anim lock of last action
     if (lastAc.length)
-        currentTime = Number(lastAc.attr("time")) + getAnimationLock(lastAc.attr("name"));
-    console.log(currentTime);
+        currentTime = (Number(lastAc.attr("time")) * 1000 + getAnimationLock(lastAc.attr("name")) * 1000) / 1000;
+
+    if (!isBotDUpAt("blood", currentTime) && !isBotDUpAt("life", currentTime))
+        addSuggestion("Blood of the Dragon");
+
+    var nextGcdTime = 0;
     if (lastWs.length) {
-        addSuggestion("Disembowel");
-        addSuggestion("Battle Litany");
+        var lastWsTime = Number(lastWs.attr("time"));
+        // Adjusting for clipping
+        nextGcdTime = Math.max(currentTime, (lastWsTime * 1000 + gcdAt(lastWsTime) * 1000) / 1000);
+        if (isEffectUpAt("Raiden Thrust Ready", nextGcdTime))
+            addSuggestion("Raiden Thrust");
+        else if (isEffectUpAt("Enhanced Wheeling Thrust", nextGcdTime))
+            addSuggestion("Wheeling Thrust");
+        else if (isEffectUpAt("Sharper Fang and Claw", nextGcdTime))
+            addSuggestion("Fang and Claw");
+        else if (lastWs.attr("name") === "Disembowel")
+            addSuggestion("Chaos Thrust");
+        else if (lastWs.attr("name") === "Vorpal Thrust")
+            addSuggestion("Full Thrust");
+        else if (lastWs.attr("name") === "True Thrust" || lastWs.attr("name") === "Raiden Thrust") {
+            if (isEffectUpAt("Disembowel", nextGcdTime + 4 * gcdAt(nextGcdTime)))
+                addSuggestion("Vorpal Thrust");
+            else
+                addSuggestion("Disembowel");
+        } else
+            addSuggestion("True Thrust");
     } else {
         addSuggestion("True Thrust");
     }
+
+    if (nextGcdTime - getAnimationLock("Mirage Dive") >= currentTime && isEffectUpAt("Dive Ready", currentTime) && !isBotDUpAt("eye2", currentTime))
+        addSuggestion("Mirage Dive");
+
+    var nasTime = currentTime;
+    if ($("#cds").children("[name='Nastrond']").length)
+        nasTime = Math.max(nasTime, Number($("#cds").children("[name='Nastrond']").last().attr("time")));
+    if (isOffCdAt("Nastrond", nextGcdTime - getAnimationLock("Nastrond")) && (nextGcdTime - getAnimationLock("Nastrond") >= currentTime || currentTime === 0) && isBotDUpAt("life", nasTime))
+        addSuggestion("Nastrond");
+
+    var sdTime = currentTime;
+    if ($("#cds").children("[name='Stardiver']").length)
+        sdTime = Math.max(sdTime, Number($("#cds").children("[name='Stardiver']").last().attr("time")));
+    if (isOffCdAt("Stardiver", nextGcdTime - getAnimationLock("Stardiver")) && (nextGcdTime - getAnimationLock("Stardiver") >= currentTime || currentTime === 0) && isBotDUpAt("life", sdTime))
+        addSuggestion("Stardiver");
+
+    ["Lance Charge", "Dragon Sight", "Battle Litany", "Life Surge", "Potion", "High Jump", "Spineshatter Dive", "Dragonfire Dive", "Geirskogul"].forEach(elt => {
+        if (isOffCdAt(elt, nextGcdTime - getAnimationLock(elt)) && (nextGcdTime - getAnimationLock(elt) >= currentTime || currentTime === 0))
+            addSuggestion(elt);
+    });
 }
+
+$("#suggestions").css({"left": `${$("#scrollableDiv").get(0).getBoundingClientRect().left+$("#scrollableDiv").get(0).getBoundingClientRect().width/2-$("#suggestions").get(0).getBoundingClientRect().width/2}px`});
 
 updateSuggestions();
 
-$("#suggestions").css({"left": `${$("#scrollableDiv").get(0).getBoundingClientRect().left+$("#scrollableDiv").get(0).getBoundingClientRect().width/2-$("#suggestions").get(0).getBoundingClientRect().width/2}px`,
-                       "top": `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#suggestions").get(0).getBoundingClientRect().height}px`});
+$("#suggestions").css({"top": `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#suggestions").get(0).getBoundingClientRect().height}px`});
 
 function autoFillSingleRaidBuff(name, jobIndex) {
     if ($("#rotation").children().length === 0)

@@ -159,7 +159,7 @@ table {
     width: fit-content;
     height: fit-content;
     border-radius: 16px;
-    z-index: 2;
+    z-index: 10;
 }
 
 #suggestions:hover {
