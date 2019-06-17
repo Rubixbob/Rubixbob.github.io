@@ -836,21 +836,21 @@ function hideDpsOverlap() {
         var lastVisibleDps = lastVisible.children();
         var eltDps = elt.children();
         if (parseInt(lastVisible.css("top")) + lastVisibleDps.get(0).getBoundingClientRect().height < parseInt(elt.css("top"))) {
-            elt.prop("hidden", false);
+            elt.css("display", "flex");
             lastVisible = elt;
         } else {
-            elt.prop("hidden", true);
+            elt.css("display", "none");
         }
     }
 }
 
 function displayDps(dps, time) {
     var pos = (time - startTime) * scale + 1;
-    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "left": "2px", "top": `${pos}px`, "height": "1px", "width": `${$("#dps").get(0).getBoundingClientRect().width}px`, "background-color": "black", "z-index": "2"});
-    var dpsText = $(`<div>${dps}</div>`).css({"margin-top": "-8px", "background-color": "#CCC", "width": "fit-content", "width": "-moz-fit-content", "margin-left": "auto", "margin-right": "auto"});
+    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "display": "flex", "justify-content": "center", "left": "2px", "top": `${pos}px`, "height": "1px", "width": `${$("#dps").get(0).getBoundingClientRect().width}px`, "background-color": "black", "z-index": "2"});
+    var dpsText = $(`<div>${dps}</div>`);
     wrapper.append(dpsText);
     $("#dps").append(wrapper);
-    // console.log(parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10));
+    dpsText.css({"margin-top": `${-parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10)/2}px`, "height": `${parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10)}px`, "background-color": "#CCC", "margin-left": "auto", "margin-right": "auto"});
 }
 
 function removeDpsAfter(beginTime) {
@@ -1152,7 +1152,7 @@ $("#SKSin").change(function() {
     }
 });
 
-window.addEventListener("mousewheel", function(event)
+window.addEventListener("wheel", function(event)
 {
     if(event.ctrlKey == true)
     {
