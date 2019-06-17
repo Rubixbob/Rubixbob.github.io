@@ -21,7 +21,7 @@ actions.forEach(function (ac) {
 
 function fitColumns() {
     // TODO : Adjust width of elements inside
-    $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
+    $("#columns").children().each(function(index) {$(this).css("width", $("#headers").children().eq(index).width() + "px");});
     $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width-$("#dps").get(0).getBoundingClientRect().width}px`); });
     $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${effects.find(ef => $(this).attr("name") === ef.name).groupAction}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
     $("#scrollableDiv").css("height", `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#scrollableDiv").get(0).getBoundingClientRect().top}px`);
@@ -847,7 +847,7 @@ function hideDpsOverlap() {
 function displayDps(dps, time) {
     var pos = (time - startTime) * scale + 1;
     var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "left": "2px", "top": `${pos}px`, "height": "1px", "width": `${$("#dps").get(0).getBoundingClientRect().width}px`, "background-color": "black", "z-index": "2"});
-    var dpsText = $(`<div>${dps}</div>`).css({"margin-top": "-8px", "background-color": "#CCC", "width": "fit-content", "margin-left": "auto", "margin-right": "auto"});
+    var dpsText = $(`<div>${dps}</div>`).css({"margin-top": "-8px", "background-color": "#CCC", "width": "fit-content", "width": "-moz-fit-content", "margin-left": "auto", "margin-right": "auto"});
     wrapper.append(dpsText);
     $("#dps").append(wrapper);
     // console.log(parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10));
@@ -1551,7 +1551,8 @@ $("#group tr td select").each(function() {
 for (i = 0; i < 7; i++) {
     $("#group tr td select").eq(i).val(standardComp[i]);
     $("#group tr td select").eq(i).iconselectmenu("refresh");
-    $("#group tr td select").eq(i).iconselectmenu("menuWidget").css({"max-height": `calc(100vh - ${97 + 53 * i}px)`, "min-height": "100px"});
+    var rectTop = $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().top + $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().height + 3;
+    $("#group tr td select").eq(i).iconselectmenu("menuWidget").css({"max-height": `calc(100vh - ${rectTop}px)`, "min-height": "100px"});
     refreshGroupMember(i, standardComp[i]);
 }
 

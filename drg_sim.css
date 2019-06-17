@@ -17,6 +17,7 @@
     padding-top: 10px;
     width: 186px;
     height: fit-content;
+    height: -moz-fit-content;
     border-radius: 16px;
 }
 
@@ -118,6 +119,7 @@ input {
 
 table {
     background-color: #CCC;
+    border-spacing: 2px;
     /*border-radius: 10px;*/
     /*position: relative;*/
 }
@@ -126,6 +128,8 @@ table {
     width: fit-content;
     overflow: auto;
     position: relative;
+    scrollbar-color: #888 #f1f1f1;
+    scrollbar-width: thin;
 }
 
 .checkboxButton, .clearGroupButton {
@@ -156,8 +160,6 @@ table {
     display: flex;
     background-color: #F0F0F0;
     padding: 10px;
-    width: fit-content;
-    height: fit-content;
     border-radius: 16px;
     z-index: 10;
 }
