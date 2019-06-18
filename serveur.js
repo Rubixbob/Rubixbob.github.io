@@ -4,8 +4,9 @@ var url = require("url");
 var app = express();
 
 app.get("/", function(req, res) {
-	res.setHeader("Content-Type", "text/plain");
-	res.send("Vous êtes à l'accueil");
+	// res.setHeader("Content-Type", "text/plain");
+	// res.send("Vous êtes à l'accueil");
+	res.sendFile("index.html", { root: __dirname });
 })
 .get("/:id", function(req, res) {
 	res.setHeader("Content-Type", "text/plain");
