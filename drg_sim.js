@@ -21,7 +21,7 @@ actions.forEach(function (ac) {
 
 function fitColumns() {
     // TODO : Adjust width of elements inside
-    $("#columns").children().each(function(index) {$(this).attr("width", $("#headers").children().eq(index).width() + "px");});
+    $("#columns").children().each(function(index) {$(this).css("width", $("#headers").children().eq(index).width() + "px");});
     $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width-$("#dps").get(0).getBoundingClientRect().width}px`); });
     $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${effects.find(ef => $(this).attr("name") === ef.name).groupAction}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
     $("#scrollableDiv").css("height", `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#scrollableDiv").get(0).getBoundingClientRect().top}px`);
@@ -124,7 +124,9 @@ effects.forEach(function (ef) {
 			});
 			
 			element.addEventListener('mousemove', function(e) {
-				$(".tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`});
+                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
 			});
 			
 			element.addEventListener('mouseout', function(e) {
@@ -257,7 +259,9 @@ effects.forEach(function (ef) {
 			});
 			
 			element.addEventListener('mousemove', function(e) {
-				$(".tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`});
+                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
 			});
 			
 			element.addEventListener('mouseout', function(e) {
@@ -274,7 +278,9 @@ function addTooltip(element) {
         var content = getTooltipContent(element);
         $(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
     }).mousemove(function(e) {
-        $(".tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`});
+        var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+        posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+        $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
     }).mouseout(function(e) {
         $(".tooltip").remove();
     }).click(function(e) {
@@ -291,7 +297,7 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
             return;
         $(".tooltip").remove();
         var content = getTooltipContent(element);
-        tooltip = $("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY - 10}px`, "left": `${element.getBoundingClientRect().right}px`, "min-width": "150px", "max-width": "250px"}).html(content);
+        tooltip = $("<div></div>").attr("class", "tooltip").css({"min-width": "150px", "max-width": "250px"}).html(content);
         
         var buttonLine = $("<div></div>").css({"display": "flex", "justify-content": "flex-end"});
         
@@ -315,6 +321,11 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
         tooltip.append(buttonLine);
         
         $(document.body).append(tooltip);
+        
+        var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+        posTop = Math.max(Math.min(e.pageY - 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+        tooltip.css({"top": `${posTop}px`, "left": `${element.getBoundingClientRect().right}px`});
+        
         $(tooltip).mouseover(function(e) {
             clearTimeout(tooltipTimer);
         }).mousemove(function(e) {
@@ -836,21 +847,21 @@ function hideDpsOverlap() {
         var lastVisibleDps = lastVisible.children();
         var eltDps = elt.children();
         if (parseInt(lastVisible.css("top")) + lastVisibleDps.get(0).getBoundingClientRect().height < parseInt(elt.css("top"))) {
-            elt.prop("hidden", false);
+            elt.css("display", "flex");
             lastVisible = elt;
         } else {
-            elt.prop("hidden", true);
+            elt.css("display", "none");
         }
     }
 }
 
 function displayDps(dps, time) {
     var pos = (time - startTime) * scale + 1;
-    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "left": "2px", "top": `${pos}px`, "height": "1px", "width": `${$("#dps").get(0).getBoundingClientRect().width}px`, "background-color": "black", "z-index": "2"});
-    var dpsText = $(`<div>${dps}</div>`).css({"margin-top": "-8px", "background-color": "#CCC", "width": "fit-content", "margin-left": "auto", "margin-right": "auto"});
+    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "display": "flex", "justify-content": "center", "left": "2px", "top": `${pos}px`, "height": "1px", "width": `${$("#dps").get(0).getBoundingClientRect().width}px`, "background-color": "black", "z-index": "2"});
+    var dpsText = $(`<div>${dps}</div>`);
     wrapper.append(dpsText);
     $("#dps").append(wrapper);
-    // console.log(parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10));
+    dpsText.css({"margin-top": `${-parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10)/2}px`, "height": `${parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10)}px`, "background-color": "#CCC", "margin-left": "auto", "margin-right": "auto"});
 }
 
 function removeDpsAfter(beginTime) {
@@ -1152,7 +1163,7 @@ $("#SKSin").change(function() {
     }
 });
 
-window.addEventListener("mousewheel", function(event)
+window.addEventListener("wheel", function(event)
 {
     if(event.ctrlKey == true)
     {
@@ -1551,13 +1562,14 @@ $("#group tr td select").each(function() {
 for (i = 0; i < 7; i++) {
     $("#group tr td select").eq(i).val(standardComp[i]);
     $("#group tr td select").eq(i).iconselectmenu("refresh");
-    $("#group tr td select").eq(i).iconselectmenu("menuWidget").css({"max-height": `calc(100vh - ${97 + 53 * i}px)`, "min-height": "100px"});
+    var rectTop = $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().top + $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().height + 3 + 8;
+    $("#group tr td select").eq(i).iconselectmenu("menuWidget").css({"max-height": `calc(100vh - ${rectTop}px)`, "min-height": "100px"});
     refreshGroupMember(i, standardComp[i]);
 }
 
 $(".checkboxButton, .clearGroupButton").each((idx, elt) => addTooltip(elt));
 
-$("#suggestions").draggable({cancel: ".action"});
+$("#suggestions").draggable({cancel: ".action", containment: "parent"});
 
 function isEffectUpAt(name, time) {
     var result = false;
