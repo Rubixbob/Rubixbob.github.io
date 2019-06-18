@@ -124,7 +124,9 @@ effects.forEach(function (ef) {
 			});
 			
 			element.addEventListener('mousemove', function(e) {
-				$(".tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`});
+                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
 			});
 			
 			element.addEventListener('mouseout', function(e) {
@@ -257,7 +259,9 @@ effects.forEach(function (ef) {
 			});
 			
 			element.addEventListener('mousemove', function(e) {
-				$(".tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`});
+                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
 			});
 			
 			element.addEventListener('mouseout', function(e) {
@@ -274,7 +278,9 @@ function addTooltip(element) {
         var content = getTooltipContent(element);
         $(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
     }).mousemove(function(e) {
-        $(".tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`});
+        var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+        posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+        $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
     }).mouseout(function(e) {
         $(".tooltip").remove();
     }).click(function(e) {
@@ -291,7 +297,7 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
             return;
         $(".tooltip").remove();
         var content = getTooltipContent(element);
-        tooltip = $("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY - 10}px`, "left": `${element.getBoundingClientRect().right}px`, "min-width": "150px", "max-width": "250px"}).html(content);
+        tooltip = $("<div></div>").attr("class", "tooltip").css({"min-width": "150px", "max-width": "250px"}).html(content);
         
         var buttonLine = $("<div></div>").css({"display": "flex", "justify-content": "flex-end"});
         
@@ -315,6 +321,11 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
         tooltip.append(buttonLine);
         
         $(document.body).append(tooltip);
+        
+        var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+        posTop = Math.max(Math.min(e.pageY - 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+        tooltip.css({"top": `${posTop}px`, "left": `${element.getBoundingClientRect().right}px`});
+        
         $(tooltip).mouseover(function(e) {
             clearTimeout(tooltipTimer);
         }).mousemove(function(e) {
@@ -1551,7 +1562,7 @@ $("#group tr td select").each(function() {
 for (i = 0; i < 7; i++) {
     $("#group tr td select").eq(i).val(standardComp[i]);
     $("#group tr td select").eq(i).iconselectmenu("refresh");
-    var rectTop = $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().top + $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().height + 3;
+    var rectTop = $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().top + $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().height + 3 + 8;
     $("#group tr td select").eq(i).iconselectmenu("menuWidget").css({"max-height": `calc(100vh - ${rectTop}px)`, "min-height": "100px"});
     refreshGroupMember(i, standardComp[i]);
 }

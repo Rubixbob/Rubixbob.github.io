@@ -33,7 +33,7 @@
 }
 
 #midDiv {
-    height: calc(100vh - 8px);
+    height: calc(100vh - 16px);
 }
 
 input {
