@@ -1569,7 +1569,7 @@ for (i = 0; i < 7; i++) {
 
 $(".checkboxButton, .clearGroupButton").each((idx, elt) => addTooltip(elt));
 
-$("#suggestions").draggable({cancel: ".action"});
+$("#suggestions").draggable({cancel: ".action", containment: "parent"});
 
 function isEffectUpAt(name, time) {
     var result = false;
