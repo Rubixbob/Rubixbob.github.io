@@ -172,19 +172,24 @@ table {
     position: relative;
 }
 
-#suggestions .onCooldown {
-    font-size: 20px;
+.suggestionsOverlay {
     position: absolute;
     height: 100%;
     width: 100%;
+    top: 0px;
+    left: 0px;
+    background-color: black;
+    opacity: 0.5;
+}
+
+.suggestionsOverlayText {
+    font-size: 20px;
+    position: absolute;
     top: 50%;
     left: 50%;
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
     transform: translate(-50%, -50%);
-    color: #FFFFFF;
-    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-shadow: 1px 0 0 black, -1px 0 0 black, 0 1px 0 black, 0 -1px 0 black, 1px 1px black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black;
 }
 
 ::-webkit-scrollbar {

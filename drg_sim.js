@@ -81,6 +81,7 @@ effects.forEach(function (ef) {
                 while ($(target.parentNode).hasClass('draggable')) {
                     target = target.parentNode;
                 }
+                $(target).children(".suggestionsOverlay, .suggestionsOverlayText").remove();
                 dndHandler.draggedElement = target.cloneNode(true);
                 dndHandler.applyRotationEvents(dndHandler.draggedElement);
                 e.dataTransfer.setData('text/plain', '');
@@ -92,7 +93,7 @@ effects.forEach(function (ef) {
                 while ($(target.parentNode).hasClass('draggable')) {
                     target = target.parentNode;
                 }
-                $(target).children(".onCooldown").remove();
+                $(target).children(".suggestionsOverlay, .suggestionsOverlayText").remove();
                 var clonedElement = target.cloneNode(true);
                 dndHandler.applyRotationEvents(clonedElement);
                 addActionAtIndex(clonedElement, $("#rotation").children().length);
@@ -125,9 +126,11 @@ effects.forEach(function (ef) {
 			});
 			
 			element.addEventListener('mousemove', function(e) {
-                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
-                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
-				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
+                if ($(".tooltip").length) {
+                    var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+                    posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+    				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
+                }
 			});
 			
 			element.addEventListener('mouseout', function(e) {
@@ -260,9 +263,11 @@ effects.forEach(function (ef) {
 			});
 			
 			element.addEventListener('mousemove', function(e) {
-                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
-                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
-				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
+                if ($(".tooltip").length) {
+                    var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+                    posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+    				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
+                }
 			});
 			
 			element.addEventListener('mouseout', function(e) {
@@ -279,9 +284,11 @@ function addTooltip(element) {
         var content = getTooltipContent(element);
         $(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
     }).mousemove(function(e) {
-        var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
-        posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
-        $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
+        if ($(".tooltip").length) {
+            var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+            posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+            $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
+        }
     }).mouseout(function(e) {
         $(".tooltip").remove();
     }).click(function(e) {
@@ -1590,21 +1597,39 @@ function isOffCdAt(name, time) {
     return result;
 }
 
-function addSuggestion(name) {
+function addSuggestion(name, type, value) {
     var action = actions.find(ac => name === ac.name);
     var target = $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).get(0);
     var clonedElement = target.cloneNode(true);
     var actionImg = $(clonedElement).children(".actionImage").get(0);
     dndHandler.applyActionsEvents(clonedElement);
     $("#suggestions").append(clonedElement);
-    
-    // var cooldown = (2).toFixed(2);
-    // TODO : ToFixed(2)
-    // var cdDiv = $(`<div>${cooldown}</div>`);
-    // cdDiv.addClass("onCooldown");
-    // $(clonedElement).append(cdDiv);
-    // $(actionImg).css("opacity", "0.5");
-    // $(clonedElement).css("background-color", "black");
+
+    if (type) {
+        var ovTxt = $(`<div>${value ? value.toFixed(2) : ""}</div>`);
+        ovTxt.addClass("suggestionsOverlayText");
+        var ovDiv = $("<div></div>");
+        ovDiv.addClass("suggestionsOverlay");
+
+        switch (type) {
+            case "cooldown":
+                $(clonedElement).append(ovDiv);
+                $(clonedElement).append(ovTxt);
+                break;
+            case "clipping":
+                ovDiv.css("background-color", "red");
+                $(clonedElement).append(ovDiv);
+                break;
+            case "active":
+                ovDiv.css("background-color", "white");
+                $(clonedElement).append(ovDiv);
+                ovTxt.css("color", "lime");
+                $(clonedElement).append(ovTxt);
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 function resetSuggestions() {
@@ -1652,18 +1677,21 @@ function updateSuggestions() {
 
     if (nextGcdTime - getAnimationLock("Mirage Dive") >= currentTime && isEffectUpAt("Dive Ready", currentTime) && !isBotDUpAt("eye2", currentTime))
         addSuggestion("Mirage Dive");
+        // addSuggestion("Mirage Dive", "active", 4.5);
 
     var nasTime = currentTime;
     if ($("#cds").children("[name='Nastrond']").length)
         nasTime = Math.max(nasTime, Number($("#cds").children("[name='Nastrond']").last().attr("time")));
     if (isOffCdAt("Nastrond", nextGcdTime - getAnimationLock("Nastrond")) && (nextGcdTime - getAnimationLock("Nastrond") >= currentTime || currentTime === 0) && isBotDUpAt("life", nasTime))
         addSuggestion("Nastrond");
+        // addSuggestion("Nastrond", "clipping");
 
     var sdTime = currentTime;
     if ($("#cds").children("[name='Stardiver']").length)
         sdTime = Math.max(sdTime, Number($("#cds").children("[name='Stardiver']").last().attr("time")));
     if (isOffCdAt("Stardiver", nextGcdTime - getAnimationLock("Stardiver")) && (nextGcdTime - getAnimationLock("Stardiver") >= currentTime || currentTime === 0) && isBotDUpAt("life", sdTime))
         addSuggestion("Stardiver");
+        // addSuggestion("Stardiver", "cooldown", 2.56);
 
     ["Lance Charge", "Dragon Sight", "Battle Litany", "Life Surge", "Potion", "High Jump", "Spineshatter Dive", "Dragonfire Dive", "Geirskogul"].forEach(elt => {
         if (isOffCdAt(elt, nextGcdTime - getAnimationLock(elt)) && (nextGcdTime - getAnimationLock(elt) >= currentTime || currentTime === 0))
