@@ -168,6 +168,25 @@ table {
     cursor: move;
 }
 
+#suggestions .action {
+    position: relative;
+}
+
+#suggestions .onCooldown {
+    font-size: 20px;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    transform: translate(-50%, -50%);
+    color: #FFFFFF;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 ::-webkit-scrollbar {
     width: 10px;
 }

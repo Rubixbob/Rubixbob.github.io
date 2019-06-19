@@ -92,6 +92,7 @@ effects.forEach(function (ef) {
                 while ($(target.parentNode).hasClass('draggable')) {
                     target = target.parentNode;
                 }
+                $(target).children(".onCooldown").remove();
                 var clonedElement = target.cloneNode(true);
                 dndHandler.applyRotationEvents(clonedElement);
                 addActionAtIndex(clonedElement, $("#rotation").children().length);
@@ -1593,8 +1594,17 @@ function addSuggestion(name) {
     var action = actions.find(ac => name === ac.name);
     var target = $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).get(0);
     var clonedElement = target.cloneNode(true);
+    var actionImg = $(clonedElement).children(".actionImage").get(0);
     dndHandler.applyActionsEvents(clonedElement);
-    $("#suggestions").append(clonedElement)
+    $("#suggestions").append(clonedElement);
+    
+    // var cooldown = (2).toFixed(2);
+    // TODO : ToFixed(2)
+    // var cdDiv = $(`<div>${cooldown}</div>`);
+    // cdDiv.addClass("onCooldown");
+    // $(clonedElement).append(cdDiv);
+    // $(actionImg).css("opacity", "0.5");
+    // $(clonedElement).css("background-color", "black");
 }
 
 function resetSuggestions() {
