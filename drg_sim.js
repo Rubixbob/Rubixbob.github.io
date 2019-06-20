@@ -392,6 +392,9 @@ function getTooltipContent(element) {
             return "Clears all raid buffs";
         var job = $("#group .ui-selectmenu-text").get($(".clearGroupButton:not(#raidBuffClear)").index(element)).textContent;
         return "Clears all raid buffs of this job (" + job + ")";
+    } else if (parentId === "suggestions") {
+        var name = $(element).attr("name");
+        return name;
     } else {
         var name = $(element).attr("name");
         var type = getType(name);
@@ -1579,22 +1582,40 @@ $(".checkboxButton, .clearGroupButton").each((idx, elt) => addTooltip(elt));
 
 $("#suggestions").draggable({cancel: ".action", containment: "parent"});
 
+function effectRemainingAt(name, time) {
+    var result = 0;
+    $("#effects").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = Number($(elt).attr("endTime")) - time;});
+    return result;
+}
+
 function isEffectUpAt(name, time) {
-    var result = false;
-    $("#effects").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = true;});
+    // var result = false;
+    // $("#effects").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = true;});
+    return effectRemainingAt(name, time) > 0;
+}
+
+function botDRemainingAt(type, time) {
+    var result = 0;
+    $("#botd").children(`[name="${type}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = Number($(elt).attr("endTime")) - time;});
     return result;
 }
 
 function isBotDUpAt(type, time) {
-    var result = false;
-    $("#botd").children(`[name="${type}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = true;});
+    // var result = false;
+    // $("#botd").children(`[name="${type}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = true;});
+    return botDRemainingAt(type, time) > 0;
+}
+
+function cdAt(name, time) {
+    var result = 0;
+    $("#cds").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("time")) > time) result = Number($(elt).attr("time")) - time;});
     return result;
 }
 
 function isOffCdAt(name, time) {
-    var result = true;
-    $("#cds").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("time")) > time) result = false;});
-    return result;
+    // var result = true;
+    // $("#cds").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("time")) > time) result = false;});
+    return cdAt(name, time) <= 0;
 }
 
 function addSuggestion(name, type, value) {
@@ -1616,6 +1637,11 @@ function addSuggestion(name, type, value) {
                 $(clonedElement).append(ovDiv);
                 $(clonedElement).append(ovTxt);
                 break;
+            case "cooldownEnd":
+                $(clonedElement).append(ovDiv);
+                ovTxt.css("color", "lime");
+                $(clonedElement).append(ovTxt);
+                break;
             case "clipping":
                 ovDiv.css("background-color", "red");
                 $(clonedElement).append(ovDiv);
@@ -1623,7 +1649,13 @@ function addSuggestion(name, type, value) {
             case "active":
                 ovDiv.css("background-color", "white");
                 $(clonedElement).append(ovDiv);
-                ovTxt.css("color", "lime");
+                ovTxt.css("color", "orange");
+                $(clonedElement).append(ovTxt);
+                break;
+            case "activeEnd":
+                ovDiv.css("background-color", "white");
+                $(clonedElement).append(ovDiv);
+                ovTxt.css("color", "red");
                 $(clonedElement).append(ovTxt);
                 break;
             default:
@@ -1675,27 +1707,33 @@ function updateSuggestions() {
         addSuggestion("True Thrust");
     }
 
-    if (nextGcdTime - getAnimationLock("Mirage Dive") >= currentTime && isEffectUpAt("Dive Ready", currentTime) && !isBotDUpAt("eye2", currentTime))
+    var elt = "Mirage Dive";
+    var latestTime = nextGcdTime - getAnimationLock(elt);
+    if (latestTime >= currentTime && isEffectUpAt("Dive Ready", currentTime) && !isBotDUpAt("eye2", currentTime))
         addSuggestion("Mirage Dive");
         // addSuggestion("Mirage Dive", "active", 4.5);
 
-    var nasTime = currentTime;
-    if ($("#cds").children("[name='Nastrond']").length)
-        nasTime = Math.max(nasTime, Number($("#cds").children("[name='Nastrond']").last().attr("time")));
-    if (isOffCdAt("Nastrond", nextGcdTime - getAnimationLock("Nastrond")) && (nextGcdTime - getAnimationLock("Nastrond") >= currentTime || currentTime === 0) && isBotDUpAt("life", nasTime))
-        addSuggestion("Nastrond");
-        // addSuggestion("Nastrond", "clipping");
-
-    var sdTime = currentTime;
-    if ($("#cds").children("[name='Stardiver']").length)
-        sdTime = Math.max(sdTime, Number($("#cds").children("[name='Stardiver']").last().attr("time")));
-    if (isOffCdAt("Stardiver", nextGcdTime - getAnimationLock("Stardiver")) && (nextGcdTime - getAnimationLock("Stardiver") >= currentTime || currentTime === 0) && isBotDUpAt("life", sdTime))
-        addSuggestion("Stardiver");
-        // addSuggestion("Stardiver", "cooldown", 2.56);
+    ["Nastrond", "Stardiver"].forEach(elt => {
+        var latestTime = nextGcdTime - getAnimationLock(elt);
+        var cdAtCurrentTime = cdAt(elt, currentTime);
+        if (isOffCdAt(elt, latestTime) && (latestTime >= currentTime || currentTime === 0) && isBotDUpAt("life", cdAtCurrentTime + currentTime))
+            addSuggestion(elt);
+            // addSuggestion(elt, "clipping");
+    });
 
     ["Lance Charge", "Dragon Sight", "Battle Litany", "Life Surge", "Potion", "High Jump", "Spineshatter Dive", "Dragonfire Dive", "Geirskogul"].forEach(elt => {
-        if (isOffCdAt(elt, nextGcdTime - getAnimationLock(elt)) && (nextGcdTime - getAnimationLock(elt) >= currentTime || currentTime === 0))
-            addSuggestion(elt);
+        var latestTime = nextGcdTime - getAnimationLock(elt);
+        var cdAtCurrentTime = cdAt(elt, currentTime);
+        if (isOffCdAt(elt, latestTime)) { // Available in this GCD
+            if (latestTime >= currentTime || currentTime === 0) { // No clipping
+                if (isOffCdAt(elt, currentTime)) // Available now
+                    addSuggestion(elt);
+                else // Available after small delay
+                    addSuggestion(elt, "cooldownEnd", cdAtCurrentTime);
+            } else
+                addSuggestion(elt, "clipping");
+        } else if (cdAtCurrentTime > 0 && cdAtCurrentTime <= 5) // Available soon
+            addSuggestion(elt, "cooldown", cdAtCurrentTime);
     });
 }
 
