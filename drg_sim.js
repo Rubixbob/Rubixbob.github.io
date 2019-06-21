@@ -1707,33 +1707,52 @@ function updateSuggestions() {
         addSuggestion("True Thrust");
     }
 
-    var elt = "Mirage Dive";
-    var latestTime = nextGcdTime - getAnimationLock(elt);
-    if (latestTime >= currentTime && isEffectUpAt("Dive Ready", currentTime) && !isBotDUpAt("eye2", currentTime))
-        addSuggestion("Mirage Dive");
+    // var elt = "Mirage Dive";
+    // var latestTime = nextGcdTime - getAnimationLock(elt);
+    // if (latestTime >= currentTime && isEffectUpAt("Dive Ready", currentTime) && !isBotDUpAt("eye2", currentTime))
+        // addSuggestion("Mirage Dive");
         // addSuggestion("Mirage Dive", "active", 4.5);
 
-    ["Nastrond", "Stardiver"].forEach(elt => {
-        var latestTime = nextGcdTime - getAnimationLock(elt);
-        var cdAtCurrentTime = cdAt(elt, currentTime);
-        if (isOffCdAt(elt, latestTime) && (latestTime >= currentTime || currentTime === 0) && isBotDUpAt("life", cdAtCurrentTime + currentTime))
-            addSuggestion(elt);
-            // addSuggestion(elt, "clipping");
-    });
+    // ["Nastrond", "Stardiver"].forEach(elt => {
+        // var latestTime = nextGcdTime - getAnimationLock(elt);
+        // var cdAtCurrentTime = cdAt(elt, currentTime);
+        // if (isBotDUpAt("life", cdAtCurrentTime + currentTime)) {
+            // if (isOffCdAt(elt, latestTime) && (latestTime >= currentTime || currentTime === 0))
+                // addSuggestion(elt);
+                // // addSuggestion(elt, "clipping");
+        // }
+    // });
 
-    ["Lance Charge", "Dragon Sight", "Battle Litany", "Life Surge", "Potion", "High Jump", "Spineshatter Dive", "Dragonfire Dive", "Geirskogul"].forEach(elt => {
+    ["Lance Charge", "Dragon Sight", "Battle Litany", "Life Surge", "Potion", "High Jump", "Spineshatter Dive", "Dragonfire Dive", "Geirskogul", "Nastrond", "Stardiver", "Mirage Dive"].forEach(elt => {
         var latestTime = nextGcdTime - getAnimationLock(elt);
         var cdAtCurrentTime = cdAt(elt, currentTime);
-        if (isOffCdAt(elt, latestTime)) { // Available in this GCD
-            if (latestTime >= currentTime || currentTime === 0) { // No clipping
-                if (isOffCdAt(elt, currentTime)) // Available now
-                    addSuggestion(elt);
-                else // Available after small delay
-                    addSuggestion(elt, "cooldownEnd", cdAtCurrentTime);
-            } else
-                addSuggestion(elt, "clipping");
-        } else if (cdAtCurrentTime > 0 && cdAtCurrentTime <= 5) // Available soon
-            addSuggestion(elt, "cooldown", cdAtCurrentTime);
+        if ((elt != "Nastrond" && elt != "Stardiver" || isBotDUpAt("life", cdAtCurrentTime + currentTime)) && (elt != "Mirage Dive" || (isEffectUpAt("Dive Ready", currentTime) && !isBotDUpAt("eye2", currentTime)))) {
+            if (isOffCdAt(elt, latestTime) || isOffCdAt(elt, currentTime)) { // Available in this GCD
+                if (latestTime >= currentTime || currentTime === 0) { // No clipping
+                    if (isOffCdAt(elt, currentTime)) { // Available now
+                        if (elt === "Nastrond" || elt === "Stardiver") {
+                            if (botDRemainingAt("life", currentTime) < Math.max(getAnimationLock("High Jump"), getAnimationLock("Spineshatter Dive"), getAnimationLock("Dragonfire Dive"), getAnimationLock("Potion")))
+                                addSuggestion(elt, "activeEnd", botDRemainingAt("life", currentTime));
+                            else if (botDRemainingAt("life", currentTime) < 5)
+                                addSuggestion(elt, "active", botDRemainingAt("life", currentTime));
+                            else
+                                addSuggestion(elt);
+                        } else if (elt === "Mirage Dive") {
+                            if (effectRemainingAt("Dive Ready", currentTime) < Math.max(getAnimationLock("High Jump"), getAnimationLock("Spineshatter Dive"), getAnimationLock("Dragonfire Dive"), getAnimationLock("Potion")))
+                                addSuggestion(elt, "activeEnd", effectRemainingAt("Dive Ready", currentTime));
+                            else if (effectRemainingAt("Dive Ready", currentTime) < 5)
+                                addSuggestion(elt, "active", effectRemainingAt("Dive Ready", currentTime));
+                            else
+                                addSuggestion(elt);
+                        } else
+                        addSuggestion(elt);
+                    } else // Available after small delay
+                        addSuggestion(elt, "cooldownEnd", cdAtCurrentTime);
+                } else
+                    addSuggestion(elt, "clipping");
+            } else if (cdAtCurrentTime > 0 && cdAtCurrentTime <= 5) // Available soon
+                addSuggestion(elt, "cooldown", cdAtCurrentTime);
+        }
     });
 }
 
