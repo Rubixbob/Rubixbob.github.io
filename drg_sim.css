@@ -159,7 +159,6 @@ table {
     position: absolute;
     display: flex;
     background-color: #F0F0F0;
-    height: 44px;
     padding: 10px;
     border-radius: 16px;
     z-index: 10;
@@ -185,7 +184,6 @@ table {
     top: -16px;
     bottom: 0px;
     display: flex;
-    /* border: inherit; */
 }
 
 .suggestionsOverlay {
