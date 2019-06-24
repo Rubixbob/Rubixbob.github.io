@@ -1174,7 +1174,7 @@ $("#SKSin").change(function() {
     }
 });
 
-window.addEventListener("wheel", function(event)
+window.addEventListener("wheel", function(event) // TODO: ctrl + +/-, 2 point slide
 {
     if(event.ctrlKey == true)
     {

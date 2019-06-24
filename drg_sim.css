@@ -159,9 +159,11 @@ table {
     position: absolute;
     display: flex;
     background-color: #F0F0F0;
+    height: 44px;
     padding: 10px;
     border-radius: 16px;
     z-index: 10;
+    border: initial;
 }
 
 #suggestions:hover {
@@ -170,6 +172,20 @@ table {
 
 #suggestions .action {
     position: relative;
+}
+
+#suggestionsTitle {
+    position: absolute;
+    background-color: #F0F0F0;
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 16px;
+    left: 0px;
+    top: -16px;
+    bottom: 0px;
+    display: flex;
+    /* border: inherit; */
 }
 
 .suggestionsOverlay {
