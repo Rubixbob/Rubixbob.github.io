@@ -1,3 +1,7 @@
+var defaultAnimLock = 0.7;
+var longAnimLock = 1.3;
+var scale = 60;
+
 var actions = [
 	{ name: "True Thrust",
 	  shortName: "TT",
@@ -140,7 +144,7 @@ var actions = [
 	  id: 17,
 	  description: "This diluted brew temporarily increases strength, but for twice the duration of similar potions.<br/>Item Level 350<br/>Consumable Bonuses (Duration: 30s) (Recast: 5m / HQ 4m30s)<br/>Strength +8% (Cap: 180) HQ +10% / Cap: 225",
 	  recast: 270,
-	  animLock: 1.3,
+	  animLock: longAnimLock,
 	  delayed: "true",
 	  effects: ["Medicated"],
 	  type: "Ability",
@@ -152,7 +156,7 @@ var actions = [
 	  description: "Delivers a jumping attack with a potency of 400. Returns you to your original position after the attack is made.<br/>Additional Effect: Grants Dive Ready<br/>Duration: 15s<br/>Cannot be executed while bound.",
 	  potency: 400,
 	  recast: 30,
-	  animLock: 1.3,
+	  animLock: longAnimLock,
 	  effects: ["Dive Ready"],
 	  type: "Ability",
 	  group: "ogcd"},
@@ -162,7 +166,7 @@ var actions = [
 	  description: "Delivers a jumping attack with a potency of 240.<br/>Cannot be executed while bound.",
 	  potency: 240,
 	  recast: 60,
-	  animLock: 1.3,
+	  animLock: longAnimLock,
 	  type: "Ability",
 	  group: "ogcd"},
 	{ name: "Dragonfire Dive",
@@ -171,7 +175,7 @@ var actions = [
 	  description: "Delivers a jumping fire-based attack with a potency of 380 to all nearby enemies.<br/>Cannot be executed while bound.",
 	  potency: 380,
 	  recast: 120,
-	  animLock: 1.3,
+	  animLock: longAnimLock,
 	  type: "Ability",
 	  group: "ogcd"},
 	{ name: "Mirage Dive",
@@ -204,7 +208,7 @@ var actions = [
 	  description: "Delivers a jumping fire-based attack to all nearby enemies with a potency of 550 for the first ennemy and 30% less for all remaining ennemis.<br/>Can only be executed while under the effect of Life of the Dragon.<br/>Cannot be executed while bound.",
 	  potency: 550,
 	  recast: 30,
-	  animLock: 1.3,
+	  animLock: longAnimLock,
 	  type: "Ability",
 	  group: "ogcd"},
 	{ name: "Elusive Jump",
@@ -212,7 +216,7 @@ var actions = [
 	  id: 25,
 	  description: "Executes a jump to a location 15 yalms behind you.<br/>Cannot be executed while bound.",
 	  recast: 30,
-	  animLock: 1.3,
+	  animLock: longAnimLock,
 	  type: "Ability",
 	  group: "ogcd"},
 
@@ -803,9 +807,6 @@ var groupActions = [
 	  effects: ["Radiant Shield"],
       job: "smn"}
 ];
-
-var defaultAnimLock = 0.7;
-var scale = 60;
 
 var threeMinRotation = {"wd":109,"str":3207,"dh":1611,"crit":2557,"det":1796,"sks":1600,"actions":[{"i":"16","d":"1"},{"i":"17","d":"1"},{"i":"0"},{"i":"14","d":"1"},{"i":"5"},{"i":"13","d":"1"},{"i":"12","d":"1"},{"i":"6"},{"i":"7"},{"i":"3"},{"i":"22","d":"1"},{"i":"0"},{"i":"18","d":"0"},{"i":"1"},{"i":"15","d":"0"},{"i":"21","d":"0"},{"i":"2"},{"i":"19","d":"0"},{"i":"3"},{"i":"20","d":"0"},{"i":"7"},{"i":"4"},{"i":"5"},{"i":"6"},{"i":"7"},{"i":"3"},{"i":"4"},{"i":"1"},{"i":"2"},{"i":"22","d":"1"},{"i":"3"},{"i":"18","d":"0"},{"i":"7"},{"i":"21","d":"0"},{"i":"4"},{"i":"5"},{"i":"6"},{"i":"7"},{"i":"3"},{"i":"4"},{"i":"1"},{"i":"15","d":"0"},{"i":"2"},{"i":"3"},{"i":"7"},{"i":"4"},{"i":"22","d":"1"},{"i":"5"},{"i":"18","d":"0"},{"i":"6"},{"i":"23","d":"0"},{"i":"21","d":"0"},{"i":"7"},{"i":"19","d":"0"},{"i":"3"},{"i":"4"},{"i":"1"},{"i":"23","d":"0"},{"i":"2"},{"i":"3"},{"i":"7"},{"i":"4"},{"i":"12","d":"1"},{"i":"5"},{"i":"24","d":"0"},{"i":"6"},{"i":"23","d":"0"},{"i":"7"},{"i":"3"},{"i":"18","d":"0"},{"i":"4"},{"i":"21","d":"0"},{"i":"22","d":"0"},{"i":"1"},{"i":"15","d":"1"},{"i":"23","d":"0"},{"i":"2"},{"i":"3"},{"i":"7"},{"i":"4"},{"i":"5"},{"i":"6"},{"i":"7"},{"i":"13","d":"1"},{"i":"23","d":"1"},{"i":"3"},{"i":"4"},{"i":"1"},{"i":"24","d":"1"},{"i":"2"},{"i":"18","d":"0"},{"i":"3"},{"i":"23","d":"0"},{"i":"22","d":"0"},{"i":"7"},{"i":"19","d":"0"},{"i":"4"},{"i":"20","d":"0"},{"i":"5"},{"i":"21","d":"0"},{"i":"6"},{"i":"7"},{"i":"3"},{"i":"4"},{"i":"1"},{"i":"15","d":"0"},{"i":"2"},{"i":"3"},{"i":"7"},{"i":"4"},{"i":"18","d":"0"},{"i":"5"},{"i":"21","d":"0"},{"i":"6"},{"i":"7"},{"i":"22","d":"0"},{"i":"23","d":"0"},{"i":"3"},{"i":"4"},{"i":"1"},{"i":"2"},{"i":"3"},{"i":"7"},{"i":"14","d":"1"},{"i":"12","d":"1"},{"i":"4"},{"i":"23","d":"0"},{"i":"5"},{"i":"6"},{"i":"24","d":"1"},{"i":"7"},{"i":"18","d":"0"},{"i":"3"},{"i":"21","d":"0"},{"i":"23","d":"0"},{"i":"4"},{"i":"19","d":"0"},{"i":"1"},{"i":"22","d":"0"},{"i":"15","d":"1"},{"i":"2"},{"i":"3"},{"i":"7"}]};
 // var threeMinRotation = {"wd":109,"str":3207,"dh":1611,"crit":2557,"det":1796,"sks":655,"actions":[{"i":"16","d":"1"},{"i":"24"},{"i":"8"},{"i":"28","d":"1"},{"i":"13","d":"1"},{"i":"4"},{"i":"14","d":"1"},{"i":"12","d":"1"},{"i":"5"},{"i":"17","d":"1"},{"i":"6"},{"i":"18","d":"0"},{"i":"7"},{"i":"22","d":"0"},{"i":"21","d":"0"},{"i":"3"},{"i":"20","d":"0"},{"i":"0"},{"i":"19","d":"0"},{"i":"1"},{"i":"15","d":"0"},{"i":"21","d":"0"},{"i":"2"},{"i":"3"},{"i":"7"},{"i":"8"},{"i":"4"},{"i":"5"},{"i":"6"},{"i":"7"},{"i":"3"},{"i":"18","d":"0"},{"i":"0"},{"i":"22","d":"0"},{"i":"21","d":"0"},{"i":"1"},{"i":"2"},{"i":"3"},{"i":"7"},{"i":"8"},{"i":"4"},{"i":"5"},{"i":"6"},{"i":"7"},{"i":"3"},{"i":"0"},{"i":"18","d":"0"},{"i":"1"},{"i":"15","d":"0"},{"i":"22","d":"0"},{"i":"2"},{"i":"23","d":"0"},{"i":"21","d":"0"},{"i":"3"},{"i":"19","d":"0"},{"i":"7"},{"i":"8"},{"i":"4"},{"i":"23","d":"0"},{"i":"5"},{"i":"12","d":"1"},{"i":"6"},{"i":"21","d":"0"},{"i":"7"},{"i":"3"},{"i":"23","d":"0"},{"i":"0"},{"i":"1"},{"i":"16","d":"1"},{"i":"2"},{"i":"18","d":"0"},{"i":"3"},{"i":"21","d":"0"},{"i":"22","d":"0"},{"i":"7"},{"i":"23","d":"0"},{"i":"8"},{"i":"4"},{"i":"5"},{"i":"6"},{"i":"23","d":"0"},{"i":"7"},{"i":"3"},{"i":"0"},{"i":"28","d":"1"},{"i":"1"},{"i":"15","d":"0"},{"i":"13","d":"1"},{"i":"2"},{"i":"23","d":"0"},{"i":"3"},{"i":"18","d":"0"},{"i":"7"},{"i":"20","d":"0"},{"i":"8"},{"i":"22","d":"0"},{"i":"21","d":"0"},{"i":"4"},{"i":"19","d":"0"},{"i":"5"},{"i":"21","d":"0"},{"i":"6"},{"i":"7"},{"i":"3"},{"i":"0"},{"i":"1"},{"i":"2"},{"i":"3"},{"i":"7"},{"i":"8"},{"i":"18","d":"0"},{"i":"4"},{"i":"21","d":"0"},{"i":"22","d":"0"},{"i":"5"},{"i":"23","d":"0"},{"i":"12","d":"1"},{"i":"6"},{"i":"7"},{"i":"3"},{"i":"0"},{"i":"23","d":"0"},{"i":"1"},{"i":"15","d":"0"},{"i":"2"},{"i":"14","d":"1"},{"i":"3"},{"i":"7"},{"i":"23","d":"0"},{"i":"8"},{"i":"4"},{"i":"5"},{"i":"18","d":"0"},{"i":"6"},{"i":"22","d":"0"},{"i":"21","d":"0"},{"i":"7"},{"i":"19","d":"0"},{"i":"3"},{"i":"21","d":"0"},{"i":"0"},{"i":"1"},{"i":"2"},{"i":"3"},{"i":"7"}]};
