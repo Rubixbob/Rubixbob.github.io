@@ -790,8 +790,8 @@ function deleteGroupEffect(element) {
 // }
 
 function drawBotd(type, botdObject, eTime) {
-    var posLeft = 1;
     var posWidth = 25;
+    var posLeft = ($("#botd").get(0).getBoundingClientRect().width - posWidth) / 2;
     var zIndex = 1;
     var beginTime, backgroundColor;
     var effect = effects.find(ef => "Blood of the Dragon" === ef.name);
@@ -825,14 +825,14 @@ function drawBotd(type, botdObject, eTime) {
             break;
         case "eye":
             for (var i = 0; i < botdObject.eyeCount; i++) {
-                posLeft = 11 * i + 4;
+                posLeftEye = 11 * i + 3 + posLeft;
                 posWidth = 8;
                 beginTime = botdObject.eyeTime[i];
                 backgroundColor = effect.eyeColor;
                 zIndex = 2;
                 var posTop = Math.round((beginTime - startTime) * scale + 1);
                 var posHeight = Math.round((eTime - beginTime) * scale);
-                $("#botd").append(botdDiv(type + (i + 1), beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex).css("border-radius", "3px"));
+                $("#botd").append(botdDiv(type + (i + 1), beginTime, eTime, posLeftEye, posTop, posHeight, posWidth, backgroundColor, zIndex).css("border-radius", "3px"));
             }
             break;
         default:
@@ -1002,44 +1002,117 @@ $("#opener").click(function(){
     updateDps();
 });
 
-$("#manageRotations").click(function() { // TODO: message to say rotations are stored in cache
-    var rots = []; // TODO: control if rots is an array, and if name not already used
+$("#manageRotations").click(function() {
+    var rots = [];
     if (localStorage["Rotations"])
         rots = JSON.parse(localStorage["Rotations"]);
-    $("#savedRotationsTable").children("tbody").remove();
-    var body = $("<tbody></tbody>");
+    var body = $("#savedRotationsTable").children("tbody");
+    body.children().remove();
     rots.forEach(function(rotName) {
         var rot = JSON.parse(localStorage[rotName]);
         var row = $("<tr></tr>");
         row.append($(`<td>${rot.name}</td>`));
-        row.append($(`<td>${rot.dps}</td>`));
-        row.append($(`<td>${rot.length}</td>`));
-        row.append($(`<td>${rot.gcd}</td>`));
-        var openButton = $("<button class='ui icon button'><i class='icon folder open'></i></button>").css({"padding": "4px", "background-color": "#FFFFFF"});
-        var deleteButton = $("<button class='ui icon button'><i class='icon trash alternate'></i></button>").css({"padding": "4px", "background-color": "#FFFFFF"});
+        row.append($(`<td>${rot.dps}</td>`).css("text-align", "right"));
+        var rotMin = (rot.length / 60).toFixed(0);
+        var rotSec = (rot.length % 60).toFixed(0);
+        var rotLength = (rotMin > 0 ? rotMin + "m" : "") + rotSec + "s";
+        row.append($(`<td>${rotLength}</td>`).css("text-align", "right"));
+        row.append($(`<td>${rot.gcd.toFixed(2)}</td>`));
+        var openButton = $("<button class='ui icon button'><i class='icon folder open'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
+        var deleteButton = $("<button class='ui icon button'><i class='icon trash alternate'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
+        var confirmLabel = $("<strong><label>Delete ?</label></strong>").css({"display": "none"});
+        var yesButton = $("<button class='ui icon button'><i class='icon checkmark'></i></button>").css({"padding": "4px", "background-color": "green", "display": "none", "margin": "0px 2px 0px 2px"});
+        var noButton = $("<button class='ui icon button'><i class='icon close'></i></button>").css({"padding": "4px", "background-color": "red", "display": "none"});
         openButton.click(function() {
             loadRotation(rotName);
             $("#savedRotationsLightbox").modal("hide");
         });
         deleteButton.click(function() {
-            // TODO: confirmation button
+            openButton.css("display", "none");
+            deleteButton.css("display", "none");
+            confirmLabel.css("display", "inline-block");
+            yesButton.css("display", "inline-block");
+            noButton.css("display", "inline-block");
+        });
+        yesButton.click(function() {
             localStorage.removeItem(rotName);
             rots.splice(rots.indexOf(rotName), 1);
             localStorage["Rotations"] = JSON.stringify(rots);
             row.remove();
+            if ($("#rotation").children().length) {
+                var idx = rots.length + 1;
+                while (rots.indexOf("Rotation " + idx) >= 0) idx++;
+                $("#savedRotationsNameInput").attr("placeholder", `Rotation ${idx}`);
+            } else if (!rots.length)
+                body.append("<tr><td colspan='5'>No data available</td></tr>");
         });
-        row.append(openButton);
-        row.append(deleteButton);
+        noButton.click(function() {
+            openButton.css("display", "inline-block");
+            deleteButton.css("display", "inline-block");
+            confirmLabel.css("display", "none");
+            yesButton.css("display", "none");
+            noButton.css("display", "none");
+        });
+        row.append($("<td></td>").append(openButton).append(deleteButton).append(confirmLabel).append(yesButton).append(noButton));
         body.append(row);
     });
-        $("#savedRotationsTable").append(body);
+    if ($("#rotation").children().length) {
+        var row = $("<tr></tr>").css("background-color", "#CCC");
+        var idx = rots.length + 1;
+        while (rots.indexOf("Rotation " + idx) >= 0) idx++;
+        var nameInput = $(`<input id="savedRotationsNameInput" type="text" placeholder="Rotation ${idx}"/>`).css("text-align", "center");
+        row.append($("<td></td>").append(nameInput));
+        row.append($(`<td>${$("#dps").children().last().children().html()}</td>`).css("text-align", "right"));
+        var rotTime = Number($("#rotation").children().last().attr("time"));
+        var rotMin = (rotTime / 60).toFixed(0);
+        var rotSec = (rotTime % 60).toFixed(0);
+        var rotLength = (rotMin > 0 ? rotMin + "m" : "") + rotSec + "s";
+        row.append($(`<td>${rotLength}</td>`).css("text-align", "right"));
+        row.append($(`<td>${Number($("#SKSoutGCD").val()).toFixed(2)}</td>`));
+        var saveButton = $("<button class='ui icon button'><i class='icon save'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
+        var warningLabel = $("<strong><label>That name is already used!</label></strong>").css({"display": "none", "color": "red"});
+        saveButton.click(function() {
+            warningLabel.css("display", "none");
+            var rotName = nameInput.val() || nameInput.attr("placeholder");
+            if (rots.indexOf(rotName) >= 0) {
+                warningLabel.css("display", "inline-block");
+                return;
+            }
+            var savedRotationObject = {
+                name: rotName,
+                dps: Number($("#dps").children().last().children().html()),
+                length: Number($("#rotation").children().last().attr("time")),
+                gcd: Number($("#SKSoutGCD").val()),
+                wd: stats.wd,
+                str: stats.str,
+                dh: stats.dh,
+                crit: stats.crit,
+                det: stats.det,
+                sks: stats.sks,
+                actions: []
+            };
+            $("#rotation").children().each(function(index) {
+                var id = $(this).attr("id");
+                if ($(this).attr("delayed") !== undefined)
+                    savedRotationObject.actions.push({i: id, d: ($(this).attr("delayed") === "true" ? "1" : "0")});
+                else
+                    savedRotationObject.actions.push({i: $(this).attr("id")});
+            });
+            rots.push(rotName);
+            localStorage["Rotations"] = JSON.stringify(rots);
+            localStorage[rotName] = JSON.stringify(savedRotationObject);
+            $("#savedRotationsLightbox").modal("hide");
+        });
+        row.append($("<td></td>").append(saveButton).append(warningLabel));
+        body.prepend(row);
+    }
+    if (!rots.length && !$("#rotation").children().length)
+        body.append("<tr><td colspan='5'>No data available</td></tr>");
     $("#savedRotationsLightbox").modal("show");
 });
 
-// $("#loadRotation").click(function() {
 function loadRotation(rotName) {
     clearRotation();
-    // var savedRotationObject = JSON.parse(savedRotation);
     var savedRotationObject = JSON.parse(localStorage[rotName]);
     $("#WDin").val(savedRotationObject.wd);
     $("#STRin").val(savedRotationObject.str);
@@ -1063,41 +1136,6 @@ function loadRotation(rotName) {
     autoFillRaidBuffs(false);
     updateDps();
 }
-// });
-
-$("#saveRotation").click(function() {
-    var rots = []; // TODO: control if rots is an array, and if name not already used and not "Rotations"
-    if (localStorage["Rotations"])
-        rots = JSON.parse(localStorage["Rotations"]);
-    var idx = rots.length + 1;
-    while (rots.indexOf("Rotation " + idx) >= 0) idx++;
-    var rotName = "Rotation " + idx;
-    rots.push(rotName);
-    localStorage["Rotations"] = JSON.stringify(rots);
-    var savedRotationObject = {
-        name: rotName,
-        dps: Number($("#dps").children().last().children().html()),
-        length: Number($("#rotation").children().last().attr("time")),
-        gcd: Number($("#SKSoutGCD").val()),
-        wd: stats.wd,
-        str: stats.str,
-        dh: stats.dh,
-        crit: stats.crit,
-        det: stats.det,
-        sks: stats.sks,
-        actions: []
-    };
-    $("#rotation").children().each(function(index) {
-        var id = $(this).attr("id");
-        if ($(this).attr("delayed") !== undefined)
-            savedRotationObject.actions.push({i: id, d: ($(this).attr("delayed") === "true" ? "1" : "0")});
-        else
-            savedRotationObject.actions.push({i: $(this).attr("id")});
-    });
-    localStorage[rotName] = JSON.stringify(savedRotationObject);
-    // savedRotation = JSON.stringify(savedRotationObject);
-    // console.log(savedRotation);
-});
 
 $("#threeMinRotation").click(function() {
     clearRotation();
@@ -1125,9 +1163,9 @@ $("#threeMinRotation").click(function() {
     updateDps();
 });
 
-$("#debugButton").click(function() {
+function displayDebug() {
     RotationHistory.forEach(function(item) { item.display(); });
-});
+}
 
 $("#hideEffectsButton").click(function() {
     $("#effectsHeader").children().each(function() {

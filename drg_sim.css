@@ -1,3 +1,7 @@
+* {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .actionGroup {
     display: flex;
     flex-wrap: wrap;
@@ -21,6 +25,22 @@
     border-radius: 16px;
 }
 
+#rotationHeader {
+    width: 74px;
+}
+
+#botdHeader {
+    width: 25px;
+}
+
+#cdsHeader {
+    width: 44px;
+}
+
+#dpsHeader {
+    width: 5em;
+}
+
 #rotation {
     background-color: #555;
     position: relative;
@@ -28,6 +48,7 @@
 }
 
 #mainDiv {
+    /*justify-content: center; TODO: Add with dark theme*/
     display: flex;
     flex-wrap: wrap;
 }
@@ -204,6 +225,31 @@ input {
     transform: translate(-50%, -50%);
     color: white;
     text-shadow: 1px 0 0 black, -1px 0 0 black, 0 1px 0 black, 0 -1px 0 black, 1px 1px black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black;
+}
+
+#savedRotationsLightbox * {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#savedRotationsTable {
+    border-collapse: collapse;
+}
+
+#savedRotationsTable thead th {
+    text-align: center;
+    padding: 0.5em;
+}
+
+#savedRotationsTable tbody td {
+    text-align: center;
+    border-top: 1px solid black;
+    padding: 1em;
+    /*vertical-align: middle;*/
+}
+
+#savedRotationsTable tbody tr:nth-child(odd) {
+    background-color: #F0F0F0;
 }
 
 ::-webkit-scrollbar {

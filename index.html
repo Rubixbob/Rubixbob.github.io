@@ -38,27 +38,29 @@
             </div>
         </div>
         <div id="midDiv">
-            <button class="mini ui button" id="clearRotation">Clear rotation</button>
+            <button class="mini ui icon button" id="clearRotation"><i class="icon close"></i>Clear Rotation</button>
             <button class="mini ui button" id="opener">10.5s TA opener</button>
-            <button class="mini ui button" id="manageRotations">Rotations</button>
+            <button class="mini ui button" id="manageRotations">Rotations...</button>
             <!-- <button class="mini ui button" id="loadRotation">Load (test)</button> -->
             <!-- <button class="mini ui icon button" id="loadRotation"><i class="icon folder open"></i></button> -->
             <!-- <button class="mini ui button" id="saveRotation">Save (test)</button> -->
-            <button class="mini ui icon button" id="saveRotation"><i class="icon save"></i></button>
+            <!-- <button class="mini ui icon button" id="saveRotation"><i class="icon save"></i></button> -->
             <button class="mini ui button" id="threeMinRotation">3 min rotation</button>
-            <button class="mini ui button" id="debugButton">Debug</button>
+            <!-- <button class="mini ui button" id="debugButton">Debug</button> -->
             <button class="mini ui button" id="hideEffectsButton">Show/Hide Effects</button>
-            <label for="DPSout">Final DPS: </label>
-            <output id="DPSout"></output>
+            <strong>
+                <output id="DPSout"></output>
+                <label for="DPSout">DPS</label>
+            </strong>
             <table class="rotation-table">
                 <tr id="headers">
                     <th>Time</th>
-                    <th width="74px">Actions</th>
-                    <th width="25px">BotD</th>
+                    <th id="rotationHeader">Actions</th>
+                    <th id="botdHeader">BotD</th>
                     <th id="effectsHeader" nowrap></th>
                     <th id="groupEffectsHeader" nowrap></th>
-                    <th>Cooldowns</th>
-                    <th width="50px">DPS</th>
+                    <th id="cdsHeader">CDs</th>
+                    <th id="dpsHeader">DPS</th>
                 </tr>
             </table>
             <div id="scrollableDiv">
@@ -299,8 +301,9 @@
         <i class="close icon"></i>
         <div class="header">
             Rotations
+            <i class="icon question circle outline" title="These rotations are saved locally in the cache. Data might be lost when clearing the cache. The share functionality can be used to save them in the database (coming soon)"></i>
         </div>
-        <div class="content">
+        <div class="scrolling content">
             <div class="description">
                 <table id="savedRotationsTable">
                     <thead>
@@ -309,8 +312,12 @@
                             <th><label>DPS</label></th>
                             <th><label>Length</label></th>
                             <th><label>GCD</label></th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </thead>
+                    <tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
