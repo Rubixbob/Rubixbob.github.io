@@ -153,6 +153,10 @@ input {
     scrollbar-width: thin;
 }
 
+#group th {
+    vertical-align: bottom;
+}
+
 .checkboxButton, .clearGroupButton {
     display: block !important;
     margin: auto !important;
@@ -174,6 +178,10 @@ input {
 
 .checkboxButton input {
     display: none;
+}
+
+.icon.question.circle.outline {
+    cursor: pointer;
 }
 
 #suggestions {
@@ -284,6 +292,10 @@ input {
 #progress {
     display: flex;
     flex-wrap: wrap;
+}
+
+.ui-selectmenu-button.ui-button {
+    width: 10em;
 }
 
 .ui-selectmenu-menu .ui-menu.customicons .ui-menu-item-wrapper {

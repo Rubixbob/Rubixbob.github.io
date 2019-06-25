@@ -82,42 +82,42 @@
                 <tr>
                     <th>Raid group</th>
                     <th>
-                        <label for="raidBuffAuto">Auto</label>
                         <button id="raidBuffAuto" class="mini ui icon button checkboxButton" checkCount="7">
                             <input type="checkbox" checked />
                             <i class="big icon square outline check"></i>
                         </button>
+                        <label for="raidBuffAuto">Auto</label>
                     </th>
                     <th>
-                        Clear
                         <button id="raidBuffClear" class="big circular ui icon button clearGroupButton"><i class="icon close"></i></button>
+                        Clear
                     </th>
                 </tr>
                 <tr>
                     <td>
                         <select>
                             <optgroup label="DPS">
-                                <option value="drg" data-class="drg">DRG</option>
-                                <option value="nin" data-class="nin">NIN</option>
-                                <option value="mnk" data-class="mnk">MNK</option>
-                                <option value="sam" data-class="sam">SAM</option>
-                                <option value="brd" data-class="brd">BRD</option>
-                                <option value="mch" data-class="mch">MCH</option>
-                                <!-- <option value="dnc" data-class="dnc">DNC</option> -->
-                                <option value="smn" data-class="smn">SMN</option>
-                                <option value="rdm" data-class="rdm">RDM</option>
-                                <option value="blm" data-class="blm">BLM</option>
+                                <option value="drg" data-class="drg">Dragoon</option>
+                                <option value="nin" data-class="nin">Ninja</option>
+                                <option value="mnk" data-class="mnk">Monk</option>
+                                <option value="sam" data-class="sam">Samurai</option>
+                                <option value="brd" data-class="brd">Bard</option>
+                                <option value="mch" data-class="mch">Machinist</option>
+                                <!-- <option value="dnc" data-class="dnc">Dancer</option> -->
+                                <option value="smn" data-class="smn">Summoner</option>
+                                <option value="rdm" data-class="rdm">Red Mage</option>
+                                <option value="blm" data-class="blm">Black Mage</option>
                             </optgroup>
                             <optgroup label="Healers">
-                                <option value="sch" data-class="sch">SCH</option>
-                                <option value="ast" data-class="ast">AST</option>
-                                <option value="whm" data-class="whm">WHM</option>
+                                <option value="sch" data-class="sch">Scholar</option>
+                                <option value="ast" data-class="ast">Astrologian</option>
+                                <option value="whm" data-class="whm">White Mage</option>
                             </optgroup>
                             <optgroup label="Tanks">
-                                <option value="war" data-class="war">WAR</option>
-                                <option value="pld" data-class="pld">PLD</option>
-                                <option value="drk" data-class="drk">DRK</option>
-                                <!-- <option value="gnb" data-class="gnb">GNB</option> -->
+                                <option value="war" data-class="war">Warrior</option>
+                                <option value="pld" data-class="pld">Paladin</option>
+                                <option value="drk" data-class="drk">Dark Knight</option>
+                                <!-- <option value="gnb" data-class="gnb">Gunbreaker</option> -->
                             </optgroup>
                         </select>
                     </td>
@@ -133,46 +133,64 @@
             <br />
             <table id="stats">
                 <tr>
-                    <th>Stats</th>
-                    <th></th>
-                    <th>Mod</th>
+                    <th colspan="3">Stats</th>
                 </tr>
                 <tr>
                     <td><label for="WDin">Weapon Damage</label></td>
-                    <td><input id="WDin" type="number" value="109" min="0" max="9999"></input></td>
-                    <td><output id="WDout"></output></td>
+                    <td>
+                        <input id="WDin" type="number" value="109" min="0" max="9999"></input>
+                        <output id="WDout" hidden></output>
+                    </td>
+                    <td><i id="WDtooltip" class="icon question circle outline"></i></td>
                 </tr>
                 <tr>
                     <td><label for="STRin">Strength</label></td>
-                    <td><input id="STRin" type="number" value="3207" min="0" max="9999"></input></td>
-                    <td><output id="STRout"></output></td>
+                    <td>
+                        <input id="STRin" type="number" value="3207" min="0" max="9999"></input>
+                        <output id="STRout" hidden></output>
+                    </td>
+                    <td><i id="STRtooltip" class="icon question circle outline"></i></td>
                 </tr>
                 <tr>
                     <td><label for="DHin">Direct Hit Rate</label></td>
-                    <td><input id="DHin" type="number" value="1611" min="0" max="9999"></input></td>
-                    <td><output id="DHout"></output></td>
-                    <td>Chance: <output id="DHoutRate"></output></td>
+                    <td>
+                        <input id="DHin" type="number" value="1611" min="0" max="9999"></input>
+                        <output id="DHout" hidden></output>
+                        <output id="DHoutRate" hidden></output>
+                    </td>
+                    <td><i id="DHtooltip" class="icon question circle outline"></i></td>
                 </tr>
                 <tr>
                     <td><label for="CRITin">Critical Hit Rate</label></td>
-                    <td><input id="CRITin" type="number" value="2557" min="0" max="9999"></input></td>
-                    <td><output id="CRITout"></output></td>
-                    <td>Chance: <output id="CRIToutRate"></output> Damage: <output id="CRIToutDmg"></output></td>
+                    <td>
+                        <input id="CRITin" type="number" value="2557" min="0" max="9999"></input>
+                        <output id="CRITout" hidden></output>
+                        <output id="CRIToutRate" hidden></output>
+                        <output id="CRIToutDmg" hidden></output>
+                    </td>
+                    <td><i id="CRITtooltip" class="icon question circle outline"></i></td>
                 </tr>
                 <tr>
                     <td><label for="DETin">Determination</label></td>
-                    <td><input id="DETin" type="number" value="1796" min="0" max="9999"></input></td>
-                    <td><output id="DETout"></output></td>
+                    <td>
+                        <input id="DETin" type="number" value="1796" min="0" max="9999"></input>
+                        <output id="DETout" hidden></output>
+                    </td>
+                    <td><i id="DETtooltip" class="icon question circle outline"></i></td>
                 </tr>
                 <tr>
                     <td><label for="SKSin">Skill Speed</label></td>
-                    <td><input id="SKSin" type="number" value="655" min="0" max="9999"></input></td>
-                    <td><output id="SKSout"></output></td>
-                    <td>GCD: <output id="SKSoutGCD"></output></td>
+                    <td>
+                        <input id="SKSin" type="number" value="655" min="0" max="9999"></input>
+                        <output id="SKSout" hidden></output>
+                        <output id="SKSoutGCD" hidden></output>
+                    </td>
+                    <td><i id="SKStooltip" class="icon question circle outline"></i></td>
                 </tr>
                 <tr>
                     <td><label for="Latency">Latency</label></td>
                     <td><input id="Latency" type="number" value="20" min="0" max="9999"></input></td>
+                    <td><i id="Latencytooltip" class="icon question circle outline"></i></td>
                 </tr>
             </table>
         </div>
@@ -301,7 +319,7 @@
         <i class="close icon"></i>
         <div class="header">
             Rotations
-            <i class="icon question circle outline" title="These rotations are saved locally in the cache. Data might be lost when clearing the cache. The share functionality can be used to save them in the database (coming soon)"></i>
+            <i id="savedRotationstooltip" class="icon question circle outline"></i>
         </div>
         <div class="scrolling content">
             <div class="description">

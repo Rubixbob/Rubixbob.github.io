@@ -282,9 +282,12 @@ effects.forEach(function (ef) {
 function addTooltip(element) {
     $(element).mouseover(function(e) {
         var content = getTooltipContent(element);
-        $(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
+        if ($(element).attr("id") !== "savedRotationstooltip")
+            $(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
+        else
+            $("#savedRotationsLightbox .header").append($("<div></div>").attr("class", "tooltip").html(content));
     }).mousemove(function(e) {
-        if ($(".tooltip").length) {
+        if ($(".tooltip").length && $(element).attr("id") !== "savedRotationstooltip") {
             var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
             posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
             $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
@@ -395,6 +398,33 @@ function getTooltipContent(element) {
     } else if (parentId === "suggestions") {
         var name = $(element).attr("name");
         return name;
+    } else if ($(element).attr("id") === "WDtooltip") {
+        var dmgMult = $("#WDout").val();
+        return "Damage multiplier: " + dmgMult;
+    } else if ($(element).attr("id") === "STRtooltip") {
+        var dmgMult = $("#STRout").val();
+        return "Damage multiplier: " + dmgMult;
+    } else if ($(element).attr("id") === "DHtooltip") {
+        var dhChance = $("#DHoutRate").val();
+        var dmgMult = $("#DHout").val();
+        return "Direct hit chance: " + dhChance + "<br/>" + "Average damage multiplier: " + dmgMult;
+    } else if ($(element).attr("id") === "CRITtooltip") {
+        var critChance = $("#CRIToutRate").val();
+        var critDmg = $("#CRIToutDmg").val();
+        var dmgMult = $("#CRITout").val();
+        return "Critical hit chance: " + critChance + "<br/>" + "Critical hit damage: " + critDmg + "<br/>" + "Average damage multiplier: " + dmgMult;
+    } else if ($(element).attr("id") === "DETtooltip") {
+        var dmgMult = $("#DETout").val();
+        return "Damage multiplier: " + dmgMult;
+    } else if ($(element).attr("id") === "SKStooltip") {
+        var sksGcd = $("#SKSoutGCD").val();
+        var dmgMult = $("#SKSout").val();
+        return "GCD: " + sksGcd + "<br/>" + "Damage multiplier: " + dmgMult + " (only affects auto attacks and DoTs)";
+    } else if ($(element).attr("id") === "Latencytooltip") {
+        var lat = $("#Latency").val();
+        return "Time added to animation lock: " + lat + "ms" + "<br/>" + "Adjust this value to reflect your in-game animation lock";
+    } else if ($(element).attr("id") === "savedRotationstooltip") {
+        return "These rotations are saved locally in the cache. Data might be lost when clearing the cache. The share functionality can be used to save them in the database (coming soon)";
     } else {
         var name = $(element).attr("name");
         var type = getType(name);
@@ -1111,6 +1141,8 @@ $("#manageRotations").click(function() {
     $("#savedRotationsLightbox").modal("show");
 });
 
+addTooltip($("#savedRotationstooltip").get(0));
+
 function loadRotation(rotName) {
     clearRotation();
     var savedRotationObject = JSON.parse(localStorage[rotName]);
@@ -1261,6 +1293,14 @@ $("#SKSin").change(function() {
         resetAndUpdateDps();
     }
 });
+
+addTooltip($("#WDtooltip").get(0));
+addTooltip($("#STRtooltip").get(0));
+addTooltip($("#DHtooltip").get(0));
+addTooltip($("#CRITtooltip").get(0));
+addTooltip($("#DETtooltip").get(0));
+addTooltip($("#SKStooltip").get(0));
+addTooltip($("#Latencytooltip").get(0));
 
 window.addEventListener("wheel", function(event) // TODO: ctrl + +/-, 2 point slide
 {
