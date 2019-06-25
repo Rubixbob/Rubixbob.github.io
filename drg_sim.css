@@ -117,7 +117,7 @@ input {
     display: inline-block;
 }
 
-table {
+.rotation-table {
     background-color: #CCC;
     border-spacing: 2px;
     /*border-radius: 10px;*/
@@ -279,6 +279,10 @@ table {
     background: url("images/jobs/DarkKnight.png") 0 0 no-repeat;
 }
 
+.ui-icon.gnb, .ui-button:hover .ui-icon.gnb, .ui-button:focus .ui-icon.gnb {
+    background: url("images/jobs/Gunbreaker.png") 0 0 no-repeat;
+}
+
 .ui-icon.sch, .ui-button:hover .ui-icon.sch, .ui-button:focus .ui-icon.sch {
     background: url("images/jobs/Scholar.png") 0 0 no-repeat;
 }
@@ -313,6 +317,10 @@ table {
 
 .ui-icon.mch, .ui-button:hover .ui-icon.mch, .ui-button:focus .ui-icon.mch {
     background: url("images/jobs/Machinist.png") 0 0 no-repeat;
+}
+
+.ui-icon.dnc, .ui-button:hover .ui-icon.dnc, .ui-button:focus .ui-icon.dnc {
+    background: url("images/jobs/Dancer.png") 0 0 no-repeat;
 }
 
 .ui-icon.smn, .ui-button:hover .ui-icon.smn, .ui-button:focus .ui-icon.smn {

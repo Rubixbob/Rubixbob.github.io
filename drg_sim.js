@@ -1,7 +1,7 @@
 var raidBuffLightboxJobIndex = 0; // Will have to be passed as a parameter maybe
 var raidBuffLightboxEditMode = false;
 var raidBuffLightboxEditElement;
-// var standardComp = ["war", "pld", "sch", "ast", "nin", "brd", "smn"];
+// var standardComp = ["nin", "brd", "smn", "sch", "ast", "war", "pld"];
 var standardComp = ["nin", "war", "war", "war", "war", "war", "war"];
 var startTime = 0;
 var RotationHistory = [];
@@ -1002,9 +1002,45 @@ $("#opener").click(function(){
     updateDps();
 });
 
-$("#loadRotation").click(function() {
+$("#manageRotations").click(function() { // TODO: message to say rotations are stored in cache
+    var rots = []; // TODO: control if rots is an array, and if name not already used
+    if (localStorage["Rotations"])
+        rots = JSON.parse(localStorage["Rotations"]);
+    $("#savedRotationsTable").children("tbody").remove();
+    var body = $("<tbody></tbody>");
+    rots.forEach(function(rotName) {
+        var rot = JSON.parse(localStorage[rotName]);
+        var row = $("<tr></tr>");
+        row.append($(`<td>${rot.name}</td>`));
+        row.append($(`<td>${rot.dps}</td>`));
+        row.append($(`<td>${rot.length}</td>`));
+        row.append($(`<td>${rot.gcd}</td>`));
+        var openButton = $("<button class='ui icon button'><i class='icon folder open'></i></button>").css({"padding": "4px", "background-color": "#FFFFFF"});
+        var deleteButton = $("<button class='ui icon button'><i class='icon trash alternate'></i></button>").css({"padding": "4px", "background-color": "#FFFFFF"});
+        openButton.click(function() {
+            loadRotation(rotName);
+            $("#savedRotationsLightbox").modal("hide");
+        });
+        deleteButton.click(function() {
+            // TODO: confirmation button
+            localStorage.removeItem(rotName);
+            rots.splice(rots.indexOf(rotName), 1);
+            localStorage["Rotations"] = JSON.stringify(rots);
+            row.remove();
+        });
+        row.append(openButton);
+        row.append(deleteButton);
+        body.append(row);
+    });
+        $("#savedRotationsTable").append(body);
+    $("#savedRotationsLightbox").modal("show");
+});
+
+// $("#loadRotation").click(function() {
+function loadRotation(rotName) {
     clearRotation();
-    var savedRotationObject = JSON.parse(savedRotation);
+    // var savedRotationObject = JSON.parse(savedRotation);
+    var savedRotationObject = JSON.parse(localStorage[rotName]);
     $("#WDin").val(savedRotationObject.wd);
     $("#STRin").val(savedRotationObject.str);
     $("#DHin").val(savedRotationObject.dh);
@@ -1026,10 +1062,23 @@ $("#loadRotation").click(function() {
 
     autoFillRaidBuffs(false);
     updateDps();
-});
+}
+// });
 
 $("#saveRotation").click(function() {
+    var rots = []; // TODO: control if rots is an array, and if name not already used and not "Rotations"
+    if (localStorage["Rotations"])
+        rots = JSON.parse(localStorage["Rotations"]);
+    var idx = rots.length + 1;
+    while (rots.indexOf("Rotation " + idx) >= 0) idx++;
+    var rotName = "Rotation " + idx;
+    rots.push(rotName);
+    localStorage["Rotations"] = JSON.stringify(rots);
     var savedRotationObject = {
+        name: rotName,
+        dps: Number($("#dps").children().last().children().html()),
+        length: Number($("#rotation").children().last().attr("time")),
+        gcd: Number($("#SKSoutGCD").val()),
         wd: stats.wd,
         str: stats.str,
         dh: stats.dh,
@@ -1045,8 +1094,9 @@ $("#saveRotation").click(function() {
         else
             savedRotationObject.actions.push({i: $(this).attr("id")});
     });
-    savedRotation = JSON.stringify(savedRotationObject);
-    console.log(savedRotation);
+    localStorage[rotName] = JSON.stringify(savedRotationObject);
+    // savedRotation = JSON.stringify(savedRotationObject);
+    // console.log(savedRotation);
 });
 
 $("#threeMinRotation").click(function() {

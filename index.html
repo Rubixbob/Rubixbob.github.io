@@ -40,14 +40,17 @@
         <div id="midDiv">
             <button class="mini ui button" id="clearRotation">Clear rotation</button>
             <button class="mini ui button" id="opener">10.5s TA opener</button>
-            <button class="mini ui button" id="loadRotation">Load (test)</button>
-            <button class="mini ui button" id="saveRotation">Save (test)</button>
+            <button class="mini ui button" id="manageRotations">Rotations</button>
+            <!-- <button class="mini ui button" id="loadRotation">Load (test)</button> -->
+            <!-- <button class="mini ui icon button" id="loadRotation"><i class="icon folder open"></i></button> -->
+            <!-- <button class="mini ui button" id="saveRotation">Save (test)</button> -->
+            <button class="mini ui icon button" id="saveRotation"><i class="icon save"></i></button>
             <button class="mini ui button" id="threeMinRotation">3 min rotation</button>
             <button class="mini ui button" id="debugButton">Debug</button>
             <button class="mini ui button" id="hideEffectsButton">Show/Hide Effects</button>
             <label for="DPSout">Final DPS: </label>
             <output id="DPSout"></output>
-            <table>
+            <table class="rotation-table">
                 <tr id="headers">
                     <th>Time</th>
                     <th width="74px">Actions</th>
@@ -59,7 +62,7 @@
                 </tr>
             </table>
             <div id="scrollableDiv">
-                <table>
+                <table class="rotation-table">
                     <tr id="columns">
                         <td id="timeline"></td>
                         <td id="rotation" class="dropper"></td>
@@ -91,16 +94,6 @@
                 <tr>
                     <td>
                         <select>
-                            <optgroup label="Tanks">
-                                <option value="war" data-class="war">WAR</option>
-                                <option value="pld" data-class="pld">PLD</option>
-                                <option value="drk" data-class="drk">DRK</option>
-                            </optgroup>
-                            <optgroup label="Healers">
-                                <option value="sch" data-class="sch">SCH</option>
-                                <option value="ast" data-class="ast">AST</option>
-                                <option value="whm" data-class="whm">WHM</option>
-                            </optgroup>
                             <optgroup label="DPS">
                                 <option value="drg" data-class="drg">DRG</option>
                                 <option value="nin" data-class="nin">NIN</option>
@@ -108,9 +101,21 @@
                                 <option value="sam" data-class="sam">SAM</option>
                                 <option value="brd" data-class="brd">BRD</option>
                                 <option value="mch" data-class="mch">MCH</option>
+                                <!-- <option value="dnc" data-class="dnc">DNC</option> -->
                                 <option value="smn" data-class="smn">SMN</option>
                                 <option value="rdm" data-class="rdm">RDM</option>
                                 <option value="blm" data-class="blm">BLM</option>
+                            </optgroup>
+                            <optgroup label="Healers">
+                                <option value="sch" data-class="sch">SCH</option>
+                                <option value="ast" data-class="ast">AST</option>
+                                <option value="whm" data-class="whm">WHM</option>
+                            </optgroup>
+                            <optgroup label="Tanks">
+                                <option value="war" data-class="war">WAR</option>
+                                <option value="pld" data-class="pld">PLD</option>
+                                <option value="drk" data-class="drk">DRK</option>
+                                <!-- <option value="gnb" data-class="gnb">GNB</option> -->
                             </optgroup>
                         </select>
                     </td>
@@ -286,6 +291,27 @@
             <div id="raidBuffLightboxConfirm" class="ui positive right labeled icon button">
                 OK
                 <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div id="savedRotationsLightbox" class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            Rotations
+        </div>
+        <div class="content">
+            <div class="description">
+                <table id="savedRotationsTable">
+                    <thead>
+                        <tr>
+                            <th><label>Name</label></th>
+                            <th><label>DPS</label></th>
+                            <th><label>Length</label></th>
+                            <th><label>GCD</label></th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
