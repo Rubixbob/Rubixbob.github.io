@@ -51,7 +51,7 @@
     width: 100%;
     justify-content: center;
     display: flex;
-    height: fit-content;
+    align-items: center;
 }
 
 #mainDiv {

@@ -1050,6 +1050,7 @@ $("#manageRotations").click(function() {
         row.append($(`<td>${rot.gcd.toFixed(2)}</td>`));
         var openButton = $("<button class='ui icon button'><i class='icon folder open'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
         var deleteButton = $("<button class='ui icon button'><i class='icon trash alternate'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
+        var shareButton = $("<button class='ui icon button'><i class='icon share'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
         var confirmLabel = $("<strong><label>Delete ?</label></strong>").css({"display": "none"});
         var yesButton = $("<button class='ui icon button'><i class='icon checkmark'></i></button>").css({"padding": "4px", "background-color": "green", "display": "none", "margin": "0px 2px 0px 2px"});
         var noButton = $("<button class='ui icon button'><i class='icon close'></i></button>").css({"padding": "4px", "background-color": "red", "display": "none"});
@@ -1063,6 +1064,9 @@ $("#manageRotations").click(function() {
             confirmLabel.css("display", "inline-block");
             yesButton.css("display", "inline-block");
             noButton.css("display", "inline-block");
+        });
+        shareButton.click(function() {
+            $.post("/", rot);
         });
         yesButton.click(function() {
             localStorage.removeItem(rotName);
@@ -1083,7 +1087,14 @@ $("#manageRotations").click(function() {
             yesButton.css("display", "none");
             noButton.css("display", "none");
         });
-        row.append($("<td></td>").append(openButton).append(deleteButton).append(confirmLabel).append(yesButton).append(noButton));
+        var buttonsCell = $("<td></td>");
+        buttonsCell.append(openButton);
+        buttonsCell.append(deleteButton);
+        // buttonsCell.append(shareButton);
+        buttonsCell.append(confirmLabel);
+        buttonsCell.append(yesButton);
+        buttonsCell.append(noButton);
+        row.append(buttonsCell);
         body.append(row);
     });
     if ($("#rotation").children().length) {
