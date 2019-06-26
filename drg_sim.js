@@ -24,7 +24,7 @@ function fitColumns() {
     $("#columns").children().each(function(index) {$(this).css("width", $("#headers").children().eq(index).width() + "px");});
     $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width-$("#dps").get(0).getBoundingClientRect().width}px`); });
     $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${effects.find(ef => $(this).attr("name") === ef.name).groupAction}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
-    $("#scrollableDiv").css("height", `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#scrollableDiv").get(0).getBoundingClientRect().top}px`);
+    $("#scrollableDiv").css("height", `${$("#mainDiv").get(0).getBoundingClientRect().height+$("#mainDiv").get(0).getBoundingClientRect().top-$("#scrollableDiv").get(0).getBoundingClientRect().top}px`);
     $("#effects").children().each(function(index) {
         var hide = !$("#effectsHeader").children(`[name="${$(this).attr("name")}"]`).children("input").prop("checked");
         var posLeft = $("#effectsHeader").children(`[name="${$(this).attr("name")}"]`).position().left + 1;
@@ -1074,7 +1074,7 @@ $("#manageRotations").click(function() {
                 while (rots.indexOf("Rotation " + idx) >= 0) idx++;
                 $("#savedRotationsNameInput").attr("placeholder", `Rotation ${idx}`);
             } else if (!rots.length)
-                body.append("<tr><td colspan='5'>No data available</td></tr>");
+                body.append("<tr><td colspan='5'>No data available, create a rotation to save it here</td></tr>");
         });
         noButton.click(function() {
             openButton.css("display", "inline-block");
@@ -1137,7 +1137,7 @@ $("#manageRotations").click(function() {
         body.prepend(row);
     }
     if (!rots.length && !$("#rotation").children().length)
-        body.append("<tr><td colspan='5'>No data available</td></tr>");
+        body.append("<tr><td colspan='5'>No data available, create a rotation to save it here</td></tr>");
     $("#savedRotationsLightbox").modal("show");
 });
 
@@ -1869,7 +1869,7 @@ $("#suggestions").css({"left": `${$("#scrollableDiv").get(0).getBoundingClientRe
 
 updateSuggestions();
 
-$("#suggestions").css({"top": `${$("#midDiv").get(0).getBoundingClientRect().height+$("#midDiv").get(0).getBoundingClientRect().top-$("#suggestions").get(0).getBoundingClientRect().height}px`});
+$("#suggestions").css({"top": `${$("#mainDiv").get(0).getBoundingClientRect().height+$("#mainDiv").get(0).getBoundingClientRect().top-$("#suggestions").get(0).getBoundingClientRect().height}px`});
 
 function autoFillSingleRaidBuff(name, jobIndex) {
     if ($("#rotation").children().length === 0)

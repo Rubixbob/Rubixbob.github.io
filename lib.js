@@ -20,6 +20,20 @@ class Stats {
         this.feyWind = 0;
         this.riddleOfFire = 100;
         this.astralUmbral = 100;
+        
+        this.jobMod = 115;
+        
+        // Lvl 70
+        this.lvlModAP = 125;
+        this.lvlModMain = 292;
+        this.lvlModSub = 364;
+        this.lvlModDiv = 2170;
+        
+        // Lvl 80
+        // this.lvlModAP = 170;
+        // this.lvlModMain = 340;
+        // this.lvlModSub = 380;
+        // this.lvlModDiv = 3300;
 	}
 
 	copy() {
@@ -119,19 +133,19 @@ class Stats {
 	}
 
 	wdMod() {
-		return Math.floor(292 * 115 / 1000 + this.wd);
+		return Math.floor(this.lvlModMain * this.jobMod / 1000 + this.wd);
 	}
 
 	aaMod() {
-		return Math.floor((Math.floor(292 * 115 / 1000) + this.wd) * (this.wDelay / 3));
+		return Math.floor((Math.floor(this.lvlModMain * this.jobMod / 1000) + this.wd) * (this.wDelay / 3));
 	}
 
 	strMod() {
-		return Math.floor((125 * (this.str - 292) / 292) + 100) / 100;
+		return Math.floor((this.lvlModAP * (this.str - this.lvlModMain) / this.lvlModMain) + 100) / 100;
 	}
 
 	dhRate() {
-		return Math.min(Math.floor((this.dh - 364) * 550 / 2170) / 1000 + this.dhRateBonus, 1);
+		return Math.min(Math.floor((this.dh - this.lvlModSub) * 550 / this.lvlModDiv) / 1000 + this.dhRateBonus, 1);
 	}
 
 	dhDamage() {
@@ -143,11 +157,11 @@ class Stats {
 	}
 
 	critRate() {
-		return Math.min(Math.floor(50 + (this.crit - 364) * 200 / 2170) / 1000 + this.critRateBonus, 1);
+		return Math.min(Math.floor(50 + (this.crit - this.lvlModSub) * 200 / this.lvlModDiv) / 1000 + this.critRateBonus, 1);
 	}
 
 	critDamage() {
-		return Math.floor(1400 + (this.crit - 364) * 200 / 2170) / 1000;
+		return Math.floor(1400 + (this.crit - this.lvlModSub) * 200 / this.lvlModDiv) / 1000;
 	}
 
 	critMod() {
@@ -155,20 +169,20 @@ class Stats {
 	}
 
 	detMod() {
-		return Math.floor(1000 + (this.det - 292) * 130 / 2170) / 1000;
+		return Math.floor(1000 + (this.det - this.lvlModMain) * 130 / this.lvlModDiv) / 1000;
 	}
 
 	sksMod() {
-		return Math.floor(1000 + (this.sks - 364) * 130 / 2170) / 1000;
+		return Math.floor(1000 + (this.sks - this.lvlModSub) * 130 / this.lvlModDiv) / 1000;
 	}
 
 	gcd() {
-        var GCDm = Math.floor(2.5 * (1000 - Math.floor(130 * (this.sks - 364) / 2170)));
+        var GCDm = Math.floor(2.5 * (1000 - Math.floor(130 * (this.sks - this.lvlModSub) / this.lvlModDiv)));
         var A = Math.floor(Math.floor(Math.floor((100 - this.arrow) * (100 - this.type1) / 100) * (100 - this.haste) / 100) - this.feyWind);
         var B = (100 - this.type2) / 100;
         var GCDc = Math.floor(Math.floor(Math.floor(Math.ceil(A * B) * GCDm / 100) * this.riddleOfFire / 1000) * this.astralUmbral / 100);
         return GCDc / 100;
-		// return     Math.floor(2.5 * (1 - Math.floor((this.sks - 364) * 130 / 2170) / 1000) * 100) / 100;
+		// return     Math.floor(2.5 * (1 - Math.floor((this.sks - this.lvlModSub) * 130 / this.lvlModDiv) / 1000) * 100) / 100;
 	}
 
 	aaDelay() {

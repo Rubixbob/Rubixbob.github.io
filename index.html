@@ -16,6 +16,17 @@
 
 <body>
     <div id="mainDiv">
+        <div id="topDiv">
+                <button class="mini ui icon button" id="clearRotation"><i class="icon close"></i>Clear Rotation</button>
+                <button class="mini ui button" id="opener">10.5s TA opener</button>
+                <button class="mini ui button" id="manageRotations">Rotations...</button>
+                <button class="mini ui button" id="threeMinRotation">3 min rotation</button>
+                <button class="mini ui button" id="hideEffectsButton">Show/Hide Effects</button>
+                <strong>
+                    <output id="DPSout"></output>
+                    <label for="DPSout">DPS</label>
+                </strong>
+        </div>
         <div id="actions">
             <div id="combo1" class="actionGroup">
             </div>
@@ -38,20 +49,6 @@
             </div>
         </div>
         <div id="midDiv">
-            <button class="mini ui icon button" id="clearRotation"><i class="icon close"></i>Clear Rotation</button>
-            <button class="mini ui button" id="opener">10.5s TA opener</button>
-            <button class="mini ui button" id="manageRotations">Rotations...</button>
-            <!-- <button class="mini ui button" id="loadRotation">Load (test)</button> -->
-            <!-- <button class="mini ui icon button" id="loadRotation"><i class="icon folder open"></i></button> -->
-            <!-- <button class="mini ui button" id="saveRotation">Save (test)</button> -->
-            <!-- <button class="mini ui icon button" id="saveRotation"><i class="icon save"></i></button> -->
-            <button class="mini ui button" id="threeMinRotation">3 min rotation</button>
-            <!-- <button class="mini ui button" id="debugButton">Debug</button> -->
-            <button class="mini ui button" id="hideEffectsButton">Show/Hide Effects</button>
-            <strong>
-                <output id="DPSout"></output>
-                <label for="DPSout">DPS</label>
-            </strong>
             <table class="rotation-table">
                 <tr id="headers">
                     <th>Time</th>

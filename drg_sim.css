@@ -47,14 +47,28 @@
     height: auto;
 }
 
-#mainDiv {
-    /*justify-content: center; TODO: Add with dark theme*/
+#topDiv {
+    width: 100%;
+    justify-content: center;
     display: flex;
-    flex-wrap: wrap;
+    height: fit-content;
 }
 
-#midDiv {
+#mainDiv {
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
     height: calc(100vh - 16px);
+    overflow: hidden;
+}
+
+#scrollableDiv{
+    width: fit-content;
+    overflow: auto;
+    position: relative;
+    scrollbar-color: #888 #f1f1f1;
+    scrollbar-width: thin;
 }
 
 input {
@@ -143,14 +157,6 @@ input {
     border-spacing: 2px;
     /*border-radius: 10px;*/
     /*position: relative;*/
-}
-
-#scrollableDiv{
-    width: fit-content;
-    overflow: auto;
-    position: relative;
-    scrollbar-color: #888 #f1f1f1;
-    scrollbar-width: thin;
 }
 
 #group th {
