@@ -63,6 +63,15 @@
     overflow: hidden;
 }
 
+#leftDiv, #rightDiv {
+    width: 312px;
+}
+
+#leftDiv {
+    justify-content: flex-end;
+    display: flex;
+}
+
 #scrollableDiv{
     width: fit-content;
     overflow: auto;
