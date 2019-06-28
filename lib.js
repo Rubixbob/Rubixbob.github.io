@@ -78,7 +78,7 @@ class Stats {
 			case "Crit":
 				this.critRateBonus = 0;
 				this.activeEffects.forEach(ef => {
-					if (ef.effect.type === "Crit") {
+					if (ef.effect.type === "Crit" || ef.effect.type === "DCrit") {
 						if (ef.royalRoad === "Enhanced")
 							this.critRateBonus += ef.effect.enhancedValue;
 						else if (ef.royalRoad === "Expanded")
@@ -91,7 +91,24 @@ class Stats {
 			case "DH":
 				this.dhRateBonus = 0;
 				this.activeEffects.forEach(ef => {
-					if (ef.effect.type === "DH") {
+					if (ef.effect.type === "DH" || ef.effect.type === "DCrit") {
+						this.dhRateBonus += ef.effect.value;
+					}
+				});
+				break;
+			case "DCrit":
+				this.critRateBonus = 0;
+				this.dhRateBonus = 0;
+				this.activeEffects.forEach(ef => {
+					if (ef.effect.type === "Crit" || ef.effect.type === "DCrit") {
+						if (ef.royalRoad === "Enhanced")
+							this.critRateBonus += ef.effect.enhancedValue;
+						else if (ef.royalRoad === "Expanded")
+							this.critRateBonus += ef.effect.expandedValue;
+						else
+							this.critRateBonus += ef.effect.value;
+					}
+					if (ef.effect.type === "DH" || ef.effect.type === "DCrit") {
 						this.dhRateBonus += ef.effect.value;
 					}
 				});
