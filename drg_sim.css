@@ -220,9 +220,13 @@ input:focus {
     display: flex;
     background-color: #F0F0F0;
     padding: 10px;
-    border-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
     z-index: 10;
     border: initial;
+    min-width: 9em;
+    border: solid 1px #888;
 }
 
 #suggestions:hover {
@@ -239,11 +243,13 @@ input:focus {
     padding-top: 5px;
     padding-left: 10px;
     padding-right: 10px;
-    border-radius: 16px;
-    left: 0px;
-    top: -16px;
-    bottom: 0px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    transform: translate(-11px, calc(-100% - 10px));
     display: flex;
+    border-top: solid 1px #888;
+    border-left: solid 1px #888;
+    border-right: solid 1px #888;
 }
 
 .suggestionsOverlay {
