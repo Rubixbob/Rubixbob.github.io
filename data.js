@@ -31,6 +31,7 @@ var actions = [
 	  description: "Delivers an attack with a potency of 320.<br/>360 when executed from a target's flank.<br/>Can only be executed while under the effect of both Blood of the Dragon and Sharper Fang and Claw.<br/>Additional Effect: Extends Blood of the Dragon duration by 10s to a maximum of 30s",
 	  potency: 360,
 	  effects: ["Enhanced Wheeling Thrust", "Raiden Thrust Ready"],
+      requiredEffect: "Sharper Fang and Claw",
 	  type: "Weaponskill",
 	  group: "combo1"},
 
@@ -39,6 +40,7 @@ var actions = [
 	  id: 4,
 	  description: "Delivers an attack with a potency of 330.<br/>Can only be executed when Raiden Thrust Ready.",
 	  potency: 330,
+      requiredEffect: "Raiden Thrust Ready",
 	  type: "Weaponskill",
 	  group: "combo2"},
 	{ name: "Disembowel",
@@ -63,6 +65,7 @@ var actions = [
 	  description: "Delivers an attack with a potency of 320.<br/>360 when executed from a target's rear.<br/>Can only be executed while under the effect of both Blood of the Dragon and Enhanced Wheeling Thrust.<br/>Additional Effect: Extends Blood of the Dragon duration by 10s to a maximum of 30s",
 	  potency: 360,
 	  effects: ["Sharper Fang and Claw", "Raiden Thrust Ready"],
+      requiredEffect: "Enhanced Wheeling Thrust",
 	  type: "Weaponskill",
 	  group: "combo2"},
 
@@ -184,6 +187,7 @@ var actions = [
 	  description: "Delivers an attack with a potency of 250.<br/>Additional Effect: Strengthens the gaze of your Dragon Gauge by 1 while under the effect of Blood of the Dragon or Life of the Dragon<br/>Can only be executed when Dive Ready.",
 	  potency: 250,
 	  recast: 1,
+      requiredEffect: "Dive Ready",
 	  type: "Ability",
 	  group: "ogcd"},
 	{ name: "Geirskogul",

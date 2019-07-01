@@ -23,6 +23,7 @@
     height: fit-content;
     height: -moz-fit-content;
     border-radius: 16px;
+    box-shadow: 1px 1px 4px black;
 }
 
 #rotationHeader {
@@ -64,7 +65,8 @@
 }
 
 #leftDiv, #rightDiv {
-    width: 312px;
+    width: 320px;
+    margin: 10px;
 }
 
 #leftDiv {
@@ -81,16 +83,31 @@
 
 input {
     text-align: right;
+    border-radius: 4px;
+    background-color: white;
+    outline: none;
 }
 
-#stats, #group, #raidBuffInput {
-    background-color: #FFFFFF;
-    padding-left: 10px;
-    padding-top: 10px;
-    padding-right: 10px;
-    padding-bottom: 10px;
+input:focus {
+    /* background-color: #F0F0F0; */
+    border-color: rgb(166, 199, 255);
+}
+
+#raidBuffInput {
+    padding: 10px;
     border: solid 2px black;
-    /*border-radius: 16px;*/
+}
+
+#stats, #group {
+    padding: 10px;
+    background-color: #F0F0F0;
+    box-shadow: 1px 1px 4px black;
+    border-radius: 16px;
+    width: 100%;
+}
+
+#stats input {
+    max-width: 5em;
 }
 
 #botd, #effects, #groupEffects, #cds, #dps {
@@ -273,6 +290,10 @@ input {
 #savedRotationsTable tbody tr:nth-child(odd) {
     background-color: #F0F0F0;
 }
+
+/* #savedRotationsTable tbody tr:nth-child(odd) button { */
+    /* filter: invert(100%); */
+/* } */
 
 ::-webkit-scrollbar {
     width: 10px;

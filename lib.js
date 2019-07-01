@@ -407,21 +407,17 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            		break;
 	            	case "Fang and Claw":
 	            		var FCEffect = activeEffects.find(ef => ef.effect.name === "Sharper Fang and Claw");
-	            		if (FCEffect) {
+	            		if (FCEffect)
 	            			ePot += FCEffect.effect.value;
-	            		} else {
+	            		else
 	            			ePot = 0;
-	            			// TODO : throw exception
-	            		}
 	            		break;
 	            	case "Wheeling Thrust":
 	            		var WTEffect = activeEffects.find(ef => ef.effect.name === "Enhanced Wheeling Thrust");
-	            		if (WTEffect) {
+	            		if (WTEffect)
 	            			ePot += WTEffect.effect.value;
-	            		} else {
+	            		else
 	            			ePot = 0;
-	            			// TODO : throw exception
-	            		}
 	            		break;
             		default:
             			break;
@@ -495,65 +491,35 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            });
                 
                 // Consuming effects
-	            switch(eName) {
-	            	case "Mirage Dive":
-	            		var MDEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Dive Ready"), 1)[0];
-	            		if (MDEffect) {
-		            		MDEffect.endTime = time;
-		            		effectsToEnd.unshift(MDEffect);
-		            	}
-	            		break;
-	            	case "Raiden Thrust":
-	            		var RTEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Raiden Thrust Ready"), 1)[0];
-	            		if (RTEffect) {
-		            		RTEffect.endTime = time;
-		            		effectsToEnd.unshift(RTEffect);
-		            	}
-	            		break;
-	            	case "Fang and Claw":
-	            		var FCEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Sharper Fang and Claw"), 1)[0];
-	            		if (FCEffect) {
-		            		FCEffect.endTime = time;
-		            		effectsToEnd.unshift(FCEffect);
-		            	}
-	            		break;
-	            	case "Wheeling Thrust":
-	            		var WTEffect = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Enhanced Wheeling Thrust"), 1)[0];
-	            		if (WTEffect) {
-		            		WTEffect.endTime = time;
-		            		effectsToEnd.unshift(WTEffect);
-		            	}
-	            		break;
-            		default:
-                        // Cancel SFC, EWT and RTR when using another Weaponskill
-                        if (getType(eName) === "Weaponskill") {
-                            var FCIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Sharper Fang and Claw");
-                            if (FCIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === "Sharper Fang and Claw") >= 0) {
-                                var FCEffect = effectsToEnd.splice(FCIdx, 1)[0];
-                                if (FCEffect) {
-                                    FCEffect.endTime = time;
-                                    effectsToEnd.unshift(FCEffect);
-                                }
-                            }
-                            var WTIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Enhanced Wheeling Thrust");
-                            if (WTIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === "Enhanced Wheeling Thrust") >= 0) {
-                                var WTEffect = effectsToEnd.splice(WTIdx, 1)[0];
-                                if (WTEffect) {
-                                    WTEffect.endTime = time;
-                                    effectsToEnd.unshift(WTEffect);
-                                }
-                            }
-                            var RTIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Raiden Thrust Ready");
-                            if (RTIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === "Raiden Thrust Ready") >= 0) {
-                                var RTEffect = effectsToEnd.splice(RTIdx, 1)[0];
-                                if (RTEffect) {
-                                    RTEffect.endTime = time;
-                                    effectsToEnd.unshift(RTEffect);
+                if (getRequiredEffect(eName)) {
+                    var REIdx = effectsToEnd.findIndex(ef => ef.effect.name === getRequiredEffect(eName));
+                    if (REIdx >= 0) {
+                        var REEffect = effectsToEnd.splice(REIdx, 1)[0];
+                        if (REEffect) {
+                            REEffect.endTime = time;
+                            effectsToEnd.unshift(REEffect);
+                        }
+                    } else {
+                        eDmg = 0;
+                        // TODO: Exception need effect
+                    }
+                }
+                
+                // Cancel SFC, EWT and RTR when using another Weaponskill
+                if (getType(eName) === "Weaponskill") {
+                    ["Fang and Claw", "Wheeling Thrust", "Raiden Thrust"].forEach(elt => {
+                        if (eName !== elt) {
+                            var REIdx = effectsToEnd.findIndex(ef => ef.effect.name === getRequiredEffect(elt));
+                            if (REIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === getRequiredEffect(elt)) >= 0) {
+                                var REEffect = effectsToEnd.splice(REIdx, 1)[0];
+                                if (REEffect) {
+                                    REEffect.endTime = time;
+                                    effectsToEnd.unshift(REEffect);
                                 }
                             }
                         }
-            			break;
-	            }
+                    });
+                }
 
 				// BotD interactions
 				switch(eName) {
@@ -770,6 +736,14 @@ function getEffects(actionName) {
         effectsNames.forEach(efn => actionEffects.push(effects.find(ef => efn === ef.name)));
     }
     return actionEffects;
+}
+
+function getRequiredEffect(actionName) {
+    var requiredEffect = "";
+    var action = actions.find(ac => actionName === ac.name);
+    if (action.hasOwnProperty("requiredEffect"))
+        requiredEffect = action.requiredEffect;
+    return requiredEffect;
 }
 
 function getEffectDuration(effectName, use) {

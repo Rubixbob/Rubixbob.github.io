@@ -2047,6 +2047,11 @@ $("#DETin").change();
 $("#SKSin").change();
 clearRotation();
 
+var urlPathName = window.location.pathname.substring(1);
+if (urlPathName.length === 4) {
+    // TODO: load rotation
+}
+
 function gcdAt(time) {
     if (gcdTimeline === undefined || gcdTimeline.length <= 0 || time < gcdTimeline[0].time)
         return Number($("#SKSoutGCD").val());
