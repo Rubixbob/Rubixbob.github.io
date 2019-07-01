@@ -122,7 +122,10 @@ effects.forEach(function (ef) {
                 }
 				
 				var content = getTooltipContent(target);
-				$(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
+				$(document.body).append($("<div></div>").attr("class", "tooltip").html(content));
+                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+                $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
 			});
 			
 			element.addEventListener('mousemove', function(e) {
@@ -259,7 +262,10 @@ effects.forEach(function (ef) {
                 }
 				
 				var content = getTooltipContent(target);
-				$(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
+				$(document.body).append($("<div></div>").attr("class", "tooltip").html(content));
+                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+                $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
 			});
 			
 			element.addEventListener('mousemove', function(e) {
@@ -282,9 +288,12 @@ effects.forEach(function (ef) {
 function addTooltip(element) {
     $(element).mouseover(function(e) {
         var content = getTooltipContent(element);
-        if ($(element).attr("id") !== "savedRotationstooltip")
-            $(document.body).append($("<div></div>").attr("class", "tooltip").css({"top": `${e.pageY + 10}px`, "left": `${e.pageX + 10}px`}).html(content));
-        else
+        if ($(element).attr("id") !== "savedRotationstooltip") {
+            $(document.body).append($("<div></div>").attr("class", "tooltip").html(content));
+            var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
+            posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
+            $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
+        } else
             $("#savedRotationsLightbox .header").append($("<div></div>").attr("class", "tooltip").html(content));
     }).mousemove(function(e) {
         if ($(".tooltip").length && $(element).attr("id") !== "savedRotationstooltip") {
@@ -299,7 +308,7 @@ function addTooltip(element) {
     });
 }
 	
-function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo tooltip to effect shouldn't move tooltip
+function addGroupEffectTooltip(element) {
     var tooltipTimer;
     var tooltip;
     $(element).mouseover(function(e) {
@@ -308,7 +317,7 @@ function addGroupEffectTooltip(element) { // TODO : get parent if icon // mo too
             return;
         $(".tooltip").remove();
         var content = getTooltipContent(element);
-        tooltip = $("<div></div>").attr("class", "tooltip").css({"min-width": "150px", "max-width": "250px"}).html(content);
+        tooltip = $("<div></div>").attr("class", "tooltip").css({"min-width": "150px", "max-width": "250px", "top": "0px", "left": "0px"}).html(content);
         
         var buttonLine = $("<div></div>").css({"display": "flex", "justify-content": "flex-end"});
         
