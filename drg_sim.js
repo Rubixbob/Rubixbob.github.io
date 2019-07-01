@@ -1855,7 +1855,7 @@ function updateSuggestions() {
         addSuggestion("True Thrust");
     }
 
-    ["Mirage Dive", "Nastrond", "Stardiver", "Lance Charge", "Dragon Sight", "Battle Litany", "Life Surge", "Potion", "High Jump", "Spineshatter Dive", "Dragonfire Dive", "Geirskogul"].forEach(elt => {
+    ["Mirage Dive", "Nastrond", "Stardiver", "Battle Litany", "Dragon Sight", "Lance Charge", "High Jump", "Geirskogul", "Spineshatter Dive", "Dragonfire Dive", "Life Surge", "Potion"].forEach(elt => {
         var latestTime = nextGcdTime - getAnimationLock(elt);
         var cdAtCurrentTime = cdAt(elt, currentTime);
         if (((elt === "Nastrond" || elt === "Stardiver") && !isBotDUpAt("life", cdAtCurrentTime + currentTime)) || (elt === "Mirage Dive" && !isEffectUpAt("Dive Ready", currentTime)))
