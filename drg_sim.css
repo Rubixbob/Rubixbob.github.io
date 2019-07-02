@@ -93,6 +93,14 @@ input:focus {
     border-color: rgb(166, 199, 255);
 }
 
+.timeSeparator {
+    position: absolute;
+    left: 0px;
+    height: 1px;
+    background-color: black;
+    z-index: 1;
+}
+
 #raidBuffInput {
     padding: 10px;
     border: solid 2px black;

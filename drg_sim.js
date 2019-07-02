@@ -602,29 +602,33 @@ function hideTimelineOverlap() {
         }
         divider = values[itr];
     }
-    $("#timeline").children().each(function() {
-        if (Number($(this).attr("time")) % divider === 0)
+    var firstTime = Math.ceil(Number($("#timeline").children().first().attr("time"))) - 1;
+    $("#timeline").children().each(function(idx) {
+        if ((firstTime + idx) % divider === 0)
             this.style.visibility = "visible";
         else
             this.style.visibility = "hidden";
     });
 }
 
-function timeDiv(time) {
+function timeDiv(time, width) {
 	var tDiv = $(`<div>${time}</div>`).attr("time", `${time.toFixed(3)}`).css("height", `${scale}px`);
-	var rect = $("#columns").get(0).getBoundingClientRect();
-	tDiv.prepend($("<div></div>").css({"position": "absolute", "left": "0px", "height": "1px", "width": `${$("#columns").get(0).getBoundingClientRect().width-$("#dps").get(0).getBoundingClientRect().width}px`, "background-color": "black", "z-index": "1"}));
+	tDiv.prepend($("<div></div>").addClass("timeSeparator").css("width", `${width}px`));
     return tDiv;
 }
 
 function addTimeUntil(time) {
     var currentMax = -1;
+    var width;
     if ($("#timeline").children().length > 1)
         currentMax = Number($("#timeline").children().last().attr("time"));
-    for (i = currentMax + 1; i <= time; i++) {
-        $("#timeline").append(timeDiv(i));
+    if (currentMax + 1 <= time) {
+        width = $("#columns").get(0).getBoundingClientRect().width - $("#dps").get(0).getBoundingClientRect().width;
+        for (i = currentMax + 1; i <= time; i++) {
+            $("#timeline").append(timeDiv(i, width));
+        }
+        hideTimelineOverlap();
     }
-    hideTimelineOverlap();
 }
 
 function drawEffect(name, beginTime, endTime) {
@@ -1407,8 +1411,9 @@ $(window).resize(function() {
 
 function setStartTime(value) {
     if (value < startTime) {
+        var width = $("#columns").get(0).getBoundingClientRect().width - $("#dps").get(0).getBoundingClientRect().width;
         for (var i = 0; i < Math.ceil(startTime) - Math.ceil(value); i++) {
-			$("#timeline").children().eq(0).after(timeDiv(Math.ceil(startTime) - i - 1));
+			$("#timeline").children().eq(0).after(timeDiv(Math.ceil(startTime) - i - 1, width));
         }
     } else {
         for (var i = 0; i < Math.ceil(value) - Math.ceil(startTime); i++) {
