@@ -1883,6 +1883,14 @@ function updateSuggestions() {
         else if (cdAtCurrentTime === 0) // Off CD during last oGCD while clipping
             addSuggestion(elt, "clipping");
     });
+    
+    var titleWidth = $("#suggestionsTitle").get(0).getBoundingClientRect().width;
+    var boxWidth = $("#suggestions").get(0).getBoundingClientRect().width;
+    if (boxWidth <= titleWidth) {
+        $("#suggestions").css({"min-width": `${titleWidth - (boxWidth - $("#suggestions").width())}px`, "border-top-right-radius": "0px"});
+    } else {
+        $("#suggestions").css({"border-top-right-radius": ""});
+    }
 }
 
 $("#suggestions").css({"left": `${$("#scrollableDiv").get(0).getBoundingClientRect().left+$("#scrollableDiv").get(0).getBoundingClientRect().width/2-$("#suggestions").get(0).getBoundingClientRect().width/2}px`});

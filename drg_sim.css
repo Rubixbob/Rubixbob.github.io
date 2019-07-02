@@ -225,7 +225,6 @@ input:focus {
     border-bottom-right-radius: 16px;
     z-index: 10;
     border: initial;
-    min-width: 9em;
     border: solid 1px #888;
 }
 
