@@ -49,7 +49,7 @@ effects.forEach(function (ef) {
             $(wrapper).append(this);
             $(wrapper).append(checkBox);
             $("#effectsHeader").append(wrapper);
-            addTooltip(this);
+            addTooltip(this, "effectHeader");
             imagesToLoad++;
             if (this.complete)
                 $(this).trigger('load');
@@ -71,10 +71,12 @@ effects.forEach(function (ef) {
         draggedElement: null,
         // clone: null,
 
-        applyActionsEvents: function(element) {
+        applyActionsEvents: function(element, type) {
             element.draggable = true;
 
             var dndHandler = this;
+            
+            addTooltip(element, type);
 
             element.addEventListener('dragstart', function(e) {
                 var target = e.target;
@@ -85,7 +87,6 @@ effects.forEach(function (ef) {
                 dndHandler.draggedElement = target.cloneNode(true);
                 dndHandler.applyRotationEvents(dndHandler.draggedElement);
                 e.dataTransfer.setData('text/plain', '');
-                $(".tooltip").remove();
             });
 
             element.addEventListener('click', function(e) {
@@ -112,33 +113,7 @@ effects.forEach(function (ef) {
 
                 var scrollValue = parseInt($("#rotation").children().last().css("top"), 10) - 400;
                 $("#scrollableDiv").animate({scrollTop:scrollValue}, 50, "linear");
-                $(".tooltip").remove();
             });
-			
-			element.addEventListener('mouseover', function(e) {
-				var target = e.target;
-                while ($(target.parentNode).hasClass('action')) {
-                    target = target.parentNode;
-                }
-				
-				var content = getTooltipContent(target);
-				$(document.body).append($("<div></div>").attr("class", "tooltip").html(content));
-                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
-                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
-                $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
-			});
-			
-			element.addEventListener('mousemove', function(e) {
-                if ($(".tooltip").length) {
-                    var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
-                    posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
-    				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
-                }
-			});
-			
-			element.addEventListener('mouseout', function(e) {
-				$(".tooltip").remove();
-			});
         },
 
         applyDropEvents: function(dropper) {
@@ -235,6 +210,8 @@ effects.forEach(function (ef) {
             element.draggable = true;
 
             var dndHandler = this;
+            
+            addTooltip(element, "rotation");
 
             element.addEventListener('dragstart', function(e) {
                 var target = e.target;
@@ -243,7 +220,6 @@ effects.forEach(function (ef) {
                 }
                 dndHandler.draggedElement = target;
                 e.dataTransfer.setData('text/plain', '');
-				$(".tooltip").remove();
             });
 
             element.addEventListener('click', function(e) {
@@ -252,42 +228,16 @@ effects.forEach(function (ef) {
                     target = target.parentNode;
                 }
                 removeAction(target);
-				$(".tooltip").remove();
             });
-			
-			element.addEventListener('mouseover', function(e) {
-				var target = e.target;
-                while ($(target.parentNode).hasClass('action')) {
-                    target = target.parentNode;
-                }
-				
-				var content = getTooltipContent(target);
-				$(document.body).append($("<div></div>").attr("class", "tooltip").html(content));
-                var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
-                posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
-                $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
-			});
-			
-			element.addEventListener('mousemove', function(e) {
-                if ($(".tooltip").length) {
-                    var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
-                    posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
-    				$(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
-                }
-			});
-			
-			element.addEventListener('mouseout', function(e) {
-				$(".tooltip").remove();
-			});
         }
     };
 
-    $(".draggable").each(function(index) { dndHandler.applyActionsEvents(this); });
+    $(".draggable").each(function(index) { dndHandler.applyActionsEvents(this, "action"); });
     $(".dropper").each(function(index) { dndHandler.applyDropEvents(this); });
 	
-function addTooltip(element) {
+function addTooltip(element, type) {
     $(element).mouseover(function(e) {
-        var content = getTooltipContent(element);
+        var content = getTooltipContent(element, type);
         if ($(element).attr("id") !== "savedRotationstooltip") {
             $(document.body).append($("<div></div>").attr("class", "tooltip").html(content));
             var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
@@ -316,7 +266,7 @@ function addGroupEffectTooltip(element) {
         if (tooltip)
             return;
         $(".tooltip").remove();
-        var content = getTooltipContent(element);
+        var content = getTooltipContent(element, "groupEffect");
         tooltip = $("<div></div>").attr("class", "tooltip").css({"min-width": "150px", "max-width": "250px", "top": "0px", "left": "0px"}).html(content);
         
         var buttonLine = $("<div></div>").css({"display": "flex", "justify-content": "flex-end"});
@@ -359,88 +309,115 @@ function addGroupEffectTooltip(element) {
     
 }
 	
-function getTooltipContent(element) {
-    var parentId = $(element.parentNode).attr("id");
-    if (parentId === "rotation") {
-        var name = $(element).attr("name");
-        var time = $(element).attr("time");
-        var damage = $(element).attr("damage");
-        if (Number(damage) > 0)
-            return name + "<br/>" + "Damage: " + damage + "<br/>" + time + "s";
-        else
-            return name + "<br/>" + time + "s";
-    } else if (parentId === "cds") {
-        var name = $(element).attr("name");
-        var time = $(element).attr("time");
-        return name + "<br/>" + time + "s";
-    } else if (parentId === "effects") {
-        var name = $(element).attr("name");
-        var time = $(element).attr("time");
-        var endTime = $(element).attr("endTime");
-        return name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s";
-    } else if (parentId === "groupEffects") {
-        var name = $(element).attr("name");
-        var time = $(element).attr("time");
-        var endTime = $(element).children("div").attr("endTime");
-        var desc = getEffectDescription(name);
-        return name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s" + "<br/>" + desc;
-    } else if ($(element.parentNode.parentNode).attr("id") === "effectsHeader") {
-        var name = $(element.parentNode).attr("name");
-        var desc = getEffectDescription(name);
-        return name + "<br/>" + desc + "<br/>" + "<br/>" + "Click to Hide/Unhide";
-    } else if (parentId === "groupEffectsHeader") {
-        var name = $(element).attr("name");
-        var job = getGroupJob(name);
-        var recast = getGroupDisplayRecastTime(name);
-        var desc = getGroupDescription(name);
-        return name + "<br/>" + job.toUpperCase() + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
-    } else if ($(element).hasClass("checkboxButton")) {
-        if ($(element).attr("id") === "raidBuffAuto")
-            return "(Recommended) Automatically adds all raid buffs";
-        var job = $("#group .ui-selectmenu-text").get($(".checkboxButton:not(#raidBuffAuto)").index(element)).textContent;
-        return "(Recommended) Automatically adds raid buffs for this job (" + job + ")";
-    } else if ($(element).hasClass("clearGroupButton")) {
-        if ($(element).attr("id") === "raidBuffClear")
-            return "Clears all raid buffs";
-        var job = $("#group .ui-selectmenu-text").get($(".clearGroupButton:not(#raidBuffClear)").index(element)).textContent;
-        return "Clears all raid buffs of this job (" + job + ")";
-    } else if (parentId === "suggestions") {
-        var name = $(element).attr("name");
-        return name;
-    } else if ($(element).attr("id") === "WDtooltip") {
-        var dmgMult = $("#WDout").val();
-        return "Damage multiplier: " + dmgMult;
-    } else if ($(element).attr("id") === "STRtooltip") {
-        var dmgMult = $("#STRout").val();
-        return "Damage multiplier: " + dmgMult;
-    } else if ($(element).attr("id") === "DHtooltip") {
-        var dhChance = $("#DHoutRate").val();
-        var dmgMult = $("#DHout").val();
-        return "Direct hit chance: " + dhChance + "<br/>" + "Average damage multiplier: " + dmgMult;
-    } else if ($(element).attr("id") === "CRITtooltip") {
-        var critChance = $("#CRIToutRate").val();
-        var critDmg = $("#CRIToutDmg").val();
-        var dmgMult = $("#CRITout").val();
-        return "Critical hit chance: " + critChance + "<br/>" + "Critical hit damage: " + critDmg + "<br/>" + "Average damage multiplier: " + dmgMult;
-    } else if ($(element).attr("id") === "DETtooltip") {
-        var dmgMult = $("#DETout").val();
-        return "Damage multiplier: " + dmgMult;
-    } else if ($(element).attr("id") === "SKStooltip") {
-        var sksGcd = $("#SKSoutGCD").val();
-        var dmgMult = $("#SKSout").val();
-        return "GCD: " + sksGcd + "<br/>" + "Damage multiplier: " + dmgMult + " (only affects auto attacks and DoTs)";
-    } else if ($(element).attr("id") === "Latencytooltip") {
-        var lat = $("#Latency").val();
-        return "Time added to animation lock: " + lat + "ms" + "<br/>" + "Adjust this value to reflect your in-game animation lock";
-    } else if ($(element).attr("id") === "savedRotationstooltip") {
-        return "These rotations are saved locally in the cache. Data might be lost when clearing the cache. The share functionality can be used to save them in the database (coming soon)";
-    } else {
-        var name = $(element).attr("name");
-        var type = getType(name);
-        var recast = getRecastTime(name);
-        var desc = getDescription(name);
-        return name + "<br/>" + type + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
+function getTooltipContent(element, type) {
+    var content;
+    switch (type) {
+        case "rotation":
+            var name = $(element).attr("name");
+            var time = $(element).attr("time");
+            var damage = $(element).attr("damage");
+            if (Number(damage) > 0)
+                content = name + "<br/>" + "Damage: " + damage + "<br/>" + time + "s";
+            else
+                content = name + "<br/>" + time + "s";
+            break;
+        case "cd":
+            var name = $(element).attr("name");
+            var time = $(element).attr("time");
+            content = name + "<br/>" + time + "s";
+            break;
+        case "effect":
+            var name = $(element).attr("name");
+            var time = $(element).attr("time");
+            var endTime = $(element).attr("endTime");
+            content = name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s";
+            break;
+        case "groupEffect":
+            var name = $(element).attr("name");
+            var time = $(element).attr("time");
+            var endTime = $(element).children("div").attr("endTime");
+            var desc = getEffectDescription(name);
+            content = name + "<br/>" + "From " + time + "s" + "<br/>" + "To " + endTime + "s" + "<br/>" + desc;
+            break;
+        case "effectHeader":
+            var name = $(element.parentNode).attr("name");
+            var desc = getEffectDescription(name);
+            content = name + "<br/>" + desc + "<br/>" + "<br/>" + "Click to Hide/Unhide";
+            break;
+        case "groupEffectHeader":
+            var name = $(element).attr("name");
+            var job = getGroupJob(name);
+            var recast = getGroupDisplayRecastTime(name);
+            var desc = getGroupDescription(name);
+            content = name + "<br/>" + job.toUpperCase() + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
+            break;
+        case "checkboxButton":
+            if ($(element).attr("id") === "raidBuffAuto")
+                content = "(Recommended) Automatically adds all raid buffs";
+            else {
+                var job = $("#group .ui-selectmenu-text").get($(".checkboxButton:not(#raidBuffAuto)").index(element)).textContent;
+                content = "(Recommended) Automatically adds raid buffs for this job (" + job + ")";
+            }
+            break;
+        case "clearGroupButton":
+            if ($(element).attr("id") === "raidBuffClear")
+                content = "Clears all raid buffs";
+            else {
+                var job = $("#group .ui-selectmenu-text").get($(".clearGroupButton:not(#raidBuffClear)").index(element)).textContent;
+                content = "Clears all raid buffs of this job (" + job + ")";
+            }
+            break;
+        case "suggestion":
+            var name = $(element).attr("name");
+            content = name;
+            break;
+        case "wd":
+            var dmgMult = $("#WDout").val();
+            content = "Damage multiplier: " + dmgMult;
+            break;
+        case "str":
+            var dmgMult = $("#STRout").val();
+            content = "Damage multiplier: " + dmgMult;
+            break;
+        case "dh":
+            var dhChance = $("#DHoutRate").val();
+            var dmgMult = $("#DHout").val();
+            content = "Direct hit chance: " + dhChance + "<br/>" + "Average damage multiplier: " + dmgMult;
+            break;
+        case "crit":
+            var critChance = $("#CRIToutRate").val();
+            var critDmg = $("#CRIToutDmg").val();
+            var dmgMult = $("#CRITout").val();
+            content = "Critical hit chance: " + critChance + "<br/>" + "Critical hit damage: " + critDmg + "<br/>" + "Average damage multiplier: " + dmgMult;
+            break;
+        case "det":
+            var dmgMult = $("#DETout").val();
+            content = "Damage multiplier: " + dmgMult;
+            break;
+        case "sks":
+            var sksGcd = $("#SKSoutGCD").val();
+            var dmgMult = $("#SKSout").val();
+            content = "GCD: " + sksGcd + "<br/>" + "Damage multiplier: " + dmgMult + " (only affects auto attacks and DoTs)";
+            break;
+        case "latency":
+            var lat = $("#Latency").val();
+            content = "Time added to animation lock: " + lat + "ms" + "<br/>" + "Adjust this value to reflect your in-game animation lock";
+            break;
+        case "savedRotations":
+            content = "These rotations are saved locally in the cache. Data might be lost when clearing the cache. The share functionality can be used to save them in the database (coming soon)";
+            break;
+        case "action":
+            var name = $(element).attr("name");
+            var acType = getType(name);
+            var recast = getRecastTime(name);
+            var desc = getDescription(name);
+            content = name + "<br/>" + acType + "<br/>" + "Recast: " + recast + "s" + "<br/>" + desc;
+            break;
+        default:
+            content = "Not implemented";
+            break;
     }
+    return content;
 }
 
 function addActionAtIndex(element, idx, checkDelay = true) {
@@ -552,7 +529,7 @@ function addActionAtIndex(element, idx, checkDelay = true) {
 		var offCdPosition = (offCdTime - startTime) * scale;
 		if (nextUsage === undefined || nextUsage.length === 0) {
 			nextUsage = $(element.cloneNode(true));
-			dndHandler.applyActionsEvents(nextUsage.get(0));
+			dndHandler.applyActionsEvents(nextUsage.get(0), "cd");
 		}
 		$(nextUsage).attr("time", `${offCdTime.toFixed(3)}`).css({"position": "absolute", "top": `${offCdPosition}px`, "left": "", "height": ""});
 		$("#cds").append(nextUsage);
@@ -662,7 +639,7 @@ function drawEffect(name, beginTime, endTime) {
         wrapper.append(icon);
         
         $("#effects").append(wrapper);
-        addTooltip(wrapper.get(0));
+        addTooltip(wrapper.get(0), "effect");
         addTimeUntil(endTime + 5);
     }
 }
@@ -914,7 +891,7 @@ function hideDpsOverlap() {
 
 function displayDps(dps, time, width) {
     var pos = (time - startTime) * scale + 1;
-    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "display": "flex", "justify-content": "center", "left": "2px", "top": `${pos}px`, "height": "1px", "width": `${width}px`, "background-color": "black", "z-index": "2"});
+    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).addClass("dpsSeparator").css({"top": `${pos}px`, "width": `${width}px`});
     var dpsText = $(`<div>${dps}</div>`).addClass("dpsText");
     wrapper.append(dpsText);
     $("#dps").append(wrapper);
@@ -1168,7 +1145,7 @@ $("#manageRotations").click(function() {
     $("#savedRotationsLightbox").modal("show");
 });
 
-addTooltip($("#savedRotationstooltip").get(0));
+addTooltip($("#savedRotationstooltip").get(0), "savedRotations");
 
 function loadRotation(rotName) {
     clearRotation();
@@ -1321,13 +1298,13 @@ $("#SKSin").change(function() {
     }
 });
 
-addTooltip($("#WDtooltip").get(0));
-addTooltip($("#STRtooltip").get(0));
-addTooltip($("#DHtooltip").get(0));
-addTooltip($("#CRITtooltip").get(0));
-addTooltip($("#DETtooltip").get(0));
-addTooltip($("#SKStooltip").get(0));
-addTooltip($("#Latencytooltip").get(0));
+addTooltip($("#WDtooltip").get(0), "wd");
+addTooltip($("#STRtooltip").get(0), "str");
+addTooltip($("#DHtooltip").get(0), "dh");
+addTooltip($("#CRITtooltip").get(0), "crit");
+addTooltip($("#DETtooltip").get(0), "det");
+addTooltip($("#SKStooltip").get(0), "sks");
+addTooltip($("#Latencytooltip").get(0), "latency");
 
 window.addEventListener("wheel", function(event) // TODO: ctrl + +/-, 2 point slide
 {
@@ -1626,7 +1603,7 @@ function refreshGroupMember(index, value) {
                     $("#groupEffectsHeader").children().eq(idx-1).after(wrapper);
                 else
                     $("#groupEffectsHeader").prepend(wrapper);
-                addTooltip(wrapper.get(0));
+                addTooltip(wrapper.get(0), "groupEffectHeader");
                 
                 idx++;
                 raidImagesToLoad++;
@@ -1734,7 +1711,8 @@ for (i = 0; i < 7; i++) {
     refreshGroupMember(i, standardComp[i]);
 }
 
-$(".checkboxButton, .clearGroupButton").each((idx, elt) => addTooltip(elt));
+$(".checkboxButton").each((idx, elt) => addTooltip(elt, "checkboxButton"));
+$(".clearGroupButton").each((idx, elt) => addTooltip(elt, "clearGroupButton"));
 
 $("#suggestions").draggable({cancel: ".action", containment: "parent"});
 
@@ -1779,7 +1757,7 @@ function addSuggestion(name, type, value) {
     var target = $("#actions").children(`#${action.group}`).children(`[name="${action.name}"]`).get(0);
     var clonedElement = target.cloneNode(true);
     var actionImg = $(clonedElement).children(".actionImage").get(0);
-    dndHandler.applyActionsEvents(clonedElement);
+    dndHandler.applyActionsEvents(clonedElement, "suggestion");
     $("#suggestions").append(clonedElement);
 
     if (type) {

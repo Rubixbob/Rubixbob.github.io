@@ -198,6 +198,16 @@ input:focus {
     /*position: relative;*/
 }
 
+.dpsSeparator {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    left: 2px;
+    height: 1px;
+    background-color: black;
+    z-index: 2;
+}
+
 .dpsText {
     margin-top: -8px;
     height: 16px;
@@ -345,7 +355,6 @@ input:focus {
 	z-index: 999;
 	color: #FFFFFF;
     background-color: #323232;
-	/*height: 200px;*/
     border-radius: 4px;
     max-width: 400px;
     padding: 4px;
