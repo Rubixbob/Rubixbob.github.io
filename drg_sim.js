@@ -592,7 +592,7 @@ function updateRotationBeforeIndex(idx) {
     });
 }
 
-function hideTimelineOverlap() {
+function hideTimelineOverlap(index = 0) {
     var values = [1, 2, 5, 10, 20, 30, 60, 120, 300];
     var divider = Math.min(Math.ceil(20/scale), 300);
     if (!values.includes(divider)) {
@@ -602,9 +602,9 @@ function hideTimelineOverlap() {
         }
         divider = values[itr];
     }
-    var firstTime = Math.ceil(Number($("#timeline").children().first().attr("time"))) - 1;
-    $("#timeline").children().each(function(idx) {
-        if ((firstTime + idx) % divider === 0)
+    var firstTime = Math.ceil(Number($("#timeline").children().first().attr("time")));
+    $("#timeline").children(`:gt(${index})`).each(function(idx) {
+        if ((firstTime + idx + index) % divider === 0)
             this.style.visibility = "visible";
         else
             this.style.visibility = "hidden";
@@ -627,17 +627,22 @@ function addTimeUntil(time) {
         for (i = currentMax + 1; i <= time; i++) {
             $("#timeline").append(timeDiv(i, width));
         }
-        hideTimelineOverlap();
+        hideTimelineOverlap(currentMax + 1);
     }
 }
 
 function drawEffect(name, beginTime, endTime) {
-    if ($("#effectsHeader").children(`[name="${name}"]`).length > 0) {
-        var hide = $("#effectsHeader").children(`[name="${name}"]`).children("img").prop("hidden");
-        var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left + 1;
-        var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
+    var effectHeader = $("#effectsHeader").children(`[name="${name}"]`);
+    if (effectHeader.length > 0) {
+        var headerWidth = 24;
+        var borderWidth = 3;
+        var effectMargin = 1;
+        var index = $("#effectsHeader").children().index(effectHeader);
+        var hide = effectHeader.children("img").prop("hidden");
+        var posLeft = effectMargin + 1 + headerWidth * index;
+        var posWidth = headerWidth - (borderWidth + effectMargin) * 2;
         var posTop = (beginTime - startTime) * scale;
-        var posHeight = (endTime - beginTime) * scale - 6;
+        var posHeight = (endTime - beginTime) * scale - borderWidth * 2;
         
         var effect = effects.find(ef => name === ef.name);
         var backgroundColor = "rgb(255,60,60)";
@@ -649,13 +654,11 @@ function drawEffect(name, beginTime, endTime) {
         
         var wrapper = $("<div></div>");
         wrapper.attr({"class": "effect", "name": name, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
-        wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
-                     "border": `solid 3px ${borderColor}`});
+        wrapper.css({"left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
+                     "border": `solid ${borderWidth}px ${borderColor}`});
         wrapper.prop("hidden", hide);
         
-        var icon = $("<img></img>");
-        icon.attr("src", `images/effects/${name}.png`);
-        icon.css({"position": "sticky", "margin-left": "-4px", "margin-top": "-3px", "margin-bottom": "-3px", "top": "0px"});
+        var icon = $("<img></img>").attr("src", `images/effects/${name}.png`).addClass("effectIcon");
         wrapper.append(icon);
         
         $("#effects").append(wrapper);
@@ -909,13 +912,12 @@ function hideDpsOverlap() {
     }
 }
 
-function displayDps(dps, time) {
+function displayDps(dps, time, width) {
     var pos = (time - startTime) * scale + 1;
-    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "display": "flex", "justify-content": "center", "left": "2px", "top": `${pos}px`, "height": "1px", "width": `${$("#dps").get(0).getBoundingClientRect().width}px`, "background-color": "black", "z-index": "2"});
-    var dpsText = $(`<div>${dps}</div>`);
+    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "display": "flex", "justify-content": "center", "left": "2px", "top": `${pos}px`, "height": "1px", "width": `${width}px`, "background-color": "black", "z-index": "2"});
+    var dpsText = $(`<div>${dps}</div>`).addClass("dpsText");
     wrapper.append(dpsText);
     $("#dps").append(wrapper);
-    dpsText.css({"margin-top": `${-parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10)/2}px`, "height": `${parseInt(window.getComputedStyle(dpsText.get(0)).fontSize, 10)}px`, "background-color": "#CCC", "margin-left": "auto", "margin-right": "auto"});
 }
 
 function removeDpsAfter(beginTime) {
@@ -925,9 +927,10 @@ function removeDpsAfter(beginTime) {
 function updateDps() {
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
     var botdObject = {bloodStart: 0, eyeTime: [], lifeStart: 0, eyeCount: -1};
+    var dpsWidth = $("#dps").get(0).getBoundingClientRect().width;
     RotationHistory.forEach(e => {
         if (e.type === "action") {
-            displayDps(Math.floor(e.dps), e.time);
+            displayDps(Math.floor(e.dps), e.time, dpsWidth);
             $("#rotation").children(`[time='${e.time.toFixed(3)}']`).attr("damage", Math.round(e.actionDamage));
         } else if (e.type === "effectBegin") {
             if (e.timedEffect.displaySelf) {
