@@ -421,19 +421,27 @@ function getTooltipContent(element, type) {
 }
 
 function addActionAtIndex(element, idx, checkDelay = true) {
+    var rotation = $("#rotation").children();
+    var eltName = element.getAttribute("name");
+    var eltTime = Number(element.getAttribute("time"));
+    var isWeaponskill = $(element).hasClass("Weaponskill");
+    var isAbility = $(element).hasClass("Ability");
+
 	// Saves associated next possible usage
 	var nextUsage;
-	if ($("#rotation").children().index(element) >= 0)
-		nextUsage = $("#cds").children().filter(function(index) {return $(this).attr("name") === $(element).attr("name") && Number($(this).attr("time")) === (Number($(element).attr("time")) * 1000 + getRecastTime($(element).attr("name")) * 1000) / 1000;}).first();
+	if (isAbility && rotation.index(element) >= 0) {
+        var nextUsageTime = ((eltTime * 1000 + getRecastTime(eltName) * 1000) / 1000).toFixed(3);
+		nextUsage = $("#cds").children(`[name="${eltName}"][time="${nextUsageTime}"]`).first();
+    }
     
     // Re-adjusts previous delayed abilities
     var ogcdsToDelay = null,
         delayList = [];
-    var previousGcds = $("#rotation").children().filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
-	var nextGcd = $("#rotation").children().filter(function(index) {return index > idx && $(this).hasClass("Weaponskill");}).first();
-    if (previousGcds.length > 0 && checkDelay && (nextGcd.length > 0 || $(element).hasClass("Weaponskill"))) {
-        lastGcdIdx = $("#rotation").children().index(previousGcds.last());
-        ogcdsToDelay = $("#rotation").children().filter(function(index) {return index < idx && index > lastGcdIdx;});
+    var previousGcds = rotation.filter(function(index) {return index < idx && $(this).hasClass("Weaponskill");});
+	var nextGcd = rotation.filter(function(index) {return index > idx && $(this).hasClass("Weaponskill");}).first();
+    if (previousGcds.length > 0 && checkDelay && (nextGcd.length > 0 || isWeaponskill)) {
+        lastGcdIdx = rotation.index(previousGcds.last());
+        ogcdsToDelay = rotation.filter(function(index) {return index < idx && index > lastGcdIdx;});
         ogcdsToDelay.each(function(index) {
             var ret = $(this).attr("delayed");
             $(this).attr("delayed", "false");
@@ -449,7 +457,7 @@ function addActionAtIndex(element, idx, checkDelay = true) {
     var time = startTime;
     if (idx > 0) {
         // GCD
-		if ($(element).hasClass("Weaponskill")) {
+		if (isWeaponskill) {
 			var timeGcd = startTime;
 			if (previousGcds.length > 0) {
                 var previousGcdTime = Number(previousGcds.last().attr("time"));
@@ -459,36 +467,36 @@ function addActionAtIndex(element, idx, checkDelay = true) {
 			time = Math.max(time, timeGcd);
 		}
 		// CD recast
-		else if ($(element).hasClass("Ability")) {
+		else if (isAbility) {
 			var timeCd = startTime;
-			var cds = $("#rotation").children().filter(function(index) {return index < idx && $(this).attr("name") === $(element).attr("name");});
+			var cds = rotation.filter(function(index) {return index < idx && this.getAttribute("name") === eltName;});
 			if (cds.length > 0)
 				timeCd = (Number(cds.last().attr("time")) * 100 + getRecastTime(cds.last().attr("name")) * 100) / 100;
 			time = Math.max(time, timeCd);
 		}
         // Anim lock
-        var previousAc = $("#rotation").children().eq(idx - 1);
+        var previousAc = rotation.eq(idx - 1);
         var incr = getAnimationLock(previousAc.attr("name"));
         var animLockTime = (Number(previousAc.attr("time")) * 100 + incr * 100) / 100;
         time = Math.max(time, animLockTime);
     }
 
     // Delayed ability
-    if ($(element).attr("delayed") === "true" && idx < $("#rotation").children().length - 1 && previousGcds.length > 0) {
+    if ($(element).attr("delayed") === "true" && idx < rotation.length - 1 && previousGcds.length > 0) {
         var delayTime = startTime;
-        if ($("#rotation").children().index(element) === idx) {
-            delayTime = (Number($(element).next().attr("time")) * 100 - getAnimationLock($(element).attr("name")) * 100) / 100;
+        if (rotation.index(element) === idx) {
+            delayTime = (Number($(element).next().attr("time")) * 100 - getAnimationLock(eltName) * 100) / 100;
         } else {
-            delayTime = (Number( $("#rotation").children().eq(idx).attr("time")) * 100 - getAnimationLock($(element).attr("name")) * 100) / 100;
+            delayTime = (Number( rotation.eq(idx).attr("time")) * 100 - getAnimationLock(eltName) * 100) / 100;
         }
         time = Math.max(time, delayTime);
     }
 
     // Pre pull
     if (time <= 0) {
-		if (getPotency($(element).attr("name")) === 0) {
-			if ($("#rotation").children().filter(function(index) {return $(this).attr("time") < 0;}).index(element) === -1) {
-				var acAnimLock = getAnimationLock($(element).attr("name"));
+		if (getPotency(eltName) === 0) {
+			if (rotation.filter(function(index) {return this.getAttribute("time") < 0;}).index(element) === -1) {
+				var acAnimLock = getAnimationLock(eltName);
 				setStartTime(startTime - acAnimLock);
 				time -= acAnimLock;
 				updateRotationBeforeIndex(idx);
@@ -497,17 +505,17 @@ function addActionAtIndex(element, idx, checkDelay = true) {
 			time = 0;
 		}
     }
-	if (time > 0 && getPotency($(element).attr("name")) === 0 && Number($(element).attr("time")) < 0) {
-        setStartTime(startTime + getAnimationLock($(element).attr("name")));
+	if (time > 0 && getPotency(eltName) === 0 && eltTime < 0) {
+        setStartTime(startTime + getAnimationLock(eltName));
 		updateRotationBeforeIndex(idx);
 	}
 
     // Display position
     var position = (time - startTime) * scale;
     var offset = 1;
-    if ($(element).hasClass("Ability"))
+    if (isAbility)
         offset += 30;
-    var animLockHeight = scale * getAnimationLock($(element).attr("name"));
+    var animLockHeight = scale * getAnimationLock(eltName);
     var addedElt = $(element).attr("time", `${time.toFixed(3)}`).css({"position": "absolute", "top": `${position}px`, "left": `${offset}px`, "height": `${animLockHeight}px`});
 
     // Adding action
@@ -518,14 +526,14 @@ function addActionAtIndex(element, idx, checkDelay = true) {
     addTimeUntil(time + 5);
 
     // Re-adjusts previous delayed abilities
-    if (previousGcds.length > 0 && checkDelay && (nextGcd.length > 0 || $(element).hasClass("Weaponskill"))) {
+    if (previousGcds.length > 0 && checkDelay && (nextGcd.length > 0 || isWeaponskill)) {
         ogcdsToDelay.each(function(index) {$(this).attr("delayed", delayList[index]);});
         $(ogcdsToDelay.get().reverse()).each(function(index) {addActionAtIndex(this, idx - (index + 1), false);});
     }
 	
 	// Adding next possible usage to Cooldowns
-	if ($(element).hasClass("Ability")) {
-		var offCdTime = time + getRecastTime($(element).attr("name"));
+	if (isAbility) {
+		var offCdTime = time + getRecastTime(eltName);
 		var offCdPosition = (offCdTime - startTime) * scale;
 		if (nextUsage === undefined || nextUsage.length === 0) {
 			nextUsage = $(element.cloneNode(true));
