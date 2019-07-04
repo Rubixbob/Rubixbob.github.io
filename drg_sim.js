@@ -1124,7 +1124,7 @@ $("#manageRotations").click(function() {
         row.append($("<td></td>").append(nameInput));
         row.append($(`<td>${$("#dps").children().last().children().html()}</td>`).css("text-align", "right"));
         var rotTime = Number($("#rotation").children().last().attr("time"));
-        var rotMin = (rotTime / 60).toFixed(0);
+        var rotMin = Math.floor(rotTime / 60).toFixed(0);
         var rotSec = (rotTime % 60).toFixed(0);
         var rotLength = (rotMin > 0 ? rotMin + "m" : "") + rotSec + "s";
         row.append($(`<td>${rotLength}</td>`).css("text-align", "right"));
