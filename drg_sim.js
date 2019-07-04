@@ -1071,18 +1071,20 @@ $("#manageRotations").click(function() {
         var yesButton = $("<button class='ui icon button'><i class='icon checkmark'></i></button>").css({"padding": "4px", "background-color": "green", "display": "none", "margin": "0px 2px 0px 2px"});
         var noButton = $("<button class='ui icon button'><i class='icon close'></i></button>").css({"padding": "4px", "background-color": "red", "display": "none"});
         openButton.click(function() {
-            loadRotation(rotName);
+            loadRotation(rot);
             $("#savedRotationsLightbox").modal("hide");
         });
         deleteButton.click(function() {
             openButton.css("display", "none");
             deleteButton.css("display", "none");
+            // shareButton.css("display", "none");
             confirmLabel.css("display", "inline-block");
             yesButton.css("display", "inline-block");
             noButton.css("display", "inline-block");
         });
         shareButton.click(function() {
             $.post("/", rot);
+            // TODO: get the returned ID
         });
         yesButton.click(function() {
             localStorage.removeItem(rotName);
@@ -1099,6 +1101,7 @@ $("#manageRotations").click(function() {
         noButton.click(function() {
             openButton.css("display", "inline-block");
             deleteButton.css("display", "inline-block");
+            // shareButton.css("display", "inline-block");
             confirmLabel.css("display", "none");
             yesButton.css("display", "none");
             noButton.css("display", "none");
@@ -1158,6 +1161,9 @@ $("#manageRotations").click(function() {
             rots.push(rotName);
             localStorage["Rotations"] = JSON.stringify(rots);
             localStorage[rotName] = JSON.stringify(savedRotationObject);
+            // TODO : Update lightbox instead of closing
+            // Add 1 line to the end
+            // Delete 1st line
             $("#savedRotationsLightbox").modal("hide");
         });
         row.append($("<td></td>").append(saveButton).append(warningLabel));
@@ -1170,22 +1176,21 @@ $("#manageRotations").click(function() {
 
 addTooltip($("#savedRotationstooltip").get(0), "savedRotations");
 
-function loadRotation(rotName) {
+function loadRotation(rotation) {
     clearRotation();
-    var savedRotationObject = JSON.parse(localStorage[rotName]);
-    $("#WDin").val(savedRotationObject.wd);
-    $("#STRin").val(savedRotationObject.str);
-    $("#DHin").val(savedRotationObject.dh);
-    $("#CRITin").val(savedRotationObject.crit);
-    $("#DETin").val(savedRotationObject.det);
-    $("#SKSin").val(savedRotationObject.sks);
+    $("#WDin").val(rotation.wd);
+    $("#STRin").val(rotation.str);
+    $("#DHin").val(rotation.dh);
+    $("#CRITin").val(rotation.crit);
+    $("#DETin").val(rotation.det);
+    $("#SKSin").val(rotation.sks);
     $("#WDin").change();
     $("#STRin").change();
     $("#DHin").change();
     $("#CRITin").change();
     $("#DETin").change();
     $("#SKSin").change();
-    savedRotationObject.actions.forEach(ac => {
+    rotation.actions.forEach(ac => {
         if (ac.hasOwnProperty("d"))
             openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
         else
@@ -1198,7 +1203,7 @@ function loadRotation(rotName) {
     // var doOneStep = function(timestamp) {
         // var initTime = Date.now();
         // while (Date.now() - initTime < 1000/60) {
-            // var ac = savedRotationObject.actions[index];
+            // var ac = rotation.actions[index];
             // if (ac.hasOwnProperty("d"))
                 // openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
             // else
@@ -1206,7 +1211,7 @@ function loadRotation(rotName) {
             
             // index++;
             
-            // if (index >= savedRotationObject.actions.length) {
+            // if (index >= rotation.actions.length) {
                 // autoFillRaidBuffs(false);
                 // updateDps();
                 // return;
@@ -1218,50 +1223,7 @@ function loadRotation(rotName) {
 }
 
 $("#threeMinRotation").click(function() {
-    clearRotation();
-    var savedRotationObject = threeMinRotation;
-    $("#WDin").val(savedRotationObject.wd);
-    $("#STRin").val(savedRotationObject.str);
-    $("#DHin").val(savedRotationObject.dh);
-    $("#CRITin").val(savedRotationObject.crit);
-    $("#DETin").val(savedRotationObject.det);
-    $("#SKSin").val(savedRotationObject.sks);
-    $("#WDin").change();
-    $("#STRin").change();
-    $("#DHin").change();
-    $("#CRITin").change();
-    $("#DETin").change();
-    $("#SKSin").change();
-    savedRotationObject.actions.forEach(ac => {
-        if (ac.hasOwnProperty("d"))
-            openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
-        else
-            openerAddAction(actions[ac.i].name);
-    });
-
-    autoFillRaidBuffs(false);
-    updateDps();
-    
-    // var doOneStep = function(timestamp) {
-        // var initTime = Date.now();
-        // while (Date.now() - initTime < 1000/60) {
-            // var ac = savedRotationObject.actions[index];
-            // if (ac.hasOwnProperty("d"))
-                // openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
-            // else
-                // openerAddAction(actions[ac.i].name);
-            
-            // index++;
-            
-            // if (index >= savedRotationObject.actions.length) {
-                // autoFillRaidBuffs(false);
-                // updateDps();
-                // return;
-            // }
-        // }
-        // requestAnimationFrame(doOneStep);
-    // }
-    // requestAnimationFrame(doOneStep);
+    loadRotation(threeMinRotation);
 });
 
 function displayDebug() {
