@@ -30,7 +30,7 @@ class Stats {
         this.lvlModDiv = 2170;
         
         // Lvl 80
-        // this.lvlModAP = 170;
+        // this.lvlModAP = 170; // 165
         // this.lvlModMain = 340;
         // this.lvlModSub = 380;
         // this.lvlModDiv = 3300;

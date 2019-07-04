@@ -132,6 +132,7 @@ effects.forEach(function (ef) {
                     // console.log(dndHandler.draggedElement);
                     curIdx = $("#rotation").children().length;
 					addActionAtIndex(dndHandler.draggedElement, curIdx);
+                    resetDps();
 				}
                 var startTime = Number($("#timeline").children().first().attr("time"));
                 var time = (e.clientY-target.getBoundingClientRect().top) / scale + startTime;
@@ -566,6 +567,19 @@ function removeAction(element) {
 }
 
 function updateRotationAfterIndex(idx) {
+    // var doOneStep = function(timestamp) {
+        // var initTime = Date.now();
+        // while (Date.now() - initTime < 1000/60) {
+            // var elt = $("#rotation").children().get(index);
+            // if (elt) {
+                // addActionAtIndex(elt, index);
+                // index++;
+            // } else
+                // return;
+        // }
+        // requestAnimationFrame(doOneStep);
+    // }
+    // requestAnimationFrame(doOneStep);
     $("#rotation").children().filter(function(index) {return index >= idx;}).each(function(index) {
         addActionAtIndex(this, index + idx);
     });
@@ -1179,6 +1193,27 @@ function loadRotation(rotName) {
 
     autoFillRaidBuffs(false);
     updateDps();
+    
+    // var doOneStep = function(timestamp) {
+        // var initTime = Date.now();
+        // while (Date.now() - initTime < 1000/60) {
+            // var ac = savedRotationObject.actions[index];
+            // if (ac.hasOwnProperty("d"))
+                // openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
+            // else
+                // openerAddAction(actions[ac.i].name);
+            
+            // index++;
+            
+            // if (index >= savedRotationObject.actions.length) {
+                // autoFillRaidBuffs(false);
+                // updateDps();
+                // return;
+            // }
+        // }
+        // requestAnimationFrame(doOneStep);
+    // }
+    // requestAnimationFrame(doOneStep);
 }
 
 $("#threeMinRotation").click(function() {
@@ -1205,6 +1240,27 @@ $("#threeMinRotation").click(function() {
 
     autoFillRaidBuffs(false);
     updateDps();
+    
+    // var doOneStep = function(timestamp) {
+        // var initTime = Date.now();
+        // while (Date.now() - initTime < 1000/60) {
+            // var ac = savedRotationObject.actions[index];
+            // if (ac.hasOwnProperty("d"))
+                // openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
+            // else
+                // openerAddAction(actions[ac.i].name);
+            
+            // index++;
+            
+            // if (index >= savedRotationObject.actions.length) {
+                // autoFillRaidBuffs(false);
+                // updateDps();
+                // return;
+            // }
+        // }
+        // requestAnimationFrame(doOneStep);
+    // }
+    // requestAnimationFrame(doOneStep);
 });
 
 function displayDebug() {
