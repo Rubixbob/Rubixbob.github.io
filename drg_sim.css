@@ -220,6 +220,12 @@ input:focus {
     vertical-align: bottom;
 }
 
+#DPSout {
+    display: inline-block;
+    min-width: 4em;
+    text-align: right;
+}
+
 .checkboxButton, .clearGroupButton {
     display: block !important;
     margin: auto !important;

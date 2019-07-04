@@ -901,12 +901,13 @@ function hideDpsOverlap() {
     while (elt.next().length > 0) {
         elt = elt.next();
         var lastVisibleDps = lastVisible.children();
+        var lastVisibleTop = parseInt(lastVisible.css("top"));
         var eltDps = elt.children();
-        if (parseInt(lastVisible.css("top")) + lastVisibleDps.get(0).getBoundingClientRect().height < parseInt(elt.css("top"))) {
-            elt.css("display", "flex");
+        if (lastVisibleTop + 16 < parseInt(elt.css("top"))) {
+            elt.css("visibility", "");
             lastVisible = elt;
         } else {
-            elt.css("display", "none");
+            elt.css("visibility", "hidden");
         }
     }
 }
@@ -999,7 +1000,7 @@ function clearRotation() {
     $("#timeline").empty();
 	$("#timeline").append($("<div></div>").attr("time", "0").css("height", "0px"));
     $("#cds").empty();
-    $("#DPSout").val("");
+    $("#DPSout").val("0");
     resetDps();
     addTimeUntil(20);
     $("#scrollableDiv").scrollTop(0);
