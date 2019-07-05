@@ -2,7 +2,8 @@ var raidBuffLightboxJobIndex = 0; // Will have to be passed as a parameter maybe
 var raidBuffLightboxEditMode = false;
 var raidBuffLightboxEditElement;
 // var standardComp = ["nin", "brd", "smn", "sch", "ast", "war", "pld"];
-var standardComp = ["nin", "war", "war", "war", "war", "war", "war"];
+// var standardComp = ["nin", "war", "war", "war", "war", "war", "war"];
+var standardComp = ["nin", "brd", "smn", "sch", "whm", "war", "pld"];
 var startTime = 0;
 var RotationHistory = [];
 var savedRotation;
@@ -898,14 +899,15 @@ function removeEffectsAfter(beginTime) {
 function hideDpsOverlap() {
     var elt = $("#dps").children().first();
     var lastVisible = elt;
+    var lastVisibleTop = parseInt(lastVisible.css("top"));
     while (elt.next().length > 0) {
         elt = elt.next();
-        var lastVisibleDps = lastVisible.children();
-        var lastVisibleTop = parseInt(lastVisible.css("top"));
+        // var lastVisibleDps = lastVisible.children();
         var eltDps = elt.children();
         if (lastVisibleTop + 16 < parseInt(elt.css("top"))) {
             elt.css("visibility", "");
             lastVisible = elt;
+            lastVisibleTop = parseInt(lastVisible.css("top"));
         } else {
             elt.css("visibility", "hidden");
         }
@@ -2096,4 +2098,28 @@ function updateGcdTimeline() { // Do not call during history generation
     if (tempStats.activeEffects.length !== 0)
         console.log("Active buff found, this might induce errors");
     generateGcdTimeline(gcdTimeline, tempStats, $("#groupEffects").children("[name='The Balance'], [name='The Spear'], [name='The Arrow'], [name='Fey Wind']"));
+}
+
+function generateCritValues() {
+    var initTime = Date.now();
+    var oldCrit = stats.crit;
+    var dps = [];
+    var result = [];
+    var critMod;
+    for (var i = stats.lvlModSub; i <= 5000; i++) {
+        stats.crit = i;
+        if (stats.critMod() !== critMod) {
+            critMod = stats.critMod();
+            RotationHistory = [];
+            generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+        }
+        var actionEvents = RotationHistory.filter(e => e.type === "action");
+        dps.push(actionEvents[actionEvents.length - 1].dps);
+    }
+    for (var i = 0; i <= 5000 - stats.lvlModSub; i++) {
+        result.push(dps[i] / dps[0]);
+    }
+    stats.crit = oldCrit;
+    console.log("Time elapsed: " + (Date.now() - initTime) + "ms");
+    return result;
 }
