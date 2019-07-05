@@ -21,9 +21,9 @@ actions.forEach(function (ac) {
 });
 
 function fitColumns() {
-    // TODO : Adjust width of elements inside
     $("#columns").children().each(function(index) {$(this).css("width", $("#headers").children().eq(index).width() + "px");});
-    $("#timeline").children().children().each(function(findex) { $(this).css("width", `${$("#columns").get(0).getBoundingClientRect().width-$("#dps").get(0).getBoundingClientRect().width}px`); });
+    var timelineWidth = `${$("#columns").get(0).getBoundingClientRect().width-$("#dps").get(0).getBoundingClientRect().width}px`;
+    $("#timeline").children().children().css("width", timelineWidth);
     $("#groupEffects").children().each(function(index) { $(this).css("left", $("#groupEffectsHeader").children(`[name="${effects.find(ef => $(this).attr("name") === ef.name).groupAction}"][jobIndex="${$(this).attr("jobIndex")}"]`).position().left + "px"); });
     $("#scrollableDiv").css("height", `${$("#mainDiv").get(0).getBoundingClientRect().height+$("#mainDiv").get(0).getBoundingClientRect().top-$("#scrollableDiv").get(0).getBoundingClientRect().top}px`);
     $("#effects").children().each(function(index) {
@@ -33,6 +33,30 @@ function fitColumns() {
         $(this).css({"left": `${posLeft}px`, "width": `${posWidth}px`});
         $(this).prop("hidden", hide);
     });
+    
+    var totalWidth = parseInt($("#leftDiv").css("width")) + parseInt($("#leftDiv").css("padding")) * 2 + $("#midDiv").get(0).getBoundingClientRect().width + parseInt($("#rightDiv").css("width")) + parseInt($("#rightDiv").css("padding")) * 2;
+    if ($("#mainDiv").get(0).getBoundingClientRect().width < totalWidth) {
+        // Collapse
+        $("#leftDiv").css("display", "none");
+        $("#rightDiv").css("display", "none");
+        $("#leftExpand").css({"display": "inline-block"});
+        $("#rightExpand").css({"display": "inline-block"});
+        if ($("#leftExpand").attr("expanded") === "true")
+            $("#leftDiv").css({"display": "", "position": "absolute", "top": "0px", "left": `${$("#midDiv").get(0).getBoundingClientRect().left}px`, "z-index": "2"});
+        else
+            $("#leftDiv").css({"display": "none", "position": "", "top": "", "left": "", "z-index": ""});
+    
+        if ($("#rightExpand").attr("expanded") === "true")
+            $("#rightDiv").css({"display": "", "position": "absolute", "top": "0px", "right": `${$("#midDiv").get(0).getBoundingClientRect().left}px`, "z-index": "2"});
+        else
+            $("#rightDiv").css({"display": "none", "position": "", "top": "", "right": "", "z-index": ""});
+    } else {
+        // Expand
+        $("#leftDiv").css({"display": "", "position": "", "top": "", "left": "", "z-index": ""});
+        $("#rightDiv").css({"display": "", "position": "", "top": "", "right": "", "z-index": ""});
+        $("#leftExpand").css("display", "");
+        $("#rightExpand").css("display", "");
+    }
 }
 
 var imagesToLoad = 0;
@@ -902,7 +926,6 @@ function hideDpsOverlap() {
     var lastVisibleTop = parseInt(lastVisible.css("top"));
     while (elt.next().length > 0) {
         elt = elt.next();
-        // var lastVisibleDps = lastVisible.children();
         var eltDps = elt.children();
         if (lastVisibleTop + 16 < parseInt(elt.css("top"))) {
             elt.css("visibility", "");
@@ -1245,6 +1268,30 @@ $("#hideEffectsButton").click(function() {
         }
     });
     fitColumns();
+});
+
+$("#leftExpand").click(function() {
+    if ($(this).attr("expanded") === "true") {
+        $(this).attr("expanded", "false");
+        $("#leftDiv").css({"display": "none", "position": "", "top": "", "left": "", "z-index": ""});
+        $("#leftExpandIcon").toggleClass("double angle chevron left right");
+    } else {
+        $(this).attr("expanded", "true");
+        $("#leftDiv").css({"display": "", "position": "absolute", "top": "0px", "left": `${$("#midDiv").get(0).getBoundingClientRect().left}px`, "z-index": "2"});
+        $("#leftExpandIcon").toggleClass("double angle chevron left right");
+    }
+});
+
+$("#rightExpand").click(function() {
+    if ($(this).attr("expanded") === "true") {
+        $(this).attr("expanded", "false");
+        $("#rightDiv").css({"display": "none", "position": "", "top": "", "right": "", "z-index": ""});
+        $("#rightExpandIcon").toggleClass("double angle chevron left right");
+    } else {
+        $(this).attr("expanded", "true");
+        $("#rightDiv").css({"display": "", "position": "absolute", "top": "0px", "right": `${$("#midDiv").get(0).getBoundingClientRect().left}px`, "z-index": "2"});
+        $("#rightExpandIcon").toggleClass("double angle chevron left right");
+    }
 });
 
 function trimInput(element) {
@@ -2101,7 +2148,6 @@ function updateGcdTimeline() { // Do not call during history generation
 }
 
 function generateCritValues() {
-    var initTime = Date.now();
     var oldCrit = stats.crit;
     var dps = [];
     var result = [];
@@ -2120,6 +2166,5 @@ function generateCritValues() {
         result.push(dps[i] / dps[0]);
     }
     stats.crit = oldCrit;
-    console.log("Time elapsed: " + (Date.now() - initTime) + "ms");
     return result;
 }

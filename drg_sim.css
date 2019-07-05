@@ -53,6 +53,7 @@
     justify-content: center;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 #mainDiv {
@@ -66,7 +67,7 @@
 
 #leftDiv, #rightDiv {
     width: 320px;
-    margin: 10px;
+    padding: 10px;
 }
 
 #leftDiv {
@@ -74,11 +75,34 @@
     display: flex;
 }
 
-#scrollableDiv{
+#midDiv {
+    position: relative;
+}
+
+#scrollableDiv {
     overflow-y: scroll;
     position: relative;
     scrollbar-color: #888 #f1f1f1;
     scrollbar-width: thin;
+}
+
+#leftExpand, #rightExpand {
+    display: none;
+    position: absolute;
+    top: 0px;
+    margin: 0;
+    border: solid 2px black;
+    border-radius: 0;
+}
+
+#leftExpand {
+    left: 0px;
+    transform: translate(-100%, 0);
+}
+
+#rightExpand {
+    right: 0px;
+    transform: translate(100%, 0);
 }
 
 input {
