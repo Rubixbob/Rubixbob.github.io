@@ -92,6 +92,7 @@ db.once("open", function() {
 	.get("/drg_sim.css", returnFile)
 	.get("/drg_sim.js", returnFile)
 	.get("/lib.js", returnFile)
+	.get("/jquery.ui.touch-punch.min.js", returnFile)
 	//.get("/favicon.ico", returnFile)
 	.get("/:id", loadRotation)
 	.post("/", saveRotation)
