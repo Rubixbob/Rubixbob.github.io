@@ -1084,7 +1084,7 @@ $("#manageRotations").click(function() {
         var row = $("<tr></tr>");
         row.append($(`<td>${rot.name}</td>`));
         row.append($(`<td>${rot.dps}</td>`).css("text-align", "right"));
-        var rotMin = (rot.length / 60).toFixed(0);
+        var rotMin = Math.floor(rot.length / 60).toFixed(0);
         var rotSec = (rot.length % 60).toFixed(0);
         var rotLength = (rotMin > 0 ? rotMin + "m" : "") + rotSec + "s";
         row.append($(`<td>${rotLength}</td>`).css("text-align", "right"));
