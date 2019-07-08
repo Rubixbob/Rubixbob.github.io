@@ -698,10 +698,11 @@ function drawGroupEffect(name, jobIndex, beginTime, endTime, royalRoad, celestia
     if ($("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).length <= 0) { // TODO : name = draw for cards
         return;
     }
+    var borderWidth = 3;
     var posLeft = $("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).position().left + 1;
-    var posWidth = $("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).width() - 6;
+    var posWidth = $("#groupEffectsHeader").children(`[name="${columnName}"][jobIndex="${jobIndex}"]`).width() - borderWidth * 2;
     var posTop = (beginTime - startTime) * scale;
-    var posHeight = (endTime - beginTime) * scale - 6;
+    var posHeight = (endTime - beginTime) * scale - borderWidth * 2;
     
     var backgroundColor = effect.backgroundColor;
     var borderColor = effect.borderColor;
@@ -716,19 +717,19 @@ function drawGroupEffect(name, jobIndex, beginTime, endTime, royalRoad, celestia
         wrapper.attr("timeDilation", timeDilation);
     if (emboldenStacks)
         wrapper.attr("emboldenStacks", emboldenStacks);
-    wrapper.css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`,
-                 "border": `solid 3px ${borderColor}`, "cursor": "pointer"});
+    wrapper.addClass("groupEffect");
+    wrapper.css({"left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`, "border": `solid ${borderWidth}px ${borderColor}`});
     
     var icon = $("<img></img>");
     if (emboldenStacks)
         icon.attr("src", `images/effects/${name+emboldenStacks}.png`);
     else
         icon.attr("src", `images/effects/${name}.png`);
-    icon.css({"position": "sticky", "margin-left": "-4px", "margin-top": "-3px", "margin-bottom": "-3px", "top": "0px"});
+    icon.addClass("groupEffectIcon");
     wrapper.append(icon);
     
     var overlay = $("<div></div>");
-    overlay.css({"position": "absolute", "left": "-3px", "top": "-3px", "width": `${posWidth+6}px`, "height": "0px", "background-color": "#CCC", "opacity": "0.7"});
+    overlay.addClass("groupEffectOverlay");
     overlay.attr("endtime", `${endTime.toFixed(3)}`);
     wrapper.append(overlay);
     
@@ -762,10 +763,12 @@ function deleteGroupEffect(element) {
         }
     } else
         $(element).remove();
-    if ($(element).attr("name") === "The Balance" || $(element).attr("name") === "The Spear" || $(element).attr("name") === "The Arrow" || $(element).attr("name") === "Fey Wind") {
-        updateGcdTimeline();
-        updateRotationAfterIndex(0);
-    }
+    
+    // Speed buffs
+    // if ($(element).attr("name") === "The Balance" || $(element).attr("name") === "The Spear" || $(element).attr("name") === "The Arrow" || $(element).attr("name") === "Fey Wind") {
+        // updateGcdTimeline();
+        // updateRotationAfterIndex(0);
+    // }
     if ($("#rotation").children().length > 0)
         resetAndUpdateDps();
 }

@@ -2,28 +2,52 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+:root {
+    --color-bg: #ffffff;
+    --panel-bg: #F0F0F0;
+    --main-bg: #CCCCCC;
+    --rotation-bg: #555555;
+    --tooltip-bg: #323232;
+    --scrollbar-track: #F1F1F1;
+    --scrollbar-thumb: #888888;
+    --scrollbar-hover: #555555;
+    --suggestions-border: #888888;
+    --input-focus: rgb(166, 199, 255);
+}
+
+body {
+    background-color: var(--color-bg);
+}
+
+#themeCheckbox {
+    /* position: absolute; */
+    /* right: 0px; */
+    width: 0px;
+    white-space: nowrap;
+}
+
+#themeCheckbox .checkbox {
+    vertical-align: middle;
+}
+
 .actionGroup {
     display: flex;
     flex-wrap: wrap;
-    /*border: solid 2px rgb(128, 128, 128);*/
-    /*border-radius: 10px;*/
     margin-right: 10px;
     margin-bottom: 10px;
-    /*background-color: rgb(120,120,120);*/
-    /*margin: auto;*/
 }
 
 #actions {
     display: flex;
     flex-wrap: wrap;
-    background-color: #F0F0F0;
+    background-color: var(--panel-bg);
     padding-left: 10px;
     padding-top: 10px;
     width: 186px;
     height: fit-content;
     height: -moz-fit-content;
     border-radius: 16px;
-    box-shadow: 1px 1px 4px black;
+    box-shadow: 1px 1px 4px black; /*********************************************************************************/
 }
 
 #rotationHeader {
@@ -43,7 +67,7 @@
 }
 
 #rotation {
-    background-color: #555;
+    background-color: var(--rotation-bg);
     position: relative;
     height: auto;
 }
@@ -82,7 +106,7 @@
 #scrollableDiv {
     overflow-y: scroll;
     position: relative;
-    scrollbar-color: #888 #f1f1f1;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
     scrollbar-width: thin;
 }
 
@@ -91,7 +115,7 @@
     position: absolute;
     top: 0px;
     margin: 0;
-    border: solid 2px black;
+    border: solid 2px black; /*********************************************************************************/
     border-radius: 0;
 }
 
@@ -108,32 +132,31 @@
 input {
     text-align: right;
     border-radius: 4px;
-    background-color: white;
+    background-color: white; /*********************************************************************************/
     outline: none;
 }
 
 input:focus {
-    /* background-color: #F0F0F0; */
-    border-color: rgb(166, 199, 255);
+    border-color: var(--input-focus);
 }
 
 .timeSeparator {
     position: absolute;
     left: 0px;
     height: 1px;
-    background-color: black;
+    background-color: black; /*********************************************************************************/
     z-index: 1;
 }
 
 #raidBuffInput {
     padding: 10px;
-    border: solid 2px black;
+    border: solid 2px black; /*********************************************************************************/
 }
 
 #stats, #group {
     padding: 10px;
-    background-color: #F0F0F0;
-    box-shadow: 1px 1px 4px black;
+    background-color: var(--panel-bg);
+    box-shadow: 1px 1px 4px black; /*********************************************************************************/
     border-radius: 16px;
     width: 100%;
 }
@@ -166,16 +189,16 @@ input:focus {
     height: 40px;
     width: 40px;
     border-radius: 6px;
-    box-shadow: 1px 1px 4px black;
-    background-color: cyan;
+    box-shadow: 1px 1px 4px black; /*********************************************************************************/
+    background-color: cyan; /*********************************************************************************/
     cursor: pointer;
     overflow: hidden;
 	z-index: 2;
 }
 
 .action:hover {
-    box-shadow: 0px 0px 4px white;
-    border: solid 1px white;
+    box-shadow: 0px 0px 4px white; /*********************************************************************************/
+    border: solid 1px white; /*********************************************************************************/
     margin-left: 1px;
     margin-right: 1px;
     margin-top: 1px;
@@ -209,17 +232,40 @@ input:focus {
     height: 22px;
     width: 22px;
     border-radius: 4px;
-    box-shadow: 1px 1px 2px black;
+    box-shadow: 1px 1px 2px black; /*********************************************************************************/
     cursor: pointer;
     overflow: hidden;
     display: inline-block;
 }
 
 .rotation-table {
-    background-color: #CCC;
+    background-color: var(--main-bg);
     border-spacing: 2px;
     /*border-radius: 10px;*/
     /*position: relative;*/
+}
+
+.groupEffect {
+    position: absolute;
+    cursor: pointer;
+}
+
+.groupEffectIcon {
+    position: sticky;
+    margin-left: -4px;
+    margin-top: -3px;
+    margin-bottom: -3px;
+    top: 0px;
+}
+
+.groupEffectOverlay {
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    width: 22px;
+    height: 0px;
+    background-color: var(--main-bg);
+    opacity: 0.7;
 }
 
 .dpsSeparator {
@@ -228,14 +274,14 @@ input:focus {
     justify-content: center;
     left: 2px;
     height: 1px;
-    background-color: black;
+    background-color: black; /*********************************************************************************/
     z-index: 2;
 }
 
 .dpsText {
     margin-top: -8px;
     height: 16px;
-    background-color: #CCC;
+    background-color: var(--main-bg);
     margin-left: auto;
     margin-right: auto;
 }
@@ -280,14 +326,14 @@ input:focus {
 #suggestions {
     position: absolute;
     display: flex;
-    background-color: #F0F0F0;
+    background-color: var(--panel-bg);
     padding: 10px;
     border-top-right-radius: 16px;
     border-bottom-left-radius: 16px;
     border-bottom-right-radius: 16px;
     z-index: 10;
     border: initial;
-    border: solid 1px #888;
+    border: solid 1px var(--scrollbar-thumb);
 }
 
 #suggestions:hover {
@@ -300,7 +346,7 @@ input:focus {
 
 #suggestionsTitle {
     position: absolute;
-    background-color: #F0F0F0;
+    background-color: var(--panel-bg);
     padding-top: 5px;
     padding-left: 10px;
     padding-right: 10px;
@@ -308,9 +354,9 @@ input:focus {
     border-top-right-radius: 16px;
     transform: translate(-11px, calc(-100% - 10px));
     display: flex;
-    border-top: solid 1px #888;
-    border-left: solid 1px #888;
-    border-right: solid 1px #888;
+    border-top: solid 1px var(--suggestions-border);
+    border-left: solid 1px var(--suggestions-border);
+    border-right: solid 1px var(--suggestions-border);
 }
 
 .suggestionsOverlay {
@@ -349,13 +395,13 @@ input:focus {
 
 #savedRotationsTable tbody td {
     text-align: center;
-    border-top: 1px solid black;
+    border-top: 1px solid black; /*********************************************************************************/
     padding: 1em;
     /*vertical-align: middle;*/
 }
 
 #savedRotationsTable tbody tr:nth-child(odd) {
-    background-color: #F0F0F0;
+    background-color: var(--panel-bg);
 }
 
 /* #savedRotationsTable tbody tr:nth-child(odd) button { */
@@ -367,24 +413,24 @@ input:focus {
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--scrollbar-track);
     border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--scrollbar-thumb);
     border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: var(--scrollbar-hover);
 }
 
 .tooltip {
 	position: absolute;
 	z-index: 999;
-	color: #FFFFFF;
-    background-color: #323232;
+	color: #FFFFFF; /*********************************************************************************/
+    background-color: var(--tooltip-bg);
     border-radius: 4px;
     max-width: 400px;
     padding: 4px;
