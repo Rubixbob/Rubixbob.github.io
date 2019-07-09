@@ -1,23 +1,53 @@
 * {
     font-family: Arial, Helvetica, sans-serif;
+    color: var(--text-color);
 }
 
 :root {
-    --color-bg: #ffffff;
+    --color-bg: #FFFFFF;
+    --text-color: initial;
     --panel-bg: #F0F0F0;
     --main-bg: #CCCCCC;
     --rotation-bg: #555555;
     --tooltip-bg: #323232;
+    --tooltip-color: #FFFFFF;
     --scrollbar-track: #F1F1F1;
     --scrollbar-thumb: #888888;
     --scrollbar-hover: #555555;
     --suggestions-border: #888888;
+    --input-bg: #FFFFFF;
     --input-focus: rgb(166, 199, 255);
+    --shadow-color: black;
+    --separator-color: black;
+    --number-color: black;
+}
+
+[data-theme="dark"] {
+    --color-bg: #212121;
+    --text-color: white;
+    --panel-bg: #424242;
+    --main-bg: #323232;
+    --rotation-bg: #555555;
+    --tooltip-bg: #264766;
+    --tooltip-color: white;
+    --scrollbar-track: #434343;
+    --scrollbar-thumb: #737373;
+    --scrollbar-hover: #808080;
+    --suggestions-border: #0a74d6/*#9c9c9c*/;
+    --input-bg: #323232;
+    --shadow-color: black;
+    --separator-color: #0a74d6;
+    --number-color: #0085ff;
 }
 
 body {
     background-color: var(--color-bg);
 }
+
+/* th { */
+    /* text-shadow: 1px 0 0 black, -1px 0 0 black, 0 1px 0 black, 0 -1px 0 black, 1px 1px black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black; */
+    /* color: var(--number-color); */
+/* } */
 
 #themeCheckbox {
     /* position: absolute; */
@@ -47,7 +77,7 @@ body {
     height: fit-content;
     height: -moz-fit-content;
     border-radius: 16px;
-    box-shadow: 1px 1px 4px black; /*********************************************************************************/
+    box-shadow: 1px 1px 4px var(--shadow-color);
 }
 
 #rotationHeader {
@@ -132,19 +162,24 @@ body {
 input {
     text-align: right;
     border-radius: 4px;
-    background-color: white; /*********************************************************************************/
+    background-color: var(--input-bg);
     outline: none;
+    border-color: var(--panel-bg);
 }
 
 input:focus {
     border-color: var(--input-focus);
 }
 
+#timeline * {
+    color: var(--number-color);
+}
+
 .timeSeparator {
     position: absolute;
     left: 0px;
     height: 1px;
-    background-color: black; /*********************************************************************************/
+    background-color: var(--separator-color);
     z-index: 1;
 }
 
@@ -156,7 +191,7 @@ input:focus {
 #stats, #group {
     padding: 10px;
     background-color: var(--panel-bg);
-    box-shadow: 1px 1px 4px black; /*********************************************************************************/
+    box-shadow: 1px 1px 4px var(--shadow-color);
     border-radius: 16px;
     width: 100%;
 }
@@ -189,16 +224,16 @@ input:focus {
     height: 40px;
     width: 40px;
     border-radius: 6px;
-    box-shadow: 1px 1px 4px black; /*********************************************************************************/
-    background-color: cyan; /*********************************************************************************/
+    box-shadow: 1px 1px 4px var(--shadow-color);
+    background-color: cyan;
     cursor: pointer;
     overflow: hidden;
 	z-index: 2;
 }
 
 .action:hover {
-    box-shadow: 0px 0px 4px white; /*********************************************************************************/
-    border: solid 1px white; /*********************************************************************************/
+    box-shadow: 0px 0px 4px white;
+    border: solid 1px white;
     margin-left: 1px;
     margin-right: 1px;
     margin-top: 1px;
@@ -226,13 +261,12 @@ input:focus {
 }
 
 .raidBuff {
-    /* position: relative; */
     margin-left: 1px;
     margin-right: 1px;
     height: 22px;
     width: 22px;
     border-radius: 4px;
-    box-shadow: 1px 1px 2px black; /*********************************************************************************/
+    box-shadow: 1px 1px 2px var(--shadow-color);
     cursor: pointer;
     overflow: hidden;
     display: inline-block;
@@ -241,8 +275,6 @@ input:focus {
 .rotation-table {
     background-color: var(--main-bg);
     border-spacing: 2px;
-    /*border-radius: 10px;*/
-    /*position: relative;*/
 }
 
 .groupEffect {
@@ -274,13 +306,14 @@ input:focus {
     justify-content: center;
     left: 2px;
     height: 1px;
-    background-color: black; /*********************************************************************************/
+    background-color: var(--separator-color);
     z-index: 2;
 }
 
 .dpsText {
     margin-top: -8px;
     height: 16px;
+    color: var(--number-color);
     background-color: var(--main-bg);
     margin-left: auto;
     margin-right: auto;
@@ -333,7 +366,7 @@ input:focus {
     border-bottom-right-radius: 16px;
     z-index: 10;
     border: initial;
-    border: solid 1px var(--scrollbar-thumb);
+    border: solid 1px var(--suggestions-border);
 }
 
 #suggestions:hover {
@@ -395,7 +428,7 @@ input:focus {
 
 #savedRotationsTable tbody td {
     text-align: center;
-    border-top: 1px solid black; /*********************************************************************************/
+    border-top: 1px solid var(--separator-color);
     padding: 1em;
     /*vertical-align: middle;*/
 }
@@ -429,7 +462,7 @@ input:focus {
 .tooltip {
 	position: absolute;
 	z-index: 999;
-	color: #FFFFFF; /*********************************************************************************/
+	color: var(--tooltip-color);
     background-color: var(--tooltip-bg);
     border-radius: 4px;
     max-width: 400px;
@@ -439,6 +472,11 @@ input:focus {
 #progress {
     display: flex;
     flex-wrap: wrap;
+}
+
+.ui.button[data-theme="dark"] {
+    color: var(--text-color);
+    background-color: var(--tooltip-bg);
 }
 
 .ui-selectmenu-button.ui-button {

@@ -1297,6 +1297,12 @@ $("#rightExpand").click(function() {
     }
 });
 
+$("#themeCheckbox .checkbox").checkbox({
+    onChange : function() {
+        $("body").attr("data-theme", $(this.parentNode).checkbox("is checked") ? "dark" : "");
+    }
+});
+
 function trimInput(element) {
     if(Number(element.val()) < Number(element.attr("min")))
         element.val(element.attr("min"));
