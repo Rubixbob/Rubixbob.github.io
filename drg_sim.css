@@ -6,6 +6,8 @@
 :root {
     --color-bg: #FFFFFF;
     --text-color: initial;
+    --button-text-color: rgba(0,0,0,.6);
+    --button-bg: buttonface;
     --panel-bg: #F0F0F0;
     --main-bg: #CCCCCC;
     --rotation-bg: #555555;
@@ -25,18 +27,21 @@
 [data-theme="dark"] {
     --color-bg: #212121;
     --text-color: white;
+    --button-text-color: var(--text-color);
+    --button-bg: var(--separator-color);
     --panel-bg: #424242;
     --main-bg: #323232;
     --rotation-bg: #555555;
-    --tooltip-bg: #264766;
-    --tooltip-color: white;
+    --tooltip-bg: #1469b8;
+    --tooltip-color: var(--text-color);
     --scrollbar-track: #434343;
     --scrollbar-thumb: #737373;
     --scrollbar-hover: #808080;
-    --suggestions-border: #0a74d6/*#9c9c9c*/;
-    --input-bg: #323232;
+    --suggestions-border: var(--separator-color);
+    --input-bg: var(--main-bg);
+    --input-focus: var(--separator-color);
     --shadow-color: black;
-    --separator-color: #0a74d6;
+    --separator-color: #0085ffcc;
     --number-color: #0085ff;
 }
 
@@ -474,13 +479,25 @@ input:focus {
     flex-wrap: wrap;
 }
 
-.ui.button[data-theme="dark"] {
-    color: var(--text-color);
-    background-color: var(--tooltip-bg);
+#themeCheckbox .ui.toggle.checkbox.checked label:before {
+    background-color: var(--separator-color)!important;
+}
+
+.ui.button {
+    color: var(--button-text-color);
+    background-color: var(--button-bg);
 }
 
 .ui-selectmenu-button.ui-button {
     width: 10em;
+}
+
+.ui-selectmenu-button.ui-button:not(:active) {
+    background-color: var(--input-bg);
+}
+
+.ui-menu.ui-menu-icons {
+    background-color: var(--input-bg);
 }
 
 .ui-selectmenu-menu .ui-menu.customicons .ui-menu-item-wrapper {
