@@ -54,10 +54,10 @@ body {
     /* color: var(--number-color); */
 /* } */
 
-#themeCheckbox {
-    /* position: absolute; */
-    /* right: 0px; */
-    width: 0px;
+#themeCheckbox, #topLeftDiv {
+    text-align: right;
+    flex-grow: 1;
+    flex-shrink: 1;
     white-space: nowrap;
 }
 
@@ -109,6 +109,15 @@ body {
 
 #topDiv {
     width: 100%;
+    /* justify-content: space-between; */
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#buttonsDiv {
+    flex-basis: content;
     justify-content: center;
     display: flex;
     align-items: center;

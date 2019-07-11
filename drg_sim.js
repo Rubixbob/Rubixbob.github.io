@@ -34,7 +34,7 @@ function fitColumns() {
         $(this).prop("hidden", hide);
     });
     
-    var totalWidth = parseInt($("#leftDiv").css("width")) + parseInt($("#leftDiv").css("padding")) * 2 + $("#midDiv").get(0).getBoundingClientRect().width + parseInt($("#rightDiv").css("width")) + parseInt($("#rightDiv").css("padding")) * 2;
+    var totalWidth = parseInt($("#leftDiv").css("width")) + parseInt($("#leftDiv").css("padding") || $("#leftDiv").css("paddingLeft")) * 2 + $("#midDiv").get(0).getBoundingClientRect().width + parseInt($("#rightDiv").css("width")) + parseInt($("#rightDiv").css("padding") || $("#rightDiv").css("paddingLeft")) * 2;
     if ($("#mainDiv").get(0).getBoundingClientRect().width < totalWidth) {
         // Collapse
         $("#leftDiv").css("display", "none");
@@ -1846,7 +1846,7 @@ function addSuggestion(name, type, value) {
     $("#suggestions").append(clonedElement);
 
     if (type) {
-        var ovTxt = $(`<div>${value ? value.toFixed(2) : ""}</div>`);
+        var ovTxt = $(`<div>${value ? (value > 10 ? value.toFixed(1) : value.toFixed(2)) : ""}</div>`);
         ovTxt.addClass("suggestionsOverlayText");
         var ovDiv = $("<div></div>");
         ovDiv.addClass("suggestionsOverlay");
@@ -1929,6 +1929,9 @@ function updateSuggestions() {
     ["Mirage Dive", "Nastrond", "Stardiver", "Battle Litany", "Dragon Sight", "Lance Charge", "High Jump", "Geirskogul", "Spineshatter Dive", "Dragonfire Dive", "Life Surge", "Potion"].forEach(elt => {
         var latestTime = nextGcdTime - getAnimationLock(elt);
         var cdAtCurrentTime = cdAt(elt, currentTime);
+        var displayCD = 5;
+        if (elt === "Battle Litany" || elt === "Dragon Sight" || elt === "Lance Charge" || elt === "Potion")
+            displayCD = 20;
         if (((elt === "Nastrond" || elt === "Stardiver") && !isBotDUpAt("life", cdAtCurrentTime + currentTime)) || (elt === "Mirage Dive" && !isEffectUpAt("Dive Ready", currentTime)))
             return;
         if (isOffCdAt(elt, latestTime)) { // Available in this GCD
@@ -1949,7 +1952,7 @@ function updateSuggestions() {
                     addSuggestion(elt, "clipping");
             } else // Available after small delay
                 addSuggestion(elt, "cooldownEnd", cdAtCurrentTime);
-        } else if (cdAtCurrentTime > 0 && cdAtCurrentTime <= 5) // Available soon
+        } else if (cdAtCurrentTime > 0 && cdAtCurrentTime <= displayCD) // Available soon
             addSuggestion(elt, "cooldown", cdAtCurrentTime);
         else if (cdAtCurrentTime === 0) // Off CD during last oGCD while clipping
             addSuggestion(elt, "clipping");
