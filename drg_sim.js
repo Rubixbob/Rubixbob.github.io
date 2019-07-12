@@ -1297,12 +1297,6 @@ $("#rightExpand").click(function() {
     }
 });
 
-$("#themeCheckbox .checkbox").checkbox({
-    onChange : function() {
-        $("body").attr("data-theme", $(this.parentNode).checkbox("is checked") ? "dark" : "");
-    }
-});
-
 function trimInput(element) {
     if(Number(element.val()) < Number(element.attr("min")))
         element.val(element.attr("min"));
@@ -1808,8 +1802,6 @@ function effectRemainingAt(name, time) {
 }
 
 function isEffectUpAt(name, time) {
-    // var result = false;
-    // $("#effects").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = true;});
     return effectRemainingAt(name, time) > 0;
 }
 
@@ -1820,8 +1812,6 @@ function botDRemainingAt(type, time) {
 }
 
 function isBotDUpAt(type, time) {
-    // var result = false;
-    // $("#botd").children(`[name="${type}"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = true;});
     return botDRemainingAt(type, time) > 0;
 }
 
@@ -1832,8 +1822,6 @@ function cdAt(name, time) {
 }
 
 function isOffCdAt(name, time) {
-    // var result = true;
-    // $("#cds").children(`[name="${name}"]`).each((idx,elt) => { if (Number($(elt).attr("time")) > time) result = false;});
     return cdAt(name, time) <= 0;
 }
 
