@@ -3,6 +3,10 @@
     color: var(--text-color);
 }
 
+#pasteTest {
+    height: 2em;
+}
+
 :root {
     --color-bg: #FFFFFF;
     --text-color: initial;
