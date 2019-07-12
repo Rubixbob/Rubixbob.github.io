@@ -57,8 +57,11 @@ body {
 #themeCheckbox, #topLeftDiv {
     text-align: right;
     flex-grow: 1;
-    flex-shrink: 1;
     white-space: nowrap;
+}
+
+#topLeftDiv {
+    width: 111px;
 }
 
 #themeCheckbox .checkbox {
@@ -114,6 +117,7 @@ body {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    flex-direction: row-reverse;
 }
 
 #buttonsDiv {
