@@ -2168,3 +2168,7 @@ function generateCritValues() {
     stats.crit = oldCrit;
     return result;
 }
+
+$("#pasteTest").on("paste", function(e) {
+    console.log(e.originalEvent.clipboardData.getData("text"));
+})
