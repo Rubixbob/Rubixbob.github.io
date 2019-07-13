@@ -1273,13 +1273,14 @@ $("#hideEffectsButton").click(function() {
     fitColumns();
 });
 
-$("#importRotation").click(function() {
-    $("#importRotationLightbox").modal("show");
+$("#convertRotation").click(function() {
+    $("#exportRotationConfirm").prop("hidden", true);
+    $("#convertRotationLightbox").modal("show");
 });
 
 $("#pasteImportRotation").on("paste", function(e) {
     var rotation = e.originalEvent.clipboardData.getData("text").split("\n");
-    $("#importRotationLightbox").modal("hide");
+    $("#convertRotationLightbox").modal("hide");
     clearRotation();
     rotation.forEach(ac => {
         if (ac)
@@ -1290,6 +1291,19 @@ $("#pasteImportRotation").on("paste", function(e) {
     updateDps();
     return false;
 })
+
+$("#exportRotation").click(function() {
+    var rotation = [];
+    $("#rotation").children().each(function(index) {
+        rotation.push($(this).attr("name"));
+    });
+    $("#exportRotationText").prop("hidden", false);
+    $("#exportRotationText").val(rotation.join("\r\n"));
+    $("#exportRotationText").get(0).select();
+    document.execCommand("copy");
+    $("#exportRotationText").prop("hidden", true);
+    $("#exportRotationConfirm").prop("hidden", false);
+});
 
 $("#leftExpand").click(function() {
     if ($(this).attr("expanded") === "true") {

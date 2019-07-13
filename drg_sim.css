@@ -455,7 +455,9 @@ input:focus {
     background-color: var(--panel-bg);
 }
 
-#importRotationLightbox .content {
+#convertRotationLightbox * {
+    margin-left: auto;
+    margin-right: auto;
     text-align: center;
 }
 

@@ -32,7 +32,7 @@
                 <button class="mini ui button" id="manageRotations">Rotations...</button>
                 <button class="mini ui button" id="threeMinRotation">3 min rotation</button>
                 <button class="mini ui button" id="hideEffectsButton">Show/Hide Effects</button>
-                <button class="mini ui icon button" id="importRotation"><i class="icon download"></i>Import...</button>
+                <button class="mini ui icon button" id="convertRotation"><i class="icon sync"></i>Convert...</button>
                 <strong>
                     <output id="DPSout"></output>
                     <label for="DPSout">DPS</label>
@@ -385,14 +385,35 @@
         </div>
     </div>
     
-    <div id="importRotationLightbox" class="ui modal">
+    <div id="convertRotationLightbox" class="ui modal">
         <i class="close icon"></i>
         <div class="header">
-            Import a rotation from Excel
+            Convert a rotation from/to Excel
         </div>
         <div class="content">
             <div class="description">
-                <input placeholder="Paste here" id="pasteImportRotation"></div>
+                <table>
+                    <body>
+                        <tr>
+                            <td>
+                                <label for="pasteImportRotation">Import a rotation</label>
+                                <input placeholder="Paste here" id="pasteImportRotation"></input>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                OR
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button class="mini ui icon button" id="exportRotation"><i class="icon upload"></i>Export to clipboard</button>
+                                <label id="exportRotationConfirm" hidden><strong>Rotation copied to clipboard!</strong></label>
+                                <textarea id="exportRotationText" hidden></textarea>
+                            </td>
+                        </tr>
+                    </body>
+                </table>
             </div>
         </div>
     </div>
