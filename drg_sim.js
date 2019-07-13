@@ -1278,12 +1278,12 @@ $("#importRotation").click(function() {
 });
 
 $("#pasteImportRotation").on("paste", function(e) {
-    var rotation = e.originalEvent.clipboardData.getData("text").split("\r\n");
+    var rotation = e.originalEvent.clipboardData.getData("text").split("\n");
     $("#importRotationLightbox").modal("hide");
     clearRotation();
     rotation.forEach(ac => {
         if (ac)
-            openerAddAction(ac);
+            openerAddAction(ac.replace("\r", ""));
     });
 
     autoFillRaidBuffs(false);
