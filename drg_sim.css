@@ -3,10 +3,6 @@
     color: var(--text-color);
 }
 
-#pasteTest {
-    height: 2em;
-}
-
 :root {
     --color-bg: #FFFFFF;
     --text-color: initial;
@@ -457,6 +453,14 @@ input:focus {
 
 #savedRotationsTable tbody tr:nth-child(odd) {
     background-color: var(--panel-bg);
+}
+
+#importRotationLightbox .content {
+    text-align: center;
+}
+
+#pasteImportRotation {
+    text-align: left;
 }
 
 /* #savedRotationsTable tbody tr:nth-child(odd) button { */

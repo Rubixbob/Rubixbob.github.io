@@ -1273,6 +1273,24 @@ $("#hideEffectsButton").click(function() {
     fitColumns();
 });
 
+$("#importRotation").click(function() {
+    $("#importRotationLightbox").modal("show");
+});
+
+$("#pasteImportRotation").on("paste", function(e) {
+    var rotation = e.originalEvent.clipboardData.getData("text").split("\r\n");
+    $("#importRotationLightbox").modal("hide");
+    clearRotation();
+    rotation.forEach(ac => {
+        if (ac)
+            openerAddAction(ac);
+    });
+
+    autoFillRaidBuffs(false);
+    updateDps();
+    return false;
+})
+
 $("#leftExpand").click(function() {
     if ($(this).attr("expanded") === "true") {
         $(this).attr("expanded", "false");
@@ -2168,7 +2186,3 @@ function generateCritValues() {
     stats.crit = oldCrit;
     return result;
 }
-
-$("#pasteTest").on("paste", function(e) {
-    console.log(e.originalEvent.clipboardData.getData("text"));
-})

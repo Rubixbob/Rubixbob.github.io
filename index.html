@@ -16,7 +16,6 @@
 </head>
 
 <body>
-        <div contenteditable="true" id="pasteTest">Paste here</div>
     <div id="mainDiv">
         <div id="topDiv">
             <div id="themeCheckbox">
@@ -33,6 +32,7 @@
                 <button class="mini ui button" id="manageRotations">Rotations...</button>
                 <button class="mini ui button" id="threeMinRotation">3 min rotation</button>
                 <button class="mini ui button" id="hideEffectsButton">Show/Hide Effects</button>
+                <button class="mini ui icon button" id="importRotation"><i class="icon download"></i>Import...</button>
                 <strong>
                     <output id="DPSout"></output>
                     <label for="DPSout">DPS</label>
@@ -376,12 +376,23 @@
                             <th><label>Length</label></th>
                             <th><label>GCD</label></th>
                             <th></th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+    
+    <div id="importRotationLightbox" class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            Import a rotation from Excel
+        </div>
+        <div class="content">
+            <div class="description">
+                <input placeholder="Paste here" id="pasteImportRotation"></div>
             </div>
         </div>
     </div>
