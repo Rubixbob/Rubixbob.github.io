@@ -44,22 +44,6 @@ db.once("open", function() {
 		return newId;
 	}
 
-	function generateNewId() {
-		Rotation.findOne().sort({ "id" : -1 }).exec(function (err, rot) { // TODO: test sort
-			if (err) return console.error(err);
-			getNextId(rot.id);
-		});
-	}
-
-	console.log(getNextId("0000"));
-	console.log(getNextId("1234"));
-	console.log(getNextId("1239"));
-	console.log(getNextId("123A"));
-	console.log(getNextId("123Z"));
-	console.log(getNextId("12ZZ"));
-	console.log(getNextId("1ZZZ"));
-	console.log(getNextId("ZZZZ"));
-
 	function returnFile(req, res) {
 		var page = decodeURI(url.parse(req.url).pathname);
 		res.sendFile(page, { root: __dirname });
@@ -74,16 +58,27 @@ db.once("open", function() {
 	}
 
 	function saveRotation(req, res) {
-		var id = generateNewId();
-		var rot = new Rotation(req.body);
-		rot.save(function (err, rot) {
+		var newRot = new Rotation(req.body);
+		Rotation.find().sort({ "id" : -1 }).exec(function (err, rot) {
 			if (err) return console.error(err);
+			var id = "0000";
+			if (rot.length)
+				id = getNextId(rot[0].id);
+
+			newRot.id = id;
+
+			newRot.save(function (err, rot) {
+				if (err) return console.error(err);
+				res.send(id);
+			});
 		});
 	}
 
-	app.get("/", function(req, res) {
+	function sendIndex(req, res) {
 		res.sendFile("index.html", { root: __dirname });
-	})
+	}
+
+	app.get("/", sendIndex)
 	.get("/images/:x", returnFile)
 	.get("/images/effects/:x", returnFile)
 	.get("/images/group/:x", returnFile)
@@ -95,7 +90,8 @@ db.once("open", function() {
 	.get("/theme_checkbox.js", returnFile)
 	.get("/jquery.ui.touch-punch.js", returnFile)
 	//.get("/favicon.ico", returnFile)
-	.get("/:id", loadRotation)
+	.get("/:id", sendIndex)
+	.post("/:id", loadRotation)
 	.post("/", saveRotation)
 	.use(function(req, res, next) {
 		console.log("Shouldn't be here: " + req.url);

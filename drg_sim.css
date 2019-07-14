@@ -28,11 +28,11 @@
     --color-bg: #212121;
     --text-color: white;
     --button-text-color: var(--text-color);
-    --button-bg: var(--separator-color);
+    --button-bg: var(--panel-bg);
     --panel-bg: #424242;
     --main-bg: #323232;
     --rotation-bg: #555555;
-    --tooltip-bg: #1469b8;
+    --tooltip-bg: #0f4f8a;
     --tooltip-color: var(--text-color);
     --scrollbar-track: #434343;
     --scrollbar-thumb: #737373;
@@ -41,8 +41,8 @@
     --input-bg: var(--main-bg);
     --input-focus: var(--separator-color);
     --shadow-color: black;
-    --separator-color: #0085ffcc;
-    --number-color: #0085ff;
+    --separator-color: #80c2ffcc;
+    --number-color: #80c2ff;
 }
 
 body {

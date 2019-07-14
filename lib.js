@@ -24,16 +24,16 @@ class Stats {
         this.jobMod = 115;
         
         // Lvl 70
-        this.lvlModAP = 125;
-        this.lvlModMain = 292;
-        this.lvlModSub = 364;
-        this.lvlModDiv = 2170;
+        // this.lvlModAP = 125;
+        // this.lvlModMain = 292;
+        // this.lvlModSub = 364;
+        // this.lvlModDiv = 2170;
         
         // Lvl 80
-        // this.lvlModAP = 170; // 165
-        // this.lvlModMain = 340;
-        // this.lvlModSub = 380;
-        // this.lvlModDiv = 3300;
+        this.lvlModAP = 165;
+        this.lvlModMain = 340;
+        this.lvlModSub = 380;
+        this.lvlModDiv = 3300;
 	}
 
 	copy() {

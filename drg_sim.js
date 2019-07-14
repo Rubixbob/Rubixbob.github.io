@@ -1105,14 +1105,15 @@ $("#manageRotations").click(function() {
         deleteButton.click(function() {
             openButton.css("display", "none");
             deleteButton.css("display", "none");
-            // shareButton.css("display", "none");
+            shareButton.css("display", "none");
             confirmLabel.css("display", "inline-block");
             yesButton.css("display", "inline-block");
             noButton.css("display", "inline-block");
         });
         shareButton.click(function() {
-            $.post("/", rot);
-            // TODO: get the returned ID
+            $.post("/", rot, function(data) {
+                console.log(data); // TODO: show new id
+            });
         });
         yesButton.click(function() {
             localStorage.removeItem(rotName);
@@ -1129,7 +1130,7 @@ $("#manageRotations").click(function() {
         noButton.click(function() {
             openButton.css("display", "inline-block");
             deleteButton.css("display", "inline-block");
-            // shareButton.css("display", "inline-block");
+            shareButton.css("display", "inline-block");
             confirmLabel.css("display", "none");
             yesButton.css("display", "none");
             noButton.css("display", "none");
@@ -1137,7 +1138,7 @@ $("#manageRotations").click(function() {
         var buttonsCell = $("<td></td>");
         buttonsCell.append(openButton);
         buttonsCell.append(deleteButton);
-        // buttonsCell.append(shareButton);
+        buttonsCell.append(shareButton);
         buttonsCell.append(confirmLabel);
         buttonsCell.append(yesButton);
         buttonsCell.append(noButton);
@@ -2160,7 +2161,9 @@ clearRotation();
 
 var urlPathName = window.location.pathname.substring(1);
 if (urlPathName.length === 4) {
-    // TODO: load rotation
+    $.post(`/${urlPathName}`, function(data) {
+        loadRotation(data);
+    });
 }
 
 function gcdAt(time) {
