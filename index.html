@@ -304,29 +304,60 @@
                 <img id="raidBuffLightboxImg">
             </div>
             <div class="description">
-                <table id="raidBuffInput">
-                    <tr>
-                        <td><label>Start time</label></td>
-                        <td><input id="raidBuffLightboxStartTimeInput" type="number" step="any"></input></td>
-                    </tr>
-                    <tr>
-                        <td><label>Duration</label></td>
-                        <td>
-                            <input id="raidBuffLightboxDurationInput" type="number" min="0"></input>
-                            <output id="raidBuffLightboxDurationOutput" hidden></output>
-                        </td>
-                    </tr>
-                    <tr id="raidBuffLightboxCardsRow">
-                        <td colspan="2">
-                            <input type="radio" id="raidBuffLightboxBalance" name="card" value="balance" checked/>
-                            <label for="raidBuffLightboxBalance"><img src="images/effects/The Balance.png">The Balance</label>
-                            <input type="radio" id="raidBuffLightboxSpear" name="card" value="spear"/>
-                            <label for="raidBuffLightboxSpear"><img src="images/effects/The Spear.png">The Spear</label>
-                            <input type="radio" id="raidBuffLightboxArrow" name="card" value="arrow"/>
-                            <label for="raidBuffLightboxArrow"><img src="images/effects/The Arrow.png">The Arrow</label>
-                        </td>
-                    </tr>
-                    <tr id="raidBuffLightboxRoadRow">
+                <div id="raidBuffInput">
+                    <table>
+                        <tr>
+                            <td><label>Start time</label></td>
+                            <td><input id="raidBuffLightboxStartTimeInput" type="number" step="any"></input></td>
+                        </tr>
+                        <tr>
+                            <td><label>Duration</label></td>
+                            <td>
+                                <!-- <input id="raidBuffLightboxDurationInput" type="number" min="0"></input> -->
+                                <output id="raidBuffLightboxDuration"></output>
+                            </td>
+                        </tr>
+                    </table>
+                    <table id="raidBuffLightboxCards">
+                        <tr>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxLord" name="card" value="Lord of Crowns" checked/>
+                                <label for="raidBuffLightboxLord"><img src="images/effects/Lord of Crowns.png">Lord of Crowns</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxBalance" name="card" value="The Balance"/>
+                                <label for="raidBuffLightboxBalance"><img src="images/effects/The Balance.png">The Balance</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxArrow" name="card" value="The Arrow"/>
+                                <label for="raidBuffLightboxArrow"><img src="images/effects/The Arrow.png">The Arrow</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxSpear" name="card" value="The Spear"/>
+                                <label for="raidBuffLightboxSpear"><img src="images/effects/The Spear.png">The Spear</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxLady" name="card" value="Lady of Crowns"/>
+                                <label for="raidBuffLightboxLady"><img src="images/effects/Lady of Crowns.png">Lady of Crowns</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxBole" name="card" value="The Bole"/>
+                                <label for="raidBuffLightboxBole"><img src="images/effects/The Bole.png">The Bole</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxEwer" name="card" value="The Ewer"/>
+                                <label for="raidBuffLightboxEwer"><img src="images/effects/The Ewer.png">The Ewer</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxSpire" name="card" value="The Spire"/>
+                                <label for="raidBuffLightboxSpire"><img src="images/effects/The Spire.png">The Spire</label>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                    <!-- <tr id="raidBuffLightboxRoadRow">
                         <td colspan="2">
                             <input type="radio" id="raidBuffLightboxNoEffect" name="royalRoad" value="noeffect"/>
                             <label for="raidBuffLightboxNoEffect">No Effect</label>
@@ -345,8 +376,7 @@
                             <input type="checkbox" id="raidBuffLightboxTimeDilation" name="timeDilation" checked/>
                             <label for="raidBuffLightboxTimeDilation"><img src="images/group/Time Dilation.png" width="32">Time Dilation (+15 secs)</label>
                         </td>
-                    </tr>
-                </table>
+                    </tr> -->
             </div>
         </div>
         <div class="actions">

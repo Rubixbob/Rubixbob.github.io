@@ -38,9 +38,9 @@ body {
     --button-text-color: var(--text-color);
     --button-bg: var(--panel-bg);
     --button-text-color-hover: rgba(255,255,255,.7);
-    --button-bg-hover: var(--tooltip-bg);
+    --button-bg-hover: var(--main-bg);
     --button-text-color-active: rgba(255,255,255,.5);
-    --button-bg-active: var(--number-color);
+    --button-bg-active: var(--color-bg);
     --panel-bg: #424242;
     --main-bg: #323232;
     --rotation-bg: #555555;
@@ -57,7 +57,7 @@ body {
     --number-color: #80c2ff;
     --modal-actions-bg: #292a2b;
     --modal-border: #d9dbdd26;
-    --rotations-first-line: var(--panel-bg);
+    --rotations-first-line: var(--rotation-bg);
     --rotations-odd-line: var(--main-bg);
 }
 
@@ -394,6 +394,7 @@ input:focus {
 #suggestions {
     position: absolute;
     display: flex;
+    color: var(--text-color);
     background-color: var(--panel-bg);
     padding: 10px;
     border-top-right-radius: 16px;
@@ -673,6 +674,6 @@ input:focus {
     }
 }
 
-#raidBuffLightboxCardsRow>td>label>img, #raidBuffLightboxRoadRow>td>label>img, #raidBuffLightboxAstRow>td>label>img {
+#raidBuffLightboxCards img {
     vertical-align: middle;
 }

@@ -281,6 +281,8 @@ function addTooltip(element, type) {
         $(".tooltip").remove();
     }).click(function(e) {
         $(".tooltip").remove();
+    }).on("dragstart", function(e) {
+        $(".tooltip").remove();
     });
 }
 	
@@ -773,15 +775,12 @@ function deleteGroupEffect(element) {
         resetAndUpdateDps();
 }
 
-// function drawEffect(name, beginTime, endTime) {
-//     var posLeft = $("#effectsHeader").children(`[name="${name}"]`).position().left;
-//     var posWidth = $("#effectsHeader").children(`[name="${name}"]`).width() - 8;
-//     var posTop = (beginTime - startTime) * scale;
-//     var posHeight = (endTime - beginTime) * scale - 6;
-//     var img = $("#effectsHeader").children().filter(function(index) {return $(this).attr("name") === name;}).get(0);
+// function getColors(elt) {
+//     var img = $(elt).children("img").get(0);
 //     var canvas = document.createElement('canvas');
 //     canvas.width = img.width;
 //     canvas.height = img.height;
+//     var count = 0;
 //     var r = 0;
 //     var g = 0;
 //     var b = 0;
@@ -797,7 +796,7 @@ function deleteGroupEffect(element) {
 //                 var pr = p[0];
 //                 var pg = p[1];
 //                 var pb = p[2];
-//                 var interval = 32;
+//                 var interval = 8;
 //                 if (pr != 0 || pg != 0 || pb != 0) {
 //                     pr = Math.floor(pr / interval) * interval + interval / 2;
 //                     pg = Math.floor(pg / interval) * interval + interval / 2;
@@ -808,9 +807,20 @@ function deleteGroupEffect(element) {
 //                         val = 0;
 //                     var coef = 1/Math.sqrt((Math.pow(img.width/2-i,2)+Math.pow(img.height/2-j,2))/30+1);
 //                     colors.set(key, val + coef);
+
+//                     count++;
+//                     r += pr;
+//                     g += pg;
+//                     b += pb;
 //                 }
 //             }
 //         }
+//         r /= count;
+//         g /= count;
+//         b /= count;
+//         r2 = r / 2;
+//         g2 = g / 2;
+//         b2 = b / 2;
 //         var mainColor = 0;
 //         var secondColor = 0;
 //         var mainColorUses = 0;
@@ -857,9 +867,8 @@ function deleteGroupEffect(element) {
 //         g2 = 30;
 //         b2 = 30;
 //     }
-//     $("#effects").append($("<div></div>").attr({"class": "effect", "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`})
-//         .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `rgb(${r},${g},${b})`,
-//               "border": `solid 3px rgb(${r2},${g2},${b2})`}));
+//     $(elt).css({"background-color": `rgb(${r},${g},${b})`,
+//               "border": `solid 3px rgb(${r2},${g2},${b2})`});
 // }
 
 function drawBotd(type, botdObject, eTime) {
@@ -1306,29 +1315,22 @@ $("#exportRotation").click(function() {
     $("#exportRotationConfirm").prop("hidden", false);
 });
 
-$("#leftExpand").click(function() {
-    if ($(this).attr("expanded") === "true") {
-        $(this).attr("expanded", "false");
-        $("#leftDiv").css({"display": "none", "position": "", "top": "", "left": "", "z-index": ""});
-        $("#leftExpandIcon").toggleClass("double angle chevron left right");
+function toggleExpandPanel(self, side) {
+    if ($(self).attr("expanded") === "true") {
+        $(self).attr("expanded", "false");
+        $(`#${side}Div`).css({"display": "none", "position": "", "top": "", "z-index": ""});
+        $(`#${side}Div`).css(side, "");
     } else {
-        $(this).attr("expanded", "true");
-        $("#leftDiv").css({"display": "", "position": "absolute", "top": "0px", "left": `${$("#midDiv").get(0).getBoundingClientRect().left}px`, "z-index": "2"});
-        $("#leftExpandIcon").toggleClass("double angle chevron left right");
+        $(self).attr("expanded", "true");
+        $(`#${side}Div`).css({"display": "", "position": "absolute", "top": "0px", "z-index": "2"});
+        $(`#${side}Div`).css(side, `${$("#midDiv").get(0).getBoundingClientRect().left}px`);
     }
-});
+    $(`#${side}ExpandIcon`).toggleClass("double angle chevron left right");
+}
 
-$("#rightExpand").click(function() {
-    if ($(this).attr("expanded") === "true") {
-        $(this).attr("expanded", "false");
-        $("#rightDiv").css({"display": "none", "position": "", "top": "", "right": "", "z-index": ""});
-        $("#rightExpandIcon").toggleClass("double angle chevron left right");
-    } else {
-        $(this).attr("expanded", "true");
-        $("#rightDiv").css({"display": "", "position": "absolute", "top": "0px", "right": `${$("#midDiv").get(0).getBoundingClientRect().left}px`, "z-index": "2"});
-        $("#rightExpandIcon").toggleClass("double angle chevron left right");
-    }
-});
+$("#leftExpand").click(function() { toggleExpandPanel(this, "left"); });
+
+$("#rightExpand").click(function() { toggleExpandPanel(this, "right"); });
 
 function trimInput(element) {
     if(Number(element.val()) < Number(element.attr("min")))
@@ -1495,10 +1497,11 @@ window.addEventListener("wheel", function(event) // TODO: ctrl + +/-, 2 point sl
     }
 }, { passive: false} );
 
-var resizeTimer;
+// var resizeTimer;
 $(window).resize(function() {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(fitColumns, 20);
+    fitColumns();
+    // clearTimeout(resizeTimer);
+    // resizeTimer = setTimeout(fitColumns, 2);
 });
 
 function setStartTime(value) {
@@ -1535,74 +1538,65 @@ function selectCard(cardName) {
     $("#raidBuffLightboxImg").attr("src", `images/effects/${cardName}.png`);
 }
 
-$("#raidBuffLightboxBalance").change(function() {
-    if (!$("#raidBuffLightboxCardsRow").prop("hidden") && $("#raidBuffLightboxBalance").prop("checked"))
-        selectCard("The Balance");
+$("input[name='card']").change(function() {
+    console.log($(this).attr("value") + " " + $(this).prop("checked"));
+    if (!$("#raidBuffLightboxCards").prop("hidden") && $(this).prop("checked"))
+        selectCard($("input[name='card']:checked").attr("value"));
 });
 
-$("#raidBuffLightboxSpear").change(function() {
-    if (!$("#raidBuffLightboxCardsRow").prop("hidden") && $("#raidBuffLightboxSpear").prop("checked"))
-        selectCard("The Spear");
-});
+// function adjustCardDuration() {
+//     var name;
+//     if ($("#raidBuffLightboxBalance").prop("checked"))
+//         name = "The Balance";
+//     if ($("#raidBuffLightboxSpear").prop("checked"))
+//         name = "The Spear";
+//     if ($("#raidBuffLightboxArrow").prop("checked"))
+//         name = "The Arrow";
+//     if (!name) {
+//         console.log("Card name not found!");
+//         return;
+//     }
 
-$("#raidBuffLightboxArrow").change(function() {
-    if (!$("#raidBuffLightboxCardsRow").prop("hidden") && $("#raidBuffLightboxArrow").prop("checked"))
-        selectCard("The Arrow");
-});
+//     var duration = getEffectDuration(name);
+//     if ($("#raidBuffLightboxExtended").prop("checked"))
+//         duration *= 2;
+//     if ($("#raidBuffLightboxCelestialOpposition").prop("checked"))
+//         duration += 10;
+//     if ($("#raidBuffLightboxTimeDilation").prop("checked"))
+//         duration += 15;
+//     $("#raidBuffLightboxDurationInput").val(duration);
+//     $("#raidBuffLightboxDurationOutput").val(duration);
+// }
 
-function adjustCardDuration() {
-    var name;
-    if ($("#raidBuffLightboxBalance").prop("checked"))
-        name = "The Balance";
-    if ($("#raidBuffLightboxSpear").prop("checked"))
-        name = "The Spear";
-    if ($("#raidBuffLightboxArrow").prop("checked"))
-        name = "The Arrow";
-    if (!name) {
-        console.log("Card name not found!");
-        return;
-    }
+// $("#raidBuffLightboxNoEffect").change(function() {
+//     if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
+//         adjustCardDuration();
+// });
 
-    var duration = getEffectDuration(name);
-    if ($("#raidBuffLightboxExtended").prop("checked"))
-        duration *= 2;
-    if ($("#raidBuffLightboxCelestialOpposition").prop("checked"))
-        duration += 10;
-    if ($("#raidBuffLightboxTimeDilation").prop("checked"))
-        duration += 15;
-    $("#raidBuffLightboxDurationInput").val(duration);
-    $("#raidBuffLightboxDurationOutput").val(duration);
-}
+// $("#raidBuffLightboxExpanded").change(function() {
+//     if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
+//         adjustCardDuration();
+// });
 
-$("#raidBuffLightboxNoEffect").change(function() {
-    if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
-        adjustCardDuration();
-});
+// $("#raidBuffLightboxExtended").change(function() {
+//     if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
+//         adjustCardDuration();
+// });
 
-$("#raidBuffLightboxExpanded").change(function() {
-    if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
-        adjustCardDuration();
-});
+// $("#raidBuffLightboxEnhanced").change(function() {
+//     if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
+//         adjustCardDuration();
+// });
 
-$("#raidBuffLightboxExtended").change(function() {
-    if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
-        adjustCardDuration();
-});
+// $("#raidBuffLightboxCelestialOpposition").change(function() {
+//     if (!$("#raidBuffLightboxAstRow").prop("hidden"))
+//         adjustCardDuration();
+// });
 
-$("#raidBuffLightboxEnhanced").change(function() {
-    if (!$("#raidBuffLightboxRoadRow").prop("hidden"))
-        adjustCardDuration();
-});
-
-$("#raidBuffLightboxCelestialOpposition").change(function() {
-    if (!$("#raidBuffLightboxAstRow").prop("hidden"))
-        adjustCardDuration();
-});
-
-$("#raidBuffLightboxTimeDilation").change(function() {
-    if (!$("#raidBuffLightboxAstRow").prop("hidden"))
-        adjustCardDuration();
-});
+// $("#raidBuffLightboxTimeDilation").change(function() {
+//     if (!$("#raidBuffLightboxAstRow").prop("hidden"))
+//         adjustCardDuration();
+// });
 
 function setUpRaidBuffLightbox(name, jobIndex, element) {
     $("#raidBuffLightboxTitle").val(name); // Don't delete, this value is used in the OK call
@@ -1614,12 +1608,12 @@ function setUpRaidBuffLightbox(name, jobIndex, element) {
         if (name === "Embolden") {
             var emboldenBeginTime = ($(element).attr("time") - (currentEffect.maxStacks - $(element).attr("emboldenStacks")) * currentEffect.stackDuration).toFixed(3);
             $("#raidBuffLightboxStartTimeInput").val(emboldenBeginTime);
-            $("#raidBuffLightboxDurationInput").val(getEffectDuration(name));
-            $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name));
+            // $("#raidBuffLightboxDurationInput").val(getEffectDuration(name));
+            $("#raidBuffLightboxDuration").val(getEffectDuration(name));
         } else {
             $("#raidBuffLightboxStartTimeInput").val($(element).attr("time"));
-            $("#raidBuffLightboxDurationInput").val((Number($(element).attr("endTime")) * 1000 - Number($(element).attr("time")) * 1000) / 1000);
-            $("#raidBuffLightboxDurationOutput").val((Number($(element).attr("endTime")) * 1000 - Number($(element).attr("time")) * 1000) / 1000);
+            // $("#raidBuffLightboxDurationInput").val((Number($(element).attr("endTime")) * 1000 - Number($(element).attr("time")) * 1000) / 1000);
+            $("#raidBuffLightboxDuration").val((Number($(element).attr("endTime")) * 1000 - Number($(element).attr("time")) * 1000) / 1000);
         }
     } else {
         $("#raidBuffLightboxTitleMode").val("Add");
@@ -1636,56 +1630,61 @@ function setUpRaidBuffLightbox(name, jobIndex, element) {
             useTime = Number(previousEffects.sort((a, b) => {return Number($(a).attr("time")) - Number($(b).attr("time"))}).last().attr("time")) + getGroupRecastTime(currentEffect.groupAction, useNumber - 1);
         
         $("#raidBuffLightboxStartTimeInput").val(useTime);
-        $("#raidBuffLightboxDurationInput").val(getEffectDuration(name, useNumber));
-        $("#raidBuffLightboxDurationOutput").val(getEffectDuration(name, useNumber));
+        // $("#raidBuffLightboxDurationInput").val(getEffectDuration(name, useNumber));
+        $("#raidBuffLightboxDuration").val(getEffectDuration(name, useNumber));
     }
-    switch(name) {
-        case "Hypercharge":
-        case "Critical Up":
-        case "Foe Requiem":
-        case "Radiant Shield":
-            $("#raidBuffLightboxDurationInput").prop("hidden", false);
-            $("#raidBuffLightboxDurationOutput").prop("hidden", true);
-            break;
-        default:
-            $("#raidBuffLightboxDurationInput").prop("hidden", true);
-            $("#raidBuffLightboxDurationOutput").prop("hidden", false);
-            break;
-    }
-    switch(name) {
-        case "The Balance":
-        case "The Spear":
-        case "The Arrow":
-            $("#raidBuffLightboxCardsRow").prop("hidden", false);
-            $("#raidBuffLightboxRoadRow").prop("hidden", false);
-            $("#raidBuffLightboxAstRow").prop("hidden", false);
-            $(`#raidBuffLightbox${name.substring(4)}`).prop("checked", true).change();
-            if (raidBuffLightboxEditMode) {
-                $(`#raidBuffLightbox${$(element).attr("royalRoad")}`).prop("checked", true).change();
-                $("#raidBuffLightboxCelestialOpposition").prop("checked", element.hasAttribute("CelestialOpposition")).change();
-                $("#raidBuffLightboxTimeDilation").prop("checked", element.hasAttribute("TimeDilation")).change();
-            } else {
-                $("#raidBuffLightboxExpanded").prop("checked", true).change();
-                $("#raidBuffLightboxCelestialOpposition").prop("checked", true).change();
-                $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
-            }
-            break;
-        default:
-            $("#raidBuffLightboxCardsRow").prop("hidden", true);
-            $("#raidBuffLightboxRoadRow").prop("hidden", true);
-            $("#raidBuffLightboxAstRow").prop("hidden", true);
-            $("#raidBuffLightboxNoEffect").prop("checked", true).change();
-            $("#raidBuffLightboxCelestialOpposition").prop("checked", false).change();
-            $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
-            break;
+    // switch(name) {
+    //     case "Hypercharge":
+    //     case "Critical Up":
+    //     case "Foe Requiem":
+    //     case "Radiant Shield":
+    //         $("#raidBuffLightboxDurationInput").prop("hidden", false);
+    //         $("#raidBuffLightboxDurationOutput").prop("hidden", true);
+    //         break;
+    //     default:
+    //         $("#raidBuffLightboxDurationInput").prop("hidden", true);
+    //         $("#raidBuffLightboxDurationOutput").prop("hidden", false);
+    //         break;
+    // }
+    // switch(name) {
+    //     case "The Balance":
+    //     case "The Spear":
+    //     case "The Arrow":
+    if (currentEffect.groupAction === "Draw") {
+            // $("#raidBuffLightboxCardsRow").prop("hidden", false);
+            // $("#raidBuffLightboxRoadRow").prop("hidden", false);
+            // $("#raidBuffLightboxAstRow").prop("hidden", false);
+            $("#raidBuffLightboxCards").prop("hidden", false);
+            $(`input[value="${name}"]`).prop("checked", true).change();
+            // $(`#raidBuffLightbox${name.substring(4)}`).prop("checked", true).change();
+            // if (raidBuffLightboxEditMode) {
+            //     $(`#raidBuffLightbox${$(element).attr("royalRoad")}`).prop("checked", true).change();
+            //     $("#raidBuffLightboxCelestialOpposition").prop("checked", element.hasAttribute("CelestialOpposition")).change();
+            //     $("#raidBuffLightboxTimeDilation").prop("checked", element.hasAttribute("TimeDilation")).change();
+            // } else {
+            //     $("#raidBuffLightboxExpanded").prop("checked", true).change();
+            //     $("#raidBuffLightboxCelestialOpposition").prop("checked", true).change();
+            //     $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
+            // }
+            // break;
+        // default:
+    } else {
+            // $("#raidBuffLightboxCardsRow").prop("hidden", true);
+            // $("#raidBuffLightboxRoadRow").prop("hidden", true);
+            // $("#raidBuffLightboxAstRow").prop("hidden", true);
+            $("#raidBuffLightboxCards").prop("hidden", true);
+            // $("#raidBuffLightboxNoEffect").prop("checked", true).change();
+            // $("#raidBuffLightboxCelestialOpposition").prop("checked", false).change();
+            // $("#raidBuffLightboxTimeDilation").prop("checked", false).change();
+            // break;
     }
 }
 
 function refreshGroupMember(index, value) {
     var updateSpeed = false;
     var loopCount = $("#groupEffects").children(`[jobIndex="${index}"]`).length;
-     if ($("#groupEffects").children(`[jobIndex="${index}"][name="The Balance"], [jobIndex="${index}"][name="The Spear"], [jobIndex="${index}"][name="The Arrow"], [jobIndex="${index}"][name="Fey Wind"]`).length > 0)
-         updateSpeed = true;
+     // if ($("#groupEffects").children(`[jobIndex="${index}"][name="The Balance"], [jobIndex="${index}"][name="The Spear"], [jobIndex="${index}"][name="The Arrow"], [jobIndex="${index}"][name="Fey Wind"]`).length > 0)
+     //     updateSpeed = true;
     $("#groupEffectsHeader").children(`[jobIndex="${index}"]`).remove();
     $("#groupEffects").children(`[jobIndex="${index}"]`).remove();
     
@@ -1746,18 +1745,18 @@ $("#raidBuffLightboxConfirm").click(function() {
     var celestialOpposition;
     var timeDilation;
     var emboldenStacks;
-    if ($("#raidBuffLightboxExpanded").prop("checked"))
-        royalRoad = "Expanded";
-    if ($("#raidBuffLightboxEnhanced").prop("checked"))
-        royalRoad = "Enhanced";
-    if ($("#raidBuffLightboxExtended").prop("checked"))
-        royalRoad = "Extended";
-    if ($("#raidBuffLightboxNoEffect").prop("checked"))
-        royalRoad = "NoEffect";
-    if ($("#raidBuffLightboxCelestialOpposition").prop("checked"))
-        celestialOpposition = true;
-    if ($("#raidBuffLightboxTimeDilation").prop("checked"))
-        timeDilation = true;
+    // if ($("#raidBuffLightboxExpanded").prop("checked"))
+    //     royalRoad = "Expanded";
+    // if ($("#raidBuffLightboxEnhanced").prop("checked"))
+    //     royalRoad = "Enhanced";
+    // if ($("#raidBuffLightboxExtended").prop("checked"))
+    //     royalRoad = "Extended";
+    // if ($("#raidBuffLightboxNoEffect").prop("checked"))
+    //     royalRoad = "NoEffect";
+    // if ($("#raidBuffLightboxCelestialOpposition").prop("checked"))
+    //     celestialOpposition = true;
+    // if ($("#raidBuffLightboxTimeDilation").prop("checked"))
+    //     timeDilation = true;
     if (title === "Embolden") {
         var emboldenEffect = effects.find(ef => ef.name === "Embolden");
         var beginTime = Number($("#raidBuffLightboxStartTimeInput").val());
@@ -1768,11 +1767,11 @@ $("#raidBuffLightboxConfirm").click(function() {
             emboldenStacks--;
         }
     } else
-        drawGroupEffect(title, raidBuffLightboxJobIndex, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDurationInput").val()), royalRoad, celestialOpposition, timeDilation, emboldenStacks);
-    if (title === "The Balance" || title === "The Spear" || title === "The Arrow" || title === "Fey Wind") {
-        updateGcdTimeline();
-        updateRotationAfterIndex(0);
-    }
+        drawGroupEffect(title, raidBuffLightboxJobIndex, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDuration").val()), royalRoad, celestialOpposition, timeDilation, emboldenStacks);
+    // if (title === "The Balance" || title === "The Spear" || title === "The Arrow" || title === "Fey Wind") {
+    //     updateGcdTimeline();
+    //     updateRotationAfterIndex(0);
+    // }
     if ($("#rotation").children().length > 0)
         resetAndUpdateDps();
 });
@@ -2017,7 +2016,7 @@ function autoFillSingleRaidBuff(name, jobIndex) {
         var useTime = getGroupOpenerTime(name);
         var duration = getEffectDuration(effectName, useNumber);
         if (useNumber > 0) {
-            if (name === "Draw" || name === "Fey Wind" || name === "Radiant Shield")
+            if (name === "Draw" || name === "Fey Wind" || name === "Radiant Shield") // Only use in opener
                 break;
             previousEffects = previousEffects.sort((a, b) => {return Number($(a).attr("time")) - Number($(b).attr("time"))});
             useTime = Number(previousEffects.last().attr("time")) + getGroupRecastTime(name, useNumber - 1);
@@ -2025,12 +2024,12 @@ function autoFillSingleRaidBuff(name, jobIndex) {
         if (useTime > rotationTime + 5)
             break;
         
-        if (name === "Draw") {
-            royalRoad = "Expanded";
-            celestialOpposition = true;
-            duration += 10;
-            timeDilation = false;
-        }
+        // if (name === "Draw") {
+        //     royalRoad = "Expanded";
+        //     celestialOpposition = true;
+        //     duration += 10;
+        //     timeDilation = false;
+        // }
         
         if (name === "Embolden") {
             var beginTime = useTime;
@@ -2045,10 +2044,10 @@ function autoFillSingleRaidBuff(name, jobIndex) {
         loopCount++;
     }
     
-    if (loopCount > 0 && (effectName === "The Balance" || effectName === "The Spear" || effectName === "The Arrow" || effectName === "Fey Wind")) {
-        updateGcdTimeline();
-        updateRotationAfterIndex(0);
-    }
+    // if (loopCount > 0 && (effectName === "The Balance" || effectName === "The Spear" || effectName === "The Arrow" || effectName === "Fey Wind")) {
+    //     updateGcdTimeline();
+    //     updateRotationAfterIndex(0);
+    // }
     return loopCount;
 }
 
