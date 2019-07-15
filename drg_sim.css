@@ -1,4 +1,4 @@
-* {
+body {
     font-family: Arial, Helvetica, sans-serif;
     color: var(--text-color);
 }
@@ -7,7 +7,11 @@
     --color-bg: #FFFFFF;
     --text-color: initial;
     --button-text-color: rgba(0,0,0,.6);
-    --button-bg: buttonface;
+    --button-bg: #e0e1e2;
+    --button-text-color-hover: rgba(0,0,0,.8);
+    --button-bg-hover: #cacbcd;
+    --button-text-color-active: rgba(0,0,0,.9);
+    --button-bg-active: #babbbc;
     --panel-bg: #F0F0F0;
     --main-bg: #CCCCCC;
     --rotation-bg: #555555;
@@ -22,6 +26,10 @@
     --shadow-color: black;
     --separator-color: black;
     --number-color: black;
+    --modal-actions-bg: #f9fafb;
+    --modal-border: #22242626;
+    --rotations-first-line: var(--main-bg);
+    --rotations-odd-line: var(--panel-bg);
 }
 
 [data-theme="dark"] {
@@ -29,6 +37,10 @@
     --text-color: white;
     --button-text-color: var(--text-color);
     --button-bg: var(--panel-bg);
+    --button-text-color-hover: rgba(255,255,255,.7);
+    --button-bg-hover: var(--tooltip-bg);
+    --button-text-color-active: rgba(255,255,255,.5);
+    --button-bg-active: var(--number-color);
     --panel-bg: #424242;
     --main-bg: #323232;
     --rotation-bg: #555555;
@@ -43,6 +55,10 @@
     --shadow-color: black;
     --separator-color: #80c2ffcc;
     --number-color: #80c2ff;
+    --modal-actions-bg: #292a2b;
+    --modal-border: #d9dbdd26;
+    --rotations-first-line: var(--panel-bg);
+    --rotations-odd-line: var(--main-bg);
 }
 
 body {
@@ -178,6 +194,7 @@ body {
 }
 
 input {
+    color: var(--text-color);
     text-align: right;
     border-radius: 4px;
     background-color: var(--input-bg);
@@ -203,7 +220,7 @@ input:focus {
 
 #raidBuffInput {
     padding: 10px;
-    border: solid 2px black; /*********************************************************************************/
+    border: solid 2px black;
 }
 
 #stats, #group {
@@ -451,11 +468,15 @@ input:focus {
     /*vertical-align: middle;*/
 }
 
-#savedRotationsTable tbody tr:nth-child(odd) {
-    background-color: var(--panel-bg);
+#savedRotationsTable tbody tr.firstLine {
+    background-color: var(--rotations-first-line);
 }
 
-#convertRotationLightbox * {
+#savedRotationsTable tbody tr:nth-child(odd):not(.firstLine) {
+    background-color: var(--rotations-odd-line);
+}
+
+#convertRotationLightbox>.content * {
     margin-left: auto;
     margin-right: auto;
     text-align: center;
@@ -503,7 +524,7 @@ input:focus {
 }
 
 #themeCheckbox .ui.toggle.checkbox.checked label:before {
-    background-color: var(--separator-color)!important;
+    background-color: var(--tooltip-bg)!important;
 }
 
 .ui.button {
@@ -511,8 +532,19 @@ input:focus {
     background-color: var(--button-bg);
 }
 
+.ui.button:hover, .ui.button:focus {
+    color: var(--button-text-color-hover);
+    background-color: var(--button-bg-hover);
+}
+
+.ui.button:active {
+    color: var(--button-text-color-active);
+    background-color: var(--button-bg-active);
+}
+
 .ui-selectmenu-button.ui-button {
     width: 10em;
+    color: var(--text-color);
 }
 
 .ui-selectmenu-button.ui-button:not(:active) {
@@ -521,6 +553,7 @@ input:focus {
 
 .ui-menu.ui-menu-icons {
     background-color: var(--input-bg);
+    color: var(--text-color);
 }
 
 .ui-selectmenu-menu .ui-menu.customicons .ui-menu-item-wrapper {
@@ -618,8 +651,26 @@ input:focus {
     background: url("images/jobs/BlackMage.png") 0 0 no-repeat;
 }
 
+.ui.modal>.header {
+    color: var(--text-color);
+    background-color: var(--color-bg);
+    border-color: var(--modal-border);
+}
+
 .ui.modal>.content {
     width: auto;
+    background-color: var(--color-bg);
+}
+
+.ui.modal>.actions {
+    background-color: var(--modal-actions-bg);
+    border-color: var(--modal-border);
+}
+
+@media only screen and (max-width: 991px) {
+    .ui.modal>.close {
+        color: var(--button-text-color);
+    }
 }
 
 #raidBuffLightboxCardsRow>td>label>img, #raidBuffLightboxRoadRow>td>label>img, #raidBuffLightboxAstRow>td>label>img {

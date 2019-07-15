@@ -1146,7 +1146,7 @@ $("#manageRotations").click(function() {
         body.append(row);
     });
     if ($("#rotation").children().length) {
-        var row = $("<tr></tr>").css("background-color", "#CCC");
+        var row = $("<tr></tr>").addClass("firstLine");
         var idx = rots.length + 1;
         while (rots.indexOf("Rotation " + idx) >= 0) idx++;
         var nameInput = $(`<input id="savedRotationsNameInput" type="text" placeholder="Rotation ${idx}"/>`).css("text-align", "center");
