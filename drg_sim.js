@@ -888,14 +888,16 @@ function drawBotd(type, botdObject, eTime) {
             beginTime = botdObject.bloodStart;
             backgroundColor = effect.backgroundColor;
             var posTop = Math.round((beginTime - startTime) * scale + 1);
-            var posHeight = Math.round((eTime - beginTime) * scale);
+            var posBot = Math.round((eTime - startTime) * scale + 1);
+            var posHeight = posBot - posTop;
             $("#botd").append(botdDiv(type, beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex));
             break;
         case "life":
             beginTime = botdObject.lifeStart;
             backgroundColor = effect.lifeColor;
             var posTop = Math.round((beginTime - startTime) * scale + 1);
-            var posHeight = Math.round((eTime - beginTime) * scale);
+            var posBot = Math.round((eTime - startTime) * scale + 1);
+            var posHeight = posBot - posTop;
             var lifeDiv = botdDiv(type, beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex);
             
             for (var i = 1; i <= 2; i++) {
@@ -913,7 +915,8 @@ function drawBotd(type, botdObject, eTime) {
                 backgroundColor = effect.eyeColor;
                 zIndex = 2;
                 var posTop = Math.round((beginTime - startTime) * scale + 1);
-                var posHeight = Math.round((eTime - beginTime) * scale);
+                var posBot = Math.round((eTime - startTime) * scale + 1);
+                var posHeight = posBot - posTop;
                 $("#botd").append(botdDiv(type + (i + 1), beginTime, eTime, posLeftEye, posTop, posHeight, posWidth, backgroundColor, zIndex).css("border-radius", "3px"));
             }
             break;
