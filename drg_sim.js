@@ -1088,6 +1088,81 @@ $("#opener").click(function(){
     updateDps();
 });
 
+function generateNextRotationName(rots) {
+    var idx = rots.length + 1;
+    while (rots.indexOf("Rotation " + idx) >= 0) idx++;
+    return `Rotation ${idx}`;
+}
+
+function getTimeDisplay(time) {
+    var min = Math.floor(time / 60).toFixed(0);
+    var sec = (time % 60).toFixed(0);
+    return (min > 0 ? min + "m" : "") + sec + "s";
+}
+
+function checkAndDisplayEmpty(rots, body) {
+    if (!rots.length && !$("#rotation").children().length)
+        body.append("<tr><td colspan='5'>No data available, create a rotation to save it here</td></tr>");
+}
+
+function loadRotationRow(rotName, rots, body) {
+    var rot = JSON.parse(localStorage[rotName]);
+    var row = $("<tr></tr>");
+    row.append($(`<td>${rot.name}</td>`));
+    row.append($(`<td>${rot.dps}</td>`).css("text-align", "right"));
+    row.append($(`<td>${getTimeDisplay(rot.length)}</td>`).css("text-align", "right"));
+    row.append($(`<td>${rot.gcd.toFixed(2)}</td>`));
+    var openButton = $("<button class='ui icon button'><i class='icon folder open'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
+    var deleteButton = $("<button class='ui icon button'><i class='icon trash alternate'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
+    var shareButton = $("<button class='ui icon button'><i class='icon share'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
+    var confirmLabel = $("<strong><label>Delete ?</label></strong>").css({"display": "none"});
+    var yesButton = $("<button class='ui icon button'><i class='icon checkmark'></i></button>").css({"padding": "4px", "background-color": "green", "display": "none", "margin": "0px 2px 0px 2px"});
+    var noButton = $("<button class='ui icon button'><i class='icon close'></i></button>").css({"padding": "4px", "background-color": "red", "display": "none"});
+    openButton.click(function() {
+        loadRotation(rot);
+        $("#savedRotationsLightbox").modal("hide");
+    });
+    deleteButton.click(function() {
+        openButton.css("display", "none");
+        deleteButton.css("display", "none");
+        shareButton.css("display", "none");
+        confirmLabel.css("display", "inline-block");
+        yesButton.css("display", "inline-block");
+        noButton.css("display", "inline-block");
+    });
+    shareButton.click(function() {
+        $.post("/", rot, function(data) {
+            console.log(data); // TODO: show new id
+        });
+    });
+    yesButton.click(function() {
+        localStorage.removeItem(rotName);
+        rots.splice(rots.indexOf(rotName), 1);
+        localStorage["Rotations"] = JSON.stringify(rots);
+        row.remove();
+        if ($("#rotation").children().length)
+            $("#savedRotationsNameInput").attr("placeholder", generateNextRotationName(rots));
+        checkAndDisplayEmpty(rots, body)
+    });
+    noButton.click(function() {
+        openButton.css("display", "inline-block");
+        deleteButton.css("display", "inline-block");
+        shareButton.css("display", "inline-block");
+        confirmLabel.css("display", "none");
+        yesButton.css("display", "none");
+        noButton.css("display", "none");
+    });
+    var buttonsCell = $("<td></td>");
+    buttonsCell.append(openButton);
+    buttonsCell.append(deleteButton);
+    buttonsCell.append(shareButton);
+    buttonsCell.append(confirmLabel);
+    buttonsCell.append(yesButton);
+    buttonsCell.append(noButton);
+    row.append(buttonsCell);
+    body.append(row);
+}
+
 $("#manageRotations").click(function() {
     var rots = [];
     if (localStorage["Rotations"])
@@ -1095,80 +1170,14 @@ $("#manageRotations").click(function() {
     var body = $("#savedRotationsTable").children("tbody");
     body.children().remove();
     rots.forEach(function(rotName) {
-        var rot = JSON.parse(localStorage[rotName]);
-        var row = $("<tr></tr>");
-        row.append($(`<td>${rot.name}</td>`));
-        row.append($(`<td>${rot.dps}</td>`).css("text-align", "right"));
-        var rotMin = Math.floor(rot.length / 60).toFixed(0);
-        var rotSec = (rot.length % 60).toFixed(0);
-        var rotLength = (rotMin > 0 ? rotMin + "m" : "") + rotSec + "s";
-        row.append($(`<td>${rotLength}</td>`).css("text-align", "right"));
-        row.append($(`<td>${rot.gcd.toFixed(2)}</td>`));
-        var openButton = $("<button class='ui icon button'><i class='icon folder open'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
-        var deleteButton = $("<button class='ui icon button'><i class='icon trash alternate'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
-        var shareButton = $("<button class='ui icon button'><i class='icon share'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
-        var confirmLabel = $("<strong><label>Delete ?</label></strong>").css({"display": "none"});
-        var yesButton = $("<button class='ui icon button'><i class='icon checkmark'></i></button>").css({"padding": "4px", "background-color": "green", "display": "none", "margin": "0px 2px 0px 2px"});
-        var noButton = $("<button class='ui icon button'><i class='icon close'></i></button>").css({"padding": "4px", "background-color": "red", "display": "none"});
-        openButton.click(function() {
-            loadRotation(rot);
-            $("#savedRotationsLightbox").modal("hide");
-        });
-        deleteButton.click(function() {
-            openButton.css("display", "none");
-            deleteButton.css("display", "none");
-            shareButton.css("display", "none");
-            confirmLabel.css("display", "inline-block");
-            yesButton.css("display", "inline-block");
-            noButton.css("display", "inline-block");
-        });
-        shareButton.click(function() {
-            $.post("/", rot, function(data) {
-                console.log(data); // TODO: show new id
-            });
-        });
-        yesButton.click(function() {
-            localStorage.removeItem(rotName);
-            rots.splice(rots.indexOf(rotName), 1);
-            localStorage["Rotations"] = JSON.stringify(rots);
-            row.remove();
-            if ($("#rotation").children().length) {
-                var idx = rots.length + 1;
-                while (rots.indexOf("Rotation " + idx) >= 0) idx++;
-                $("#savedRotationsNameInput").attr("placeholder", `Rotation ${idx}`);
-            } else if (!rots.length)
-                body.append("<tr><td colspan='5'>No data available, create a rotation to save it here</td></tr>");
-        });
-        noButton.click(function() {
-            openButton.css("display", "inline-block");
-            deleteButton.css("display", "inline-block");
-            shareButton.css("display", "inline-block");
-            confirmLabel.css("display", "none");
-            yesButton.css("display", "none");
-            noButton.css("display", "none");
-        });
-        var buttonsCell = $("<td></td>");
-        buttonsCell.append(openButton);
-        buttonsCell.append(deleteButton);
-        buttonsCell.append(shareButton);
-        buttonsCell.append(confirmLabel);
-        buttonsCell.append(yesButton);
-        buttonsCell.append(noButton);
-        row.append(buttonsCell);
-        body.append(row);
+        loadRotationRow(rotName, rots, body);
     });
     if ($("#rotation").children().length) {
         var row = $("<tr></tr>").addClass("firstLine");
-        var idx = rots.length + 1;
-        while (rots.indexOf("Rotation " + idx) >= 0) idx++;
-        var nameInput = $(`<input id="savedRotationsNameInput" type="text" placeholder="Rotation ${idx}"/>`).css("text-align", "center");
+        var nameInput = $("<input id='savedRotationsNameInput' type='text'></input>").attr("placeholder", generateNextRotationName(rots)).css("text-align", "center");
         row.append($("<td></td>").append(nameInput));
         row.append($(`<td>${$("#dps").children().last().children().html()}</td>`).css("text-align", "right"));
-        var rotTime = Number($("#rotation").children().last().attr("time"));
-        var rotMin = Math.floor(rotTime / 60).toFixed(0);
-        var rotSec = (rotTime % 60).toFixed(0);
-        var rotLength = (rotMin > 0 ? rotMin + "m" : "") + rotSec + "s";
-        row.append($(`<td>${rotLength}</td>`).css("text-align", "right"));
+        row.append($(`<td>${getTimeDisplay(Number($("#rotation").children().last().attr("time")))}</td>`).css("text-align", "right"));
         row.append($(`<td>${Number($("#SKSoutGCD").val()).toFixed(2)}</td>`));
         var saveButton = $("<button class='ui icon button'><i class='icon save'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
         var warningLabel = $("<strong><label>That name is already used!</label></strong>").css({"display": "none", "color": "red"});
@@ -1202,16 +1211,13 @@ $("#manageRotations").click(function() {
             rots.push(rotName);
             localStorage["Rotations"] = JSON.stringify(rots);
             localStorage[rotName] = JSON.stringify(savedRotationObject);
-            // TODO : Update lightbox instead of closing
-            // Add 1 line to the end
-            // Delete 1st line
-            $("#savedRotationsLightbox").modal("hide");
+            loadRotationRow(rotName, rots, body);
+            row.prop("hidden", true);
         });
         row.append($("<td></td>").append(saveButton).append(warningLabel));
         body.prepend(row);
     }
-    if (!rots.length && !$("#rotation").children().length)
-        body.append("<tr><td colspan='5'>No data available, create a rotation to save it here</td></tr>");
+    checkAndDisplayEmpty(rots, body)
     $("#savedRotationsLightbox").modal("show");
 });
 
