@@ -30,6 +30,7 @@ body {
     --modal-border: #22242626;
     --rotations-first-line: var(--main-bg);
     --rotations-odd-line: var(--panel-bg);
+    --link-color: #0000ee;
 }
 
 [data-theme="dark"] {
@@ -59,6 +60,7 @@ body {
     --modal-border: #d9dbdd26;
     --rotations-first-line: var(--rotation-bg);
     --rotations-odd-line: var(--main-bg);
+    --link-color: var(--number-color);
 }
 
 body {
@@ -204,6 +206,14 @@ input {
 
 input:focus {
     border-color: var(--input-focus);
+}
+
+a {
+    color: var(--link-color);
+}
+
+a:visited {
+    color: var(--link-color);
 }
 
 #timeline * {

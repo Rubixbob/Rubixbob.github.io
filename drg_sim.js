@@ -264,18 +264,24 @@ effects.forEach(function (ef) {
 function addTooltip(element, type) {
     $(element).mouseover(function(e) {
         var content = getTooltipContent(element, type);
-        if ($(element).attr("id") !== "savedRotationstooltip") {
+        if (type !== "savedRotations" && type !== "iconButton") {
             $(document.body).append($("<div></div>").attr("class", "tooltip").html(content));
             var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
             posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
             $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
-        } else
-            $("#savedRotationsLightbox .header").append($("<div></div>").attr("class", "tooltip").html(content));
+        } else {
+            $("#savedRotationsLightbox .content").append($("<div></div>").attr("class", "tooltip").html(content));
+            var rect = $("#savedRotationsLightbox").get(0).getBoundingClientRect();
+            $(".tooltip").css({"top": `${e.pageY-rect.top}px`, "left": `${e.pageX-rect.left + 10}px`});
+        }
     }).mousemove(function(e) {
-        if ($(".tooltip").length && $(element).attr("id") !== "savedRotationstooltip") {
+        if ($(".tooltip").length && type !== "savedRotations" && type !== "iconButton") {
             var posTop = $("#midDiv").get(0).getBoundingClientRect().top + $("#midDiv").get(0).getBoundingClientRect().height - $(".tooltip").get(0).getBoundingClientRect().height;
             posTop = Math.max(Math.min(e.pageY + 10, posTop), $("#midDiv").get(0).getBoundingClientRect().top);
             $(".tooltip").css({"top": `${posTop}px`, "left": `${e.pageX + 10}px`});
+        } else {
+            var rect = $("#savedRotationsLightbox").get(0).getBoundingClientRect();
+            $(".tooltip").css({"top": `${e.pageY-rect.top}px`, "left": `${e.pageX-rect.left + 10}px`});
         }
     }).mouseout(function(e) {
         $(".tooltip").remove();
@@ -432,7 +438,25 @@ function getTooltipContent(element, type) {
             content = "Time added to animation lock: " + lat + "ms" + "<br/>" + "Adjust this value to reflect your in-game animation lock";
             break;
         case "savedRotations":
-            content = "These rotations are saved locally in the cache. Data might be lost when clearing the cache. The share functionality can be used to save them in the database (coming soon)";
+            content = "Rotations are saved locally in the cache of your browser, and data might be lost when clearing the cache.<br/>The share functionality can be used to save them in the database.";
+            break;
+        case "iconButton":
+            switch ($(element).children(i).get(0).classList[1]) {
+                case "folder":
+                    content = "Open";
+                    break;
+                case "trash":
+                    content = "Delete";
+                    break;
+                case "share":
+                    content = "Share";
+                    break;
+                case "save":
+                    content = "Save";
+                    break;
+                default:
+                    break;
+            }
             break;
         case "action":
             var name = $(element).attr("name");
@@ -1105,19 +1129,26 @@ function checkAndDisplayEmpty(rots, body) {
         body.append("<tr><td colspan='5'>No data available, create a rotation to save it here</td></tr>");
 }
 
-function loadRotationRow(rotName, rots, body) {
+function loadRotationRow(rotName, rots, body, saving) {
     var rot = JSON.parse(localStorage[rotName]);
     var row = $("<tr></tr>");
-    row.append($(`<td>${rot.name}</td>`));
+    var nameCell = $("<td></td>");
+    if(rot.id)
+        nameCell.append(`<a href="${rot.id}">${rot.name}</a>`);
+    else
+        nameCell.append(rot.name);
+    row.append(nameCell);
     row.append($(`<td>${rot.dps}</td>`).css("text-align", "right"));
     row.append($(`<td>${getTimeDisplay(rot.length)}</td>`).css("text-align", "right"));
     row.append($(`<td>${rot.gcd.toFixed(2)}</td>`));
     var openButton = $("<button class='ui icon button'><i class='icon folder open'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
     var deleteButton = $("<button class='ui icon button'><i class='icon trash alternate'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
     var shareButton = $("<button class='ui icon button'><i class='icon share'></i></button>").css({"padding": "4px", "background-color": "rgba(255,255,255,0)"});
-    var confirmLabel = $("<strong><label>Delete ?</label></strong>").css({"display": "none"});
+    var confirmLabel = $("<strong><label>Delete?</label></strong>").css({"display": "none"});
     var yesButton = $("<button class='ui icon button'><i class='icon checkmark'></i></button>").css({"padding": "4px", "background-color": "green", "display": "none", "margin": "0px 2px 0px 2px"});
     var noButton = $("<button class='ui icon button'><i class='icon close'></i></button>").css({"padding": "4px", "background-color": "red", "display": "none"});
+    var savedLabel = $("<strong><label>Rotation saved!</label></strong>").css({"display": "none"});
+    var sharedLabel = $("<strong><label>Name updated with the URL!</label></strong>").css({"display": "none"});
     openButton.click(function() {
         loadRotation(rot);
         $("#savedRotationsLightbox").modal("hide");
@@ -1132,7 +1163,23 @@ function loadRotationRow(rotName, rots, body) {
     });
     shareButton.click(function() {
         $.post("/", rot, function(data) {
-            console.log(data); // TODO: show new id
+            if (data) {
+                rot.id = data;
+                localStorage[rot.name] = JSON.stringify(rot);
+                nameCell.html(`<a href="${rot.id}">${nameCell.html()}</a>`);
+                openButton.css("display", "none");
+                deleteButton.css("display", "none");
+                shareButton.css("display", "none");
+                sharedLabel.css("display", "inline-block");
+                setTimeout(function() {
+                    sharedLabel.animate({opacity: 0}, 1000, function() {
+                        openButton.css("display", "inline-block");
+                        deleteButton.css("display", "inline-block");
+                        shareButton.css("display", "inline-block");
+                        sharedLabel.css({"display": "none", "opacity": 1});
+                    });
+                }, 2000);
+            }
         });
     });
     yesButton.click(function() {
@@ -1152,6 +1199,9 @@ function loadRotationRow(rotName, rots, body) {
         yesButton.css("display", "none");
         noButton.css("display", "none");
     });
+    addTooltip(openButton, "iconButton");
+    addTooltip(deleteButton, "iconButton");
+    addTooltip(shareButton, "iconButton");
     var buttonsCell = $("<td></td>");
     buttonsCell.append(openButton);
     buttonsCell.append(deleteButton);
@@ -1159,8 +1209,25 @@ function loadRotationRow(rotName, rots, body) {
     buttonsCell.append(confirmLabel);
     buttonsCell.append(yesButton);
     buttonsCell.append(noButton);
+    buttonsCell.append(savedLabel);
+    buttonsCell.append(sharedLabel);
     row.append(buttonsCell);
     body.append(row);
+
+    if (saving) {
+        openButton.css("display", "none");
+        deleteButton.css("display", "none");
+        shareButton.css("display", "none");
+        savedLabel.css("display", "inline-block");
+        setTimeout(function() {
+            savedLabel.animate({opacity: 0}, 1000, function() {
+                openButton.css("display", "inline-block");
+                deleteButton.css("display", "inline-block");
+                shareButton.css("display", "inline-block");
+                savedLabel.css({"display": "none", "opacity": 1});
+            });
+        }, 2000);
+    }
 }
 
 $("#manageRotations").click(function() {
@@ -1211,9 +1278,10 @@ $("#manageRotations").click(function() {
             rots.push(rotName);
             localStorage["Rotations"] = JSON.stringify(rots);
             localStorage[rotName] = JSON.stringify(savedRotationObject);
-            loadRotationRow(rotName, rots, body);
+            loadRotationRow(rotName, rots, body, true);
             row.prop("hidden", true);
         });
+        addTooltip(saveButton, "iconButton");
         row.append($("<td></td>").append(saveButton).append(warningLabel));
         body.prepend(row);
     }
