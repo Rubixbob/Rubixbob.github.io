@@ -1324,6 +1324,16 @@ $("#exportRotation").click(function() {
     $("#exportRotationConfirm").prop("hidden", false);
 });
 
+$("#themeCheckbox .checkbox").checkbox({
+    onChange : function() {
+        $("body").attr("data-theme", $(this.parentNode).checkbox("is checked") ? "dark" : "");
+        localStorage["theme"] = $(this.parentNode).checkbox("is checked") ? "dark" : "light";
+    }
+});
+
+if (!localStorage["theme"] || localStorage["theme"] === "dark")
+    $("#themeCheckbox .checkbox").checkbox("set checked");
+
 function toggleExpandPanel(self, side) {
     if ($(self).attr("expanded") === "true") {
         $(self).attr("expanded", "false");

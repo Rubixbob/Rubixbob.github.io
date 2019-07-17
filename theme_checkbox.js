@@ -1,9 +1,2 @@
-$("#themeCheckbox .checkbox").checkbox({
-    onChange : function() {
-        $("body").attr("data-theme", $(this.parentNode).checkbox("is checked") ? "dark" : "");
-        localStorage["theme"] = $(this.parentNode).checkbox("is checked") ? "dark" : "light";
-    }
-});
-
-if (!localStorage["theme"] || localStorage["theme"] === "dark")
-    $("#themeCheckbox .checkbox").checkbox("check");
+document.body.setAttribute("data-theme", (!localStorage["theme"] || localStorage["theme"] === "dark") ? "dark" : "");
+console.log(document.body.getAttribute("data-theme"));
