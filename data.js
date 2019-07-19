@@ -388,7 +388,7 @@ var effects = [
 	{ name: "Medicated",
 	  shortName: "Pot",
 	  description: "Performance is being enhanced by a medicinal item.",
-	  value: 225,
+	  value: 312,
 	  duration: 30,
 	  activationTime: 0.93,
       stackable: false,
