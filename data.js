@@ -145,7 +145,7 @@ var actions = [
 	{ name: "Potion",
 	  shortName: "Pot",
 	  id: 17,
-	  description: "This diluted brew temporarily increases strength, but for twice the duration of similar potions.<br/>Item Level 350<br/>Consumable Bonuses (Duration: 30s) (Recast: 5m / HQ 4m30s)<br/>Strength +8% (Cap: 180) HQ +10% / Cap: 225",
+	  description: "This diluted brew temporarily increases strength, but for twice the duration of similar potions.<br/>Item Level 430<br/>Consumable Bonuses (Duration: 30s) (Recast: 5m / HQ 4m30s)<br/>Strength +8% (Cap: 250) HQ +10% / Cap: 312",
 	  recast: 270,
 	  animLock: longAnimLock,
 	  delayed: "true",
