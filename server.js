@@ -100,5 +100,5 @@ db.once("open", function() {
 		res.status(404).send("Not found: " + page);
 	});
 
-	app.listen(8080);
+	app.listen(1379, "localhost");
 });
