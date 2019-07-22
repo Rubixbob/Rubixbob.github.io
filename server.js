@@ -14,6 +14,10 @@ db.once("open", function() {
 	console.log("Connected to database");
 	var rotationSchema = new mongoose.Schema({
 		id: String,
+		name: String,
+		dps: Number,
+		length: Number,
+		gcd: Number,
 		wd: Number,
 		str: Number,
 		dh: Number,
@@ -21,7 +25,7 @@ db.once("open", function() {
 		det: Number,
 		sks: Number,
 		actions: [{i: String, d: String}]
-	}, { strict: false });
+	}, { strict: true });
 
 	var Rotation = mongoose.model('Rotation', rotationSchema);
 
