@@ -2052,6 +2052,8 @@ function updateSuggestions() {
             return;
         if (isOffCdAt(elt, latestTime)) { // Available in this GCD
             var remainingTime;
+            if (elt === "Life Surge" && $("#suggestions").children("[name='Full Thrust'], [name='Fang and Claw'], [name='Wheeling Thrust']").length === 0)
+                return;
             if (elt === "Nastrond" || elt === "Stardiver")
                 remainingTime = botDRemainingAt("life", currentTime);
             else if (elt === "Mirage Dive")

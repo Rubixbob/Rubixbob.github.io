@@ -400,7 +400,7 @@ var effects = [
 	{ name: "Life Surge",
 	  shortName: "LS",
 	  description: "Next weaponskill will result in a critical hit with resulting damage being absorbed as HP.",
-	  duration: 10,
+	  duration: 5,
       stackable: false,
       backgroundColor: "rgb(176, 48, 16)",
       borderColor: "rgb(144, 16, 16)",
