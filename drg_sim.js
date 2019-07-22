@@ -65,8 +65,12 @@ var imagesLoaded = 0;
 effects.forEach(function (ef) {
     if (ef.displaySelf) {
         var wrapper = $("<div></div>").attr("name", ef.name).css("display", "inline-block");
-        var checkBox = $("<input type='checkbox' checked/>").css({"display": "none", "margin": "auto"});
-        var effect = $("<img></img>").css("cursor", "pointer").attr("src", `images/effects/${ef.name}.png`).one("load", function() {
+        var checkBox = $("<input type='checkbox'/>").css({"display": "none", "margin": "auto"});
+        var savedEffects = {};
+        if (localStorage["effects"])
+            savedEffects = JSON.parse(localStorage["effects"]);
+        $(checkBox).prop("checked", savedEffects[ef.name] !== undefined ? savedEffects[ef.name] : true);
+        var effect = $("<img></img>").css("cursor", "pointer").attr("src", `images/effects/${ef.name}.png`).prop("hidden", !$(checkBox).prop("checked")).one("load", function() {
             imagesLoaded++;
             if (imagesLoaded === imagesToLoad)
                 fitColumns();
@@ -85,6 +89,11 @@ effects.forEach(function (ef) {
         checkBox.change(function() {
             if (checkBox.css("display") === "none") {
                 effect.prop("hidden", !$(checkBox).prop("checked"));
+                var savedEffects = {};
+                if (localStorage["effects"])
+                    savedEffects = JSON.parse(localStorage["effects"]);
+                savedEffects[ef.name] = $(checkBox).prop("checked");
+                localStorage["effects"] = JSON.stringify(savedEffects);
             }
             fitColumns();
         });
