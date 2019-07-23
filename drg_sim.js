@@ -174,11 +174,11 @@ effects.forEach(function (ef) {
                     return Number($(this).attr("time")) + getAnimationLock($(this).attr("name")) / 2 <= time && index !== curIdx;
                 }).length;
                 if (idx !== curIdx) {
-                    if (idx - curIdx >= 2)
-                        console.log("We shouldn't be here, curIdx = " + curIdx + ", idx = " + idx);
                     resetDps();
                     if (idx > curIdx) {
-                        addActionAtIndex($("#rotation").children().get(idx), idx-1);
+                        for (var i = curIdx; i < idx; i++) {
+                            addActionAtIndex($("#rotation").children().get(i+1), i);
+                        }
                         addActionAtIndex(dndHandler.draggedElement, idx);
                         updateRotationAfterIndex(idx + 1);
                     } else if (idx < curIdx) {
@@ -1831,6 +1831,12 @@ function refreshGroupMember(index, value) {
     if ($("#rotation").children().length > 0 && loopCount > 0) {
         resetAndUpdateDps();
     }
+    
+    var savedComp = standardComp;
+    if (localStorage["partyComp"])
+        savedComp = JSON.parse(localStorage["partyComp"]);
+    savedComp[index] = value;
+    localStorage["partyComp"] = JSON.stringify(savedComp);
 }
 
 $("#raidBuffLightboxConfirm").click(function() {
@@ -1910,12 +1916,15 @@ $("#group tr td select").each(function() {
         refreshGroupMember($("#group tr td select").index($(event.target)), data.item.value);
 }}).iconselectmenu("menuWidget").addClass("ui-menu-icons customicons"); });
 
+var savedComp = standardComp;
+if (localStorage["partyComp"])
+    savedComp = JSON.parse(localStorage["partyComp"]);
 for (i = 0; i < 7; i++) {
-    $("#group tr td select").eq(i).val(standardComp[i]);
+    $("#group tr td select").eq(i).val(savedComp[i]);
     $("#group tr td select").eq(i).iconselectmenu("refresh");
     var rectTop = $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().top + $("#group .ui-selectmenu-button").get(i).getBoundingClientRect().height + 3 + 8;
     $("#group tr td select").eq(i).iconselectmenu("menuWidget").css({"max-height": `calc(100vh - ${rectTop}px)`, "min-height": "100px"});
-    refreshGroupMember(i, standardComp[i]);
+    refreshGroupMember(i, savedComp[i]);
 }
 
 $(".checkboxButton").each((idx, elt) => addTooltip(elt, "checkboxButton"));
