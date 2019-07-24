@@ -226,7 +226,7 @@ class Stats {
 }
 
 class RotationEvent {
-	constructor(time, name, type, potency, actionDamage, aaDamage, dotDamage, aaTick, dotTick, cumulDamage, dps, timedEffect) {
+	constructor(time, name, type, potency, actionDamage, aaDamage, dotDamage, aaTick, dotTick, cumulDamage, gcdDps, oGcdDps, dotDps, aaDps, dps, timedEffect) {
 		this.time = time;
 		this.name = name;
 		this.type = type;
@@ -237,6 +237,10 @@ class RotationEvent {
 		this.aaTick = aaTick;
 		this.dotTick = dotTick;
 		this.cumulDamage = cumulDamage;
+        this.gcdDps = gcdDps;
+        this.oGcdDps = oGcdDps;
+        this.dotDps = dotDps;
+        this.aaDps = aaDps;
 		this.dps = dps;
 		this.timedEffect = timedEffect;
 	}
@@ -326,6 +330,10 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	var nextAction = curAction;
 	var time = Number(curAction.attr("time"));
 	var lastTime = time;
+	var cumulGcdDamage = 0;
+	var cumulOGcdDamage = 0;
+	var cumulDotDamage = 0;
+	var cumulAaDamage = 0;
 	var cumulDamage = 0;
 	var effectsToActivate = [];
 	var effectsToEnd = [];
@@ -592,8 +600,20 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 		}
 
 		cumulDamage += eDmg + eAaDmg + eDotDmg;
+        if (eType === "action" && eDmg > 0) {
+            if (getType(eName) === "Weaponskill")
+                cumulGcdDamage += eDmg;
+            else
+                cumulOGcdDamage += eDmg;
+        }
+		cumulDotDamage += eDotDmg;
+		cumulAaDamage += eAaDmg;
+		var eGcdDps = time <= 0 ? 0 : cumulGcdDamage / time;
+		var eOGcdDps = time <= 0 ? 0 : cumulOGcdDamage / time;
+		var eDotDps = time <= 0 ? 0 : cumulDotDamage / time;
+		var eAaDps = time <= 0 ? 0 : cumulAaDamage / time;
 		var eDps = time <= 0 ? 0 : cumulDamage / time;
-		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, eAaDmg, eDotDmg, eAaTick, eDotTick, cumulDamage, eDps, timedEffect));
+		rotationHistory.push(new RotationEvent(time, eName, eType, ePot, eDmg, eAaDmg, eDotDmg, eAaTick, eDotTick, cumulDamage, eGcdDps, eOGcdDps, eDotDps, eAaDps, eDps, timedEffect));
 
 		lastTime = time;
 		eType = "done";

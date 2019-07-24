@@ -446,6 +446,21 @@ function getTooltipContent(element, type) {
             var lat = $("#Latency").val();
             content = "Time added to animation lock: " + lat + "ms" + "<br/>" + "Adjust this value to reflect your in-game animation lock";
             break;
+        case "dps":
+            var gcdDps = Number($("#DPSout").attr("gcdDps")) || 0;
+            var oGcdDps = Number($("#DPSout").attr("oGcdDps")) || 0;
+            var dotDps = Number($("#DPSout").attr("dotDps")) || 0;
+            var aaDps = Number($("#DPSout").attr("aaDps")) || 0;
+            var dps = Number($("#DPSout").val()) || 1;
+            // content = "Weaponskills: " + gcdDps.toFixed(0) + " " + (gcdDps / dps * 100).toFixed(2) + "%" + "<br/>"
+                    // + "Abilities: " + oGcdDps.toFixed(0) + " " + (oGcdDps / dps * 100).toFixed(2) + "%" + "<br/>"
+                    // + "DoTs: " + dotDps.toFixed(0) + " " + (dotDps / dps * 100).toFixed(2) + "%" + "<br/>"
+                    // + "Auto attacks: " + aaDps.toFixed(0) + " " + (aaDps / dps * 100).toFixed(2) + "%";
+            content = "<table><tr><td>Weaponskills</td><td>" + gcdDps.toFixed(0)  + "</td><td>" + (gcdDps / dps * 100).toFixed(2)  + "%</td></tr>"
+                           + "<tr><td>Abilities</td><td>"    + oGcdDps.toFixed(0) + "</td><td>" + (oGcdDps / dps * 100).toFixed(2) + "%</td></tr>"
+                           + "<tr><td>DoTs</td><td>"         + dotDps.toFixed(0)  + "</td><td>" + (dotDps / dps * 100).toFixed(2)  + "%</td></tr>"
+                           + "<tr><td>Auto attacks</td><td>" + aaDps.toFixed(0)   + "</td><td>" + (aaDps / dps * 100).toFixed(2)   + "%</td></tr></table>";
+            break;
         case "savedRotations":
             content = "Rotations are saved locally in the cache of your browser, and data might be lost when clearing the cache.<br/>The share functionality can be used to save them in the database.";
             break;
@@ -985,10 +1000,10 @@ function hideDpsOverlap() {
     }
 }
 
-function displayDps(dps, time, width) {
-    var pos = (time - startTime) * scale + 1;
-    var wrapper = $("<div></div>").attr("time", `${time.toFixed(3)}`).addClass("dpsSeparator").css({"top": `${pos}px`, "width": `${width}px`});
-    var dpsText = $(`<div>${dps}</div>`).addClass("dpsText");
+function displayDps(e, width) {
+    var pos = (e.time - startTime) * scale + 1;
+    var wrapper = $("<div></div>").attr({"time": `${e.time.toFixed(3)}`, "gcdDps": e.gcdDps, "oGcdDps": e.oGcdDps, "dotDps": e.dotDps, "aaDps": e.aaDps}).addClass("dpsSeparator").css({"top": `${pos}px`, "width": `${width}px`});
+    var dpsText = $(`<div>${Math.floor(e.dps)}</div>`).addClass("dpsText");
     wrapper.append(dpsText);
     $("#dps").append(wrapper);
 }
@@ -1003,7 +1018,7 @@ function updateDps() {
     var dpsWidth = $("#dps").get(0).getBoundingClientRect().width;
     RotationHistory.forEach(e => {
         if (e.type === "action") {
-            displayDps(Math.floor(e.dps), e.time, dpsWidth);
+            displayDps(e, dpsWidth);
             $("#rotation").children(`[time='${e.time.toFixed(3)}']`).attr("damage", Math.round(e.actionDamage));
         } else if (e.type === "effectBegin") {
             if (e.timedEffect.displaySelf) {
@@ -1051,7 +1066,8 @@ function updateDps() {
         }
     });
     hideDpsOverlap();
-    $("#DPSout").val($("#dps").children().last().children().html());
+    var lastDps = $("#dps").children().last();
+    $("#DPSout").val(lastDps.children().html()).attr({"gcdDps": lastDps.attr("gcdDps"), "oGcdDps": lastDps.attr("oGcdDps"), "dotDps": lastDps.attr("dotDps"), "aaDps": lastDps.attr("aaDps")});
     updateSuggestions();
 }
 
@@ -1515,6 +1531,7 @@ addTooltip($("#CRITtooltip").get(0), "crit");
 addTooltip($("#DETtooltip").get(0), "det");
 addTooltip($("#SKStooltip").get(0), "sks");
 addTooltip($("#Latencytooltip").get(0), "latency");
+addTooltip($("#DPSout").get(0), "dps");
 
 window.addEventListener("wheel", function(event) // TODO: ctrl + +/-, 2 point slide
 {
@@ -2307,5 +2324,62 @@ function generateCritValues() {
         result.push(dps[i] / dps[0]);
     }
     stats.crit = oldCrit;
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
     return result;
+}
+
+function generateDhValues() {
+    var oldDh = stats.dh;
+    var dps = [];
+    var result = [];
+    var dhMod;
+    for (var i = stats.lvlModSub; i <= 5000; i++) {
+        stats.dh = i;
+        if (stats.dhMod() !== dhMod) {
+            dhMod = stats.dhMod();
+            RotationHistory = [];
+            generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+        }
+        var actionEvents = RotationHistory.filter(e => e.type === "action");
+        dps.push(actionEvents[actionEvents.length - 1].dps);
+    }
+    for (var i = 0; i <= 5000 - stats.lvlModSub; i++) {
+        result.push(dps[i] / dps[0]);
+    }
+    stats.dh = oldDh;
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    return result;
+}
+
+function generateSksValues(critValues, dhValues) { // Use correct str value, impacted by potion otherwise
+    if (!critValues || !dhValues) {
+        critValues = generateCritValues();
+        dhValues = generateDhValues();
+    }
+    var oldCrit = stats.crit;
+    var oldDh = stats.dh;
+    var oldDet = stats.det;
+    stats.crit = stats.lvlModSub;
+    stats.dh = stats.lvlModSub;
+    stats.det = stats.lvlModMain;
+    
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var actionEvents = RotationHistory.filter(e => e.type === "action");
+    var lastEvent = actionEvents[actionEvents.length - 1];
+    var sksValue = (lastEvent.aaDps / stats.aaMod() + (lastEvent.dps - lastEvent.aaDps) / stats.wdMod()) / stats.strMod();
+    console.log(sksValue);
+    
+    stats.crit = oldCrit;
+    stats.dh = oldDh;
+    stats.det = oldDet;
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    // TODO : all sks tiers for this gcd
+    // Divide by everything but sks mod, use base value for substats
+    // (%aa * aamod + (1-%aa) * wdmod) * strmod * critvalue * detmod * dhmod * sksvalue
+    var expectedDps = sksValue * ((lastEvent.aaDps / lastEvent.dps) * stats.aaMod() + (1 - (lastEvent.aaDps / lastEvent.dps)) * stats.wdMod()) * stats.strMod() * stats.detMod() * critValues[stats.crit - stats.lvlModSub] * dhValues[stats.dh - stats.lvlModSub];
+    console.log(expectedDps);
 }
