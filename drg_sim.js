@@ -2353,33 +2353,74 @@ function generateDhValues() {
     return result;
 }
 
-function generateSksValues(critValues, dhValues) { // Use correct str value, impacted by potion otherwise
-    if (!critValues || !dhValues) {
-        critValues = generateCritValues();
-        dhValues = generateDhValues();
+function generateSksValues(gcdMin, gcdMax) { // Use correct str value, impacted by potion otherwise
+    if (!gcdMax) {
+        if (!gcdMin) {
+            gcdMin = stats.gcd();
+            gcdMax = stats.gcd();
+        } else
+            gcdMax = gcdMin;
     }
+    // var gcdValue = stats.gcd();
+    var critValues;
+    var dhValues;
     var oldCrit = stats.crit;
     var oldDh = stats.dh;
     var oldDet = stats.det;
+    var oldSks = stats.sks;
     stats.crit = stats.lvlModSub;
     stats.dh = stats.lvlModSub;
     stats.det = stats.lvlModMain;
     
-    RotationHistory = [];
-    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
-    var actionEvents = RotationHistory.filter(e => e.type === "action");
-    var lastEvent = actionEvents[actionEvents.length - 1];
-    var sksValue = (lastEvent.aaDps / stats.aaMod() + (lastEvent.dps - lastEvent.aaDps) / stats.wdMod()) / stats.strMod();
-    console.log(sksValue);
+    var result = [];
+    var lastSksMod;
+    var lastGcd;
+    var initSks;
+    for (var i = stats.lvlModSub; i <= 5000; i++) {
+        stats.sks = i;
+        curGcd = stats.gcd();
+        if (curGcd <= gcdMin && curGcd >= gcdMax) {
+            if (!lastSksMod)
+                initSks = i;
+            if (curGcd !== lastGcd) {
+                lastGcd = curGcd;
+                console.log(lastGcd);
+                $("#SKSoutGCD").val(lastGcd);
+                updateGcdTimeline();
+                if ($("#rotation").children().length > 0)
+                    updateRotationAfterIndex(0);
+                critValues = generateCritValues();
+                dhValues = generateDhValues();
+            }
+            if (stats.sksMod() !== lastSksMod) {
+                lastSksMod = stats.sksMod();
+                console.log(lastSksMod);
+                RotationHistory = [];
+                generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+            }
+            var actionEvents = RotationHistory.filter(e => e.type === "action");
+            var lastEvent = actionEvents[actionEvents.length - 1];
+            var sksValue = (lastEvent.aaDps / stats.aaMod() + (lastEvent.dps - lastEvent.aaDps) / stats.wdMod()) / stats.strMod();
+            result.push(sksValue);
+        }
+    }
+    // console.log(result);
     
     stats.crit = oldCrit;
     stats.dh = oldDh;
     stats.det = oldDet;
+    stats.sks = oldSks;
+    $("#SKSoutGCD").val(stats.gcd());
+    updateGcdTimeline();
+    if ($("#rotation").children().length > 0)
+        updateRotationAfterIndex(0);
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
-    // TODO : all sks tiers for this gcd
     // Divide by everything but sks mod, use base value for substats
     // (%aa * aamod + (1-%aa) * wdmod) * strmod * critvalue * detmod * dhmod * sksvalue
-    var expectedDps = sksValue * ((lastEvent.aaDps / lastEvent.dps) * stats.aaMod() + (1 - (lastEvent.aaDps / lastEvent.dps)) * stats.wdMod()) * stats.strMod() * stats.detMod() * critValues[stats.crit - stats.lvlModSub] * dhValues[stats.dh - stats.lvlModSub];
-    console.log(expectedDps);
+    // var expectedDps = sksValue * ((lastEvent.aaDps / lastEvent.dps) * stats.aaMod() + (1 - (lastEvent.aaDps / lastEvent.dps)) * stats.wdMod()) * stats.strMod() * stats.detMod() * critValues[stats.crit - stats.lvlModSub] * dhValues[stats.dh - stats.lvlModSub];
+    // console.log(expectedDps);
+    console.log("initSks: " + initSks);
+    console.log(JSON.stringify(result).replace(/,/g, "\n").replace(/\./g, ",").replace(/\[/g, "").replace(/\]/g, ""));
+    return { gcdMin: gcdMin, gcdMax: gcdMax, initSks: initSks, sksValues: result};
 }
