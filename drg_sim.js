@@ -2384,17 +2384,20 @@ function generateSksValues(gcdMin, gcdMax) { // Use correct str value, impacted 
                 initSks = i;
             if (curGcd !== lastGcd) {
                 lastGcd = curGcd;
-                console.log(lastGcd);
-                $("#SKSoutGCD").val(lastGcd);
+                console.log(curGcd);
+                $("#SKSoutGCD").val(curGcd);
                 updateGcdTimeline();
-                if ($("#rotation").children().length > 0)
-                    updateRotationAfterIndex(0);
-                critValues = generateCritValues();
-                dhValues = generateDhValues();
+                loadRotation(JSON.parse(localStorage[(curGcd).toFixed(2)]));
+                stats.crit = stats.lvlModSub;
+                stats.dh = stats.lvlModSub;
+                stats.det = stats.lvlModMain;
+                stats.sks = i;
+                // critValues = generateCritValues();
+                // dhValues = generateDhValues();
             }
             if (stats.sksMod() !== lastSksMod) {
                 lastSksMod = stats.sksMod();
-                console.log(lastSksMod);
+                // console.log(lastSksMod);
                 RotationHistory = [];
                 generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
             }
@@ -2421,6 +2424,153 @@ function generateSksValues(gcdMin, gcdMax) { // Use correct str value, impacted 
     // var expectedDps = sksValue * ((lastEvent.aaDps / lastEvent.dps) * stats.aaMod() + (1 - (lastEvent.aaDps / lastEvent.dps)) * stats.wdMod()) * stats.strMod() * stats.detMod() * critValues[stats.crit - stats.lvlModSub] * dhValues[stats.dh - stats.lvlModSub];
     // console.log(expectedDps);
     console.log("initSks: " + initSks);
-    console.log(JSON.stringify(result).replace(/,/g, "\n").replace(/\./g, ",").replace(/\[/g, "").replace(/\]/g, ""));
+    console.log(JSON.stringify(result).replace(/,/g, "\n").replace(/\[/g, "").replace(/\]/g, ""));
     return { gcdMin: gcdMin, gcdMax: gcdMax, initSks: initSks, sksValues: result};
+}
+
+function getAdjustedDpsAt(cutTime) {
+
+    var avgGcdDps = stats.actionDamage(actions.find(ac => "Raiden Thrust" === ac.name).potency
+                                     + actions.find(ac => "Disembowel" === ac.name).potency
+                                     + actions.find(ac => "Chaos Thrust" === ac.name).potency
+                                     + actions.find(ac => "Wheeling Thrust" === ac.name).potency
+                                     + actions.find(ac => "Fang and Claw" === ac.name).potency + 100
+                                     + actions.find(ac => "Raiden Thrust" === ac.name).potency
+                                     + actions.find(ac => "Vorpal Thrust" === ac.name).potency
+                                     + actions.find(ac => "Full Thrust" === ac.name).potency
+                                     + actions.find(ac => "Fang and Claw" === ac.name).potency
+                                     + actions.find(ac => "Wheeling Thrust" === ac.name).potency + 100)
+                    * effects.find(ef => "Disembowel" === ef.name).value / (10 * stats.gcd());
+    
+    // Damage from buffs
+    var LCEffect = effects.find(ef => ef.name === "Lance Charge");
+    var LCValue = LCEffect.value;
+    var DSEffect = effects.find(ef => ef.name === "Right Eye");
+    var DSValue = DSEffect.value;
+    var BLEffect = effects.find(ef => ef.name === "Battle Litany");
+    var BLValue = BLEffect.value;
+    // Without
+    LCEffect.value = 1;
+    DSEffect.value = 1;
+    BLEffect.value = 0;
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var unbuffedDamage = RotationHistory[RotationHistory.length - 1].cumulDamage;
+    // LC
+    LCEffect.value = LCValue;
+    DSEffect.value = 1;
+    BLEffect.value = 0;
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var LCGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Lance Charge']").length;
+    // DS
+    LCEffect.value = 1;
+    DSEffect.value = DSValue;
+    BLEffect.value = 0;
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var DSGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Dragon Sight']").length;
+    // BL
+    LCEffect.value = 1;
+    DSEffect.value = 1;
+    BLEffect.value = BLValue;
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var BLGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Battle Litany']").length;
+    // All
+    LCEffect.value = LCValue;
+    DSEffect.value = DSValue;
+    BLEffect.value = BLValue;
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var allBuffsGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage;
+
+    var LCDamage = (LCGain + LCGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    var DSDamage = (DSGain + DSGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    var BLDamage = (BLGain + BLGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Battle Litany']").length;
+
+    // console.log(LCDamage);
+    // console.log(DSDamage);
+    // console.log(BLDamage);
+
+    var damageToRemove = 0;
+    var remove = false;
+    var removeTime;
+    var actionEvents = RotationHistory.filter(e => e.type === "action" && getType(e.name) === "Weaponskill" && e.time < cutTime);
+    var lastGcds = actionEvents.filter((ac, idx) => {
+        return idx >= actionEvents.length - 10;
+    });
+    lastGcds.forEach((ac, idx) => {
+        if (remove)
+            damageToRemove += ac.actionDamage;
+        else if (ac.name === "Wheeling Thrust" && (idx > 0 && lastGcds[idx - 1].name === "Fang and Claw" || lastGcds[idx + 1].name === "Raiden Thrust")) {
+            remove = true;
+            removeTime = ac.time + stats.gcd();
+        }
+    });
+    var lastAc = lastGcds[lastGcds.length - 1];
+    var adjustedDamage = lastAc.cumulDamage - damageToRemove
+                       + (cutTime - removeTime) * avgGcdDps
+                       + (cutTime - lastAc.time) * (lastAc.aaTick / stats.wDelay + lastAc.dotTick / 3);
+
+    // Abilities penalties
+    var abilitiesToCheck = ["High Jump", "Spineshatter Dive", "Dragonfire Dive", "Geirskogul", "Lance Charge", "Dragon Sight", "Battle Litany"];
+    // var onCdAbilities = $("#cds").children().filter((idx, ac) => { return Number($(ac).attr("time")) > cutTime; });
+    var onCdAbilities = [];
+    abilitiesToCheck.forEach((ab, idx) => {
+        onCdAbilities.push($("#cds").children(`[name="${ab}"]`).sort((a, b) => {return Number($(a).attr("time")) - Number($(b).attr("time"))}).last());
+    });
+    onCdAbilities.forEach((ac, idx) => {
+        var acName = $(ac).attr("name");
+        var damagePenalty = 0;
+        switch(acName) {
+            case "High Jump":
+                damagePenalty = (stats.actionDamage(getPotency(acName)) * effects.find(ef => "Blood of the Dragon" === ef.name).value
+                              + stats.actionDamage(getPotency("Mirage Dive"))
+                              + stats.actionDamage(getPotency("Nastrond")) * 3 / 2
+                              + stats.actionDamage(getPotency("Stardiver")) * 1 / 2)
+                              * effects.find(ef => "Disembowel" === ef.name).value
+                              * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                break;
+            case "Spineshatter Dive":
+                damagePenalty = stats.actionDamage(getPotency(acName))
+                              * effects.find(ef => "Disembowel" === ef.name).value
+                              * effects.find(ef => "Blood of the Dragon" === ef.name).value
+                              * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                break;
+            case "Dragonfire Dive":
+            case "Geirskogul":
+                damagePenalty = stats.actionDamage(getPotency(acName))
+                              * effects.find(ef => "Disembowel" === ef.name).value
+                              * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                break;
+            case "Lance Charge":
+                damagePenalty = LCDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+            case "Dragon Sight":
+                damagePenalty = DSDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+            case "Battle Litany":
+                damagePenalty = BLDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                break;
+            default:
+                break;
+        }
+        // console.log(acName);
+        // console.log(damagePenalty * getRecastTime(acName) / (Number($(ac).attr("time")) - cutTime));
+        // console.log(damagePenalty);
+        adjustedDamage -= damagePenalty;
+    });
+
+    var adjustedDps = adjustedDamage / cutTime;
+
+    return adjustedDps;
+}
+
+function rotationComp() {
+    var result = "";
+    for (var i = 250; i >= 231; i--) {
+        console.log((i/100).toFixed(2));
+        loadRotation(JSON.parse(localStorage[(i/100).toFixed(2)]));
+        result += (i/100).toFixed(2) + "\t" + getAdjustedDpsAt(360) + "\n";
+    }
+    console.log(result);
 }
