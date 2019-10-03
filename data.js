@@ -907,7 +907,7 @@ var groupActions = [
 	{ name: "Divination",
 	  shortName: "DV",
 	  id: 15,
-	  description: "Increases damage dealt by self and nearby party members.<br/>Duration: 15s<br/>Can only be executed after obtaining three Seals of Arcana by playing at least three arcanum.<br/>Effectiveness is determined by the number of different types of seals in play.<br/>1 Seal Type: 2%<br/>2 Seal Types: 4%<br/>3 Seal Types: 6%",
+	  description: "Increases damage dealt by self and nearby party members.<br/>Duration: 15s<br/>Can only be executed after obtaining three Seals of Arcana by playing at least three arcanum.<br/>Effectiveness is determined by the number of different types of seals in play.<br/>1 Seal Type: 4%<br/>2 Seal Types: 5%<br/>3 Seal Types: 6%",
 	  recast: 120,
       openerTime: 10,
 	  effects: ["Divination"],
