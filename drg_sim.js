@@ -2591,7 +2591,7 @@ function rotationComp() {
     var result = "";
     for (var i = 250; i >= 231; i--) {
         console.log((i/100).toFixed(2));
-        loadRotation(JSON.parse(localStorage[(i/100).toFixed(2)]));
+        loadRotation(eval("rot" + i));
         result += (i/100).toFixed(2) + "\t" + getAdjustedDpsAt(360) + "\n";
     }
     console.log(result);
