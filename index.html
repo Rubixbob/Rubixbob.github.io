@@ -41,7 +41,7 @@
                 <button class="mini ui icon button" id="clearRotation"><i class="icon close"></i>Clear Rotation</button>
                 <button class="mini ui button" id="opener">10.5s TA opener</button>
                 <button class="mini ui button" id="manageRotations">Rotations...</button>
-                <button class="mini ui button" id="threeMinRotation">3 min rotation</button>
+                <button class="mini ui button" id="sixMinRotation">6 min rotation</button>
                 <button class="mini ui button" id="hideEffectsButton">Show/Hide Effects</button>
                 <button class="mini ui icon button" id="convertRotation"><i class="icon sync"></i>Convert...</button>
                 <strong>
@@ -194,15 +194,16 @@
                 <tr>
                     <td><label for="WDin">Weapon Damage</label></td>
                     <td>
-                        <input id="WDin" type="number" value="117" min="0" max="9999"></input>
+                        <input id="WDin" type="number" value="128" min="0" max="9999"></input>
                         <output id="WDout" hidden></output>
+                        <output id="WDoutAa" hidden></output>
                     </td>
                     <td><i id="WDtooltip" class="icon question circle outline"></i></td>
                 </tr>
                 <tr>
                     <td><label for="STRin">Strength</label></td>
                     <td>
-                        <input id="STRin" type="number" value="3913" min="0" max="9999"></input>
+                        <input id="STRin" type="number" value="5099" min="340" max="9999"></input>
                         <output id="STRout" hidden></output>
                     </td>
                     <td><i id="STRtooltip" class="icon question circle outline"></i></td>
@@ -210,7 +211,7 @@
                 <tr>
                     <td><label for="DHin">Direct Hit Rate</label></td>
                     <td>
-                        <input id="DHin" type="number" value="2565" min="0" max="9999"></input>
+                        <input id="DHin" type="number" value="3144" min="380" max="9999"></input>
                         <output id="DHout" hidden></output>
                         <output id="DHoutRate" hidden></output>
                     </td>
@@ -219,7 +220,7 @@
                 <tr>
                     <td><label for="CRITin">Critical Hit Rate</label></td>
                     <td>
-                        <input id="CRITin" type="number" value="2479" min="0" max="9999"></input>
+                        <input id="CRITin" type="number" value="3808" min="380" max="9999"></input>
                         <output id="CRITout" hidden></output>
                         <output id="CRIToutRate" hidden></output>
                         <output id="CRIToutDmg" hidden></output>
@@ -229,7 +230,7 @@
                 <tr>
                     <td><label for="DETin">Determination</label></td>
                     <td>
-                        <input id="DETin" type="number" value="1661" min="0" max="9999"></input>
+                        <input id="DETin" type="number" value="1838" min="340" max="9999"></input>
                         <output id="DETout" hidden></output>
                     </td>
                     <td><i id="DETtooltip" class="icon question circle outline"></i></td>
@@ -237,7 +238,7 @@
                 <tr>
                     <td><label for="SKSin">Skill Speed</label></td>
                     <td>
-                        <input id="SKSin" type="number" value="1250" min="0" max="9999"></input>
+                        <input id="SKSin" type="number" value="380" min="380" max="9999"></input>
                         <output id="SKSout" hidden></output>
                         <output id="SKSoutGCD" hidden></output>
                     </td>

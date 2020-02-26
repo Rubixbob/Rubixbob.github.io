@@ -416,7 +416,8 @@ function getTooltipContent(element, type) {
             break;
         case "wd":
             var dmgMult = $("#WDout").val();
-            content = "Damage multiplier: " + dmgMult;
+            var aaDmgMult = $("#WDoutAa").val();
+            content = "Damage multiplier: " + dmgMult + "<br/>" + "Auto attack damage multiplier: " + aaDmgMult;
             break;
         case "str":
             var dmgMult = $("#STRout").val();
@@ -1362,8 +1363,8 @@ function loadRotation(rotation) {
     // requestAnimationFrame(doOneStep);
 }
 
-$("#threeMinRotation").click(function() {
-    loadRotation(threeMinRotation);
+$("#sixMinRotation").click(function() {
+    loadRotation(sixMinRotation);
 });
 
 function displayDebug() {
@@ -1466,6 +1467,7 @@ $("#WDin").change(function() {
     $("#WDin").val(Math.trunc($("#WDin").val()));
     stats.wd = Number($("#WDin").val());
     $("#WDout").val(stats.wdMod());
+    $("#WDoutAa").val(stats.aaMod());
     if ($("#rotation").children().length > 0)
         resetAndUpdateDps();
 });
@@ -2348,6 +2350,26 @@ function generateDhValues() {
         result.push(dps[i] / dps[0]);
     }
     stats.dh = oldDh;
+    RotationHistory = [];
+    generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    return result;
+}
+
+function generateStrValues() {
+    var oldStr = stats.str;
+    var dps = [];
+    var result = [];
+    for (var i = stats.lvlModMain; i <= 8000; i++) {
+        stats.str = i;
+        RotationHistory = [];
+        generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+        var actionEvents = RotationHistory.filter(e => e.type === "action");
+        dps.push(actionEvents[actionEvents.length - 1].dps);
+    }
+    for (var i = 0; i <= 8000 - stats.lvlModMain; i++) {
+        result.push(dps[i] / dps[0]);
+    }
+    stats.str = oldStr;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
     return result;
