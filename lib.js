@@ -451,7 +451,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	                    	if (FCEffect && FCEffect.effect.value)
 	                        	return;
 	                        else
-	                        	ef.value = 100;
+	                        	ef.value = 110;
 	                    } else if (ef.name === "Raiden Thrust Ready" && !(FCEffect && FCEffect.effect.value))
 	                    	return;
                     } else if (eName === "Wheeling Thrust") {
@@ -460,7 +460,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	                    	if (WTEffect && WTEffect.effect.value)
 	                        	return;
 	                        else
-	                        	ef.value = 100;
+	                        	ef.value = 110;
 	                    } else if (ef.name === "Raiden Thrust Ready" && !(WTEffect && WTEffect.effect.value))
 	                    	return;
                     }
