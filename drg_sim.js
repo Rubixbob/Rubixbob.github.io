@@ -2456,12 +2456,12 @@ function getAdjustedDpsAt(cutTime) {
                                      + actions.find(ac => "Disembowel" === ac.name).potency
                                      + actions.find(ac => "Chaos Thrust" === ac.name).potency
                                      + actions.find(ac => "Wheeling Thrust" === ac.name).potency
-                                     + actions.find(ac => "Fang and Claw" === ac.name).potency + 100
+                                     + actions.find(ac => "Fang and Claw" === ac.name).potency + 110
                                      + actions.find(ac => "Raiden Thrust" === ac.name).potency
                                      + actions.find(ac => "Vorpal Thrust" === ac.name).potency
                                      + actions.find(ac => "Full Thrust" === ac.name).potency
                                      + actions.find(ac => "Fang and Claw" === ac.name).potency
-                                     + actions.find(ac => "Wheeling Thrust" === ac.name).potency + 100)
+                                     + actions.find(ac => "Wheeling Thrust" === ac.name).potency + 110)
                     * effects.find(ef => "Disembowel" === ef.name).value / (10 * stats.gcd());
     
     // Damage from buffs
@@ -2477,6 +2477,10 @@ function getAdjustedDpsAt(cutTime) {
     BLEffect.value = 0;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var unbuffedGcdDamage = RotationHistory[RotationHistory.length - 1].gcdDps * RotationHistory[RotationHistory.length - 1].time;
+    var unbuffedOgcdDamage = RotationHistory[RotationHistory.length - 1].oGcdDps * RotationHistory[RotationHistory.length - 1].time;
+    var unbuffedDotDamage = RotationHistory[RotationHistory.length - 1].dotDps * RotationHistory[RotationHistory.length - 1].time;
+    var unbuffedAaDamage = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time;
     var unbuffedDamage = RotationHistory[RotationHistory.length - 1].cumulDamage;
     // LC
     LCEffect.value = LCValue;
@@ -2484,6 +2488,10 @@ function getAdjustedDpsAt(cutTime) {
     BLEffect.value = 0;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var LCGcdGain = RotationHistory[RotationHistory.length - 1].gcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedGcdDamage;
+    var LCOgcdGain = RotationHistory[RotationHistory.length - 1].oGcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedOgcdDamage;
+    var LCDotGain = RotationHistory[RotationHistory.length - 1].dotDps * RotationHistory[RotationHistory.length - 1].time - unbuffedDotDamage;
+    var LCAaGain = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time - unbuffedAaDamage;
     var LCGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Lance Charge']").length;
     // DS
     LCEffect.value = 1;
@@ -2491,6 +2499,10 @@ function getAdjustedDpsAt(cutTime) {
     BLEffect.value = 0;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var DSGcdGain = RotationHistory[RotationHistory.length - 1].gcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedGcdDamage;
+    var DSOgcdGain = RotationHistory[RotationHistory.length - 1].oGcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedOgcdDamage;
+    var DSDotGain = RotationHistory[RotationHistory.length - 1].dotDps * RotationHistory[RotationHistory.length - 1].time - unbuffedDotDamage;
+    var DSAaGain = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time - unbuffedAaDamage;
     var DSGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Dragon Sight']").length;
     // BL
     LCEffect.value = 1;
@@ -2498,6 +2510,10 @@ function getAdjustedDpsAt(cutTime) {
     BLEffect.value = BLValue;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var BLGcdGain = RotationHistory[RotationHistory.length - 1].gcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedGcdDamage;
+    var BLOgcdGain = RotationHistory[RotationHistory.length - 1].oGcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedOgcdDamage;
+    var BLDotGain = RotationHistory[RotationHistory.length - 1].dotDps * RotationHistory[RotationHistory.length - 1].time - unbuffedDotDamage;
+    var BLAaGain = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time - unbuffedAaDamage;
     var BLGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Battle Litany']").length;
     // All
     LCEffect.value = LCValue;
@@ -2505,15 +2521,29 @@ function getAdjustedDpsAt(cutTime) {
     BLEffect.value = BLValue;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    var allBuffsGcdGain = RotationHistory[RotationHistory.length - 1].gcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedGcdDamage;
+    var allBuffsOgcdGain = RotationHistory[RotationHistory.length - 1].oGcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedOgcdDamage;
+    var allBuffsDotGain = RotationHistory[RotationHistory.length - 1].dotDps * RotationHistory[RotationHistory.length - 1].time - unbuffedDotDamage;
+    var allBuffsAaGain = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time - unbuffedAaDamage;
     var allBuffsGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage;
 
+    var LCGcdDamage = (LCGcdGain + LCGcdGain / (LCGcdGain + DSGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + DSGcdGain + BLGcdGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    var LCOgcdDamage = (LCOgcdGain + LCOgcdGain / (LCOgcdGain + DSOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + DSOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    var LCDotDamage = (LCDotGain + LCDotGain / (LCDotGain + DSDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + DSDotGain + BLDotGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    var LCAaDamage = (LCAaGain + LCAaGain / (LCAaGain + DSAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + DSAaGain + BLAaGain))) / $("#rotation").children("[name='Lance Charge']").length;
     var LCDamage = (LCGain + LCGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    
+    var DSGcdDamage = (DSGcdGain + DSGcdGain / (LCGcdGain + DSGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + DSGcdGain + BLGcdGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    var DSOgcdDamage = (DSOgcdGain + DSOgcdGain / (LCOgcdGain + DSOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + DSOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    var DSDotDamage = (DSDotGain + DSDotGain / (LCDotGain + DSDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + DSDotGain + BLDotGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    var DSAaDamage = (DSAaGain + DSAaGain / (LCAaGain + DSAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + DSAaGain + BLAaGain))) / $("#rotation").children("[name='Dragon Sight']").length;
     var DSDamage = (DSGain + DSGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    
+    var BLGcdDamage = (BLGcdGain + BLGcdGain / (LCGcdGain + DSGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + DSGcdGain + BLGcdGain))) / $("#rotation").children("[name='Battle Litany']").length;
+    var BLOgcdDamage = (BLOgcdGain + BLOgcdGain / (LCOgcdGain + DSOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + DSOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Battle Litany']").length;
+    var BLDotDamage = (BLDotGain + BLDotGain / (LCDotGain + DSDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + DSDotGain + BLDotGain))) / $("#rotation").children("[name='Battle Litany']").length;
+    var BLAaDamage = (BLAaGain + BLAaGain / (LCAaGain + DSAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + DSAaGain + BLAaGain))) / $("#rotation").children("[name='Battle Litany']").length;
     var BLDamage = (BLGain + BLGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Battle Litany']").length;
-
-    // console.log(LCDamage);
-    // console.log(DSDamage);
-    // console.log(BLDamage);
 
     var damageToRemove = 0;
     var remove = false;
@@ -2531,6 +2561,10 @@ function getAdjustedDpsAt(cutTime) {
         }
     });
     var lastAc = lastGcds[lastGcds.length - 1];
+    var adjustedGcdDamage = lastAc.gcdDps * lastAc.time - damageToRemove + (cutTime - removeTime) * avgGcdDps;
+    var adjustedOgcdDamage = lastAc.oGcdDps * lastAc.time;
+    var adjustedDotDamage = lastAc.dotDps * lastAc.time + (cutTime - lastAc.time) * (lastAc.dotTick / 3);
+    var adjustedAaDamage = lastAc.aaDps * lastAc.time + (cutTime - lastAc.time) * (lastAc.aaTick / stats.wDelay);
     var adjustedDamage = lastAc.cumulDamage - damageToRemove
                        + (cutTime - removeTime) * avgGcdDps
                        + (cutTime - lastAc.time) * (lastAc.aaTick / stats.wDelay + lastAc.dotTick / 3);
@@ -2544,33 +2578,57 @@ function getAdjustedDpsAt(cutTime) {
     });
     onCdAbilities.forEach((ac, idx) => {
         var acName = $(ac).attr("name");
+        var ACdmg = 0;
+        var gcdDamagePenalty = 0;
+        var ogcdDamagePenalty = 0;
+        var dotDamagePenalty = 0;
+        var aaDamagePenalty = 0;
         var damagePenalty = 0;
         switch(acName) {
             case "High Jump":
-                damagePenalty = (stats.actionDamage(getPotency(acName)) * effects.find(ef => "Blood of the Dragon" === ef.name).value
-                              + stats.actionDamage(getPotency("Mirage Dive"))
-                              + stats.actionDamage(getPotency("Nastrond")) * 3 / 2
-                              + stats.actionDamage(getPotency("Stardiver")) * 1 / 2)
-                              * effects.find(ef => "Disembowel" === ef.name).value
-                              * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                var MDdmg = 0;
+                var NASdmg = 0;
+                var SDdmg = 0;
+                $("#rotation").children(`[name="${acName}"]`).each(function(idx) { ACdmg += Number($(this).attr("damage")); });
+                ACdmg /= $("#rotation").children(`[name="${acName}"]`).length;
+                $("#rotation").children("[name='Mirage Dive']").each(function(idx) { MDdmg += Number($(this).attr("damage")); });
+                MDdmg /= $("#rotation").children("[name='Mirage Dive']").length;
+                $("#rotation").children("[name='Nastrond']").each(function(idx) { NASdmg += Number($(this).attr("damage")); });
+                NASdmg /= $("#rotation").children("[name='Nastrond']").length;
+                $("#rotation").children("[name='Stardiver']").each(function(idx) { SDdmg += Number($(this).attr("damage")); });
+                SDdmg /= $("#rotation").children("[name='Stardiver']").length;
+
+                damagePenalty = (ACdmg + MDdmg + NASdmg * 3 / 2 + SDdmg * 1 / 2) * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+
+                ogcdDamagePenalty = damagePenalty;
                 break;
             case "Spineshatter Dive":
-                damagePenalty = stats.actionDamage(getPotency(acName))
-                              * effects.find(ef => "Disembowel" === ef.name).value
-                              * effects.find(ef => "Blood of the Dragon" === ef.name).value
-                              * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
-                break;
             case "Dragonfire Dive":
             case "Geirskogul":
-                damagePenalty = stats.actionDamage(getPotency(acName))
-                              * effects.find(ef => "Disembowel" === ef.name).value
-                              * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                $("#rotation").children(`[name="${acName}"]`).each(function(idx) { ACdmg += Number($(this).attr("damage")); });
+                ACdmg /= $("#rotation").children(`[name="${acName}"]`).length;
+
+                damagePenalty = ACdmg * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                
+                ogcdDamagePenalty = damagePenalty;
                 break;
             case "Lance Charge":
+                gcdDamagePenalty = LCGcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                ogcdDamagePenalty = LCOgcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                dotDamagePenalty = LCDotDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                aaDamagePenalty = LCAaDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
                 damagePenalty = LCDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
             case "Dragon Sight":
+                gcdDamagePenalty = DSGcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                ogcdDamagePenalty = DSOgcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                dotDamagePenalty = DSDotDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                aaDamagePenalty = DSAaDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
                 damagePenalty = DSDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
             case "Battle Litany":
+                gcdDamagePenalty = BLGcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                ogcdDamagePenalty = BLOgcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                dotDamagePenalty = BLDotDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                aaDamagePenalty = BLAaDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
                 damagePenalty = BLDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
                 break;
             default:
@@ -2579,12 +2637,42 @@ function getAdjustedDpsAt(cutTime) {
         // console.log(acName);
         // console.log(damagePenalty * getRecastTime(acName) / (Number($(ac).attr("time")) - cutTime));
         // console.log(damagePenalty);
+        adjustedGcdDamage -= gcdDamagePenalty;
+        adjustedOgcdDamage -= ogcdDamagePenalty;
+        adjustedDotDamage -= dotDamagePenalty;
+        adjustedAaDamage -= aaDamagePenalty;
         adjustedDamage -= damagePenalty;
     });
 
+    var adjustedGcdDps = adjustedGcdDamage / cutTime;
+    var adjustedOgcdDps = adjustedOgcdDamage / cutTime;
+    var adjustedDotDps = adjustedDotDamage / cutTime;
+    var adjustedAaDps = adjustedAaDamage / cutTime;
     var adjustedDps = adjustedDamage / cutTime;
 
-    return adjustedDps;
+    // console.log(adjustedGcdDps);
+    // console.log((adjustedGcdDps / adjustedDps * 100).toFixed(2)  + "%");
+    // console.log(adjustedOgcdDps);
+    // console.log((adjustedOgcdDps / adjustedDps * 100).toFixed(2)  + "%");
+    // console.log(adjustedDotDps);
+    // console.log((adjustedDotDps / adjustedDps * 100).toFixed(2)  + "%");
+    // console.log(adjustedAaDps);
+    // console.log((adjustedAaDps / adjustedDps * 100).toFixed(2)  + "%");
+
+    // var critValues = generateCritValues();
+    
+    // var gcdPps = adjustedGcdDps * 100 / stats.wdMod() / stats.strMod() / stats.detMod() / stats.dhMod() / critValues[stats.crit - stats.lvlModSub];
+    // var ogcdPps = adjustedOgcdDps * 100 / stats.wdMod() / stats.strMod() / stats.detMod() / stats.dhMod() / critValues[stats.crit - stats.lvlModSub];
+    // var dotPps = adjustedDotDps * 100 / stats.wdMod() / stats.strMod() / stats.detMod() / stats.sksMod() / stats.dhMod() / critValues[stats.crit - stats.lvlModSub];
+    // var aaPps = adjustedAaDps * 100 / stats.aaMod() / stats.strMod() / stats.detMod() / stats.sksMod() / stats.dhMod() / critValues[stats.crit - stats.lvlModSub];
+
+    // console.log(gcdPps);
+    // console.log(ogcdPps);
+    // console.log(dotPps);
+    // console.log(aaPps);
+
+    return adjustedGcdDps + adjustedOgcdDps + adjustedDotDps + adjustedAaDps;
+    // return adjustedDps;
 }
 
 function rotationComp() {
@@ -2596,3 +2684,19 @@ function rotationComp() {
     }
     console.log(result);
 }
+
+// function verifyQuickDps() {
+//     var gcdPps = 197.5301113790231;
+//     var ogcdPps = 90.86466283215798;
+//     var dotPps = 19.38855748511087;
+//     var aaPps = 48.24474676764367;
+//     var critValues = generateCritValues();
+
+//     var adjustedGcdDps = gcdPps / 100 * stats.wdMod() * stats.strMod() * stats.detMod() * stats.dhMod() * critValues[stats.crit - stats.lvlModSub];
+//     var adjustedOgcdDps = ogcdPps / 100 * stats.wdMod() * stats.strMod() * stats.detMod() * stats.dhMod() * critValues[stats.crit - stats.lvlModSub];
+//     var adjustedDotDps = dotPps / 100 * stats.wdMod() * stats.strMod() * stats.detMod() * stats.sksMod() * stats.dhMod() * critValues[stats.crit - stats.lvlModSub];
+//     var adjustedAaDps = aaPps / 100 * stats.aaMod() * stats.strMod() * stats.detMod() * stats.sksMod() * stats.dhMod() * critValues[stats.crit - stats.lvlModSub];
+
+//     console.log("Quick Dps:    " + (adjustedGcdDps + adjustedOgcdDps + adjustedDotDps + adjustedAaDps));
+//     console.log("Adjusted Dps: " + getAdjustedDpsAt(360));
+// }
