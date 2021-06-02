@@ -1,5 +1,5 @@
 var defaultAnimLock = 0.7;
-var longAnimLock = 1.3;
+var longAnimLock = 1.1;
 var scale = 60;
 
 var actions = [
@@ -147,7 +147,7 @@ var actions = [
 	  id: 17,
 	  description: "This diluted brew temporarily increases strength, but for twice the duration of similar potions.<br/>Item Level 510<br/>Consumable Bonuses (Duration: 30s) (Recast: 5m / HQ 4m30s)<br/>Strength +8% (Cap: 371) HQ +10% / Cap: 464",
 	  recast: 270,
-	  animLock: longAnimLock,
+	  animLock: 1.2,
 	  delayed: "true",
 	  effects: ["Medicated"],
 	  type: "Ability",
@@ -212,7 +212,7 @@ var actions = [
 	  description: "Delivers a jumping fire-based attack to all nearby enemies with a potency of 600 for the first ennemy and 30% less for all remaining ennemis.<br/>Can only be executed while under the effect of Life of the Dragon.<br/>Cannot be executed while bound.",
 	  potency: 600,
 	  recast: 30,
-	  animLock: longAnimLock,
+	  animLock: 1.6,
 	  type: "Ability",
 	  group: "ogcd"},
 	{ name: "Elusive Jump",
