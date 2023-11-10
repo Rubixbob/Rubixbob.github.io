@@ -16,7 +16,7 @@ actions.forEach(function (ac) {
 		action.attr("delayed", ac.delayed);
     if (ac.hasOwnProperty("id"))
         action.attr("id", ac.id);
-    action.append($("<div></div>").attr("class", "actionImage").css("background-image", `url("images/${ac.name}.png")`));
+    action.append($("<div></div>").attr("class", "actionImage").css("background-image", `url("../../images/${ac.name}.png")`));
     $(`#${ac.group}`).append(action);
 });
 
@@ -70,7 +70,7 @@ effects.forEach(function (ef) {
         if (localStorage["effects"])
             savedEffects = JSON.parse(localStorage["effects"]);
         $(checkBox).prop("checked", savedEffects[ef.name] !== undefined ? savedEffects[ef.name] : true);
-        var effect = $("<img></img>").css("cursor", "pointer").attr("src", `images/effects/${ef.name}.png`).prop("hidden", !$(checkBox).prop("checked")).one("load", function() {
+        var effect = $("<img></img>").css("cursor", "pointer").attr("src", `../../images/effects/${ef.name}.png`).prop("hidden", !$(checkBox).prop("checked")).one("load", function() {
             imagesLoaded++;
             if (imagesLoaded === imagesToLoad)
                 fitColumns();
@@ -733,7 +733,7 @@ function drawEffect(name, beginTime, endTime) {
                      "border": `solid ${borderWidth}px ${borderColor}`});
         wrapper.prop("hidden", hide);
         
-        var icon = $("<img></img>").attr("src", `images/effects/${name}.png`).addClass("effectIcon");
+        var icon = $("<img></img>").attr("src", `../../images/effects/${name}.png`).addClass("effectIcon");
         wrapper.append(icon);
         
         $("#effects").append(wrapper);
@@ -773,9 +773,9 @@ function drawGroupEffect(name, jobIndex, beginTime, endTime, royalRoad, celestia
     
     var icon = $("<img></img>");
     if (emboldenStacks)
-        icon.attr("src", `images/effects/${name+emboldenStacks}.png`);
+        icon.attr("src", `../../images/effects/${name+emboldenStacks}.png`);
     else
-        icon.attr("src", `images/effects/${name}.png`);
+        icon.attr("src", `../../images/effects/${name}.png`);
     icon.addClass("groupEffectIcon");
     wrapper.append(icon);
     
@@ -1176,6 +1176,11 @@ function loadRotationRow(rotName, rots, body, saving) {
     var savedLabel = $("<strong><label>Rotation saved!</label></strong>").css({"display": "none"});
     var sharedLabel = $("<strong><label>Name updated with the URL!</label></strong>").css({"display": "none"});
     openButton.click(function() {
+        // Check version of rot and redirect if needed
+        if (rot.version != version) {
+            localStorage["LoadingRotation"] = rot.name;
+            window.location.href = `version/${rot.version}`;
+        }
         loadRotation(rot);
         $("#savedRotationsLightbox").modal("hide");
     });
@@ -1283,6 +1288,7 @@ $("#manageRotations").click(function() {
             }
             var savedRotationObject = {
                 name: rotName,
+                version: version,
                 dps: Number($("#dps").children().last().children().html()),
                 length: Number($("#rotation").children().last().attr("time")),
                 gcd: Number($("#SKSoutGCD").val()),
@@ -1650,7 +1656,7 @@ function updateStartTime() {
 
 function selectCard(cardName) {
     $("#raidBuffLightboxTitle").val(cardName);
-    $("#raidBuffLightboxImg").attr("src", `images/effects/${cardName}.png`);
+    $("#raidBuffLightboxImg").attr("src", `../../images/effects/${cardName}.png`);
 }
 
 $("input[name='card']").change(function() {
@@ -1715,7 +1721,7 @@ $("input[name='card']").change(function() {
 
 function setUpRaidBuffLightbox(name, jobIndex, element) {
     $("#raidBuffLightboxTitle").val(name); // Don't delete, this value is used in the OK call
-    $("#raidBuffLightboxImg").attr("src", `images/effects/${name}.png`);
+    $("#raidBuffLightboxImg").attr("src", `../../images/effects/${name}.png`);
     raidBuffLightboxJobIndex = jobIndex;
     var currentEffect = effects.find(ef => ef.name === name);
     if (raidBuffLightboxEditMode) {
@@ -1812,7 +1818,7 @@ function refreshGroupMember(index, value) {
         memberActions.forEach(function (ac) {
             var wrapper = $("<div></div>").attr({name: ac.name, class: "raidBuff", jobIndex: index});
 
-            var effect = $("<img></img>").attr({src: `images/group/${ac.name}.png`}).css({"width": 22}).one("load", function() {
+            var effect = $("<img></img>").attr({src: `../../images/group/${ac.name}.png`}).css({"width": 22}).one("load", function() {
                 raidImagesLoaded++;
                 if (raidImagesLoaded === raidImagesToLoad)
                     fitColumns();
@@ -2284,7 +2290,13 @@ $("#DETin").change();
 $("#SKSin").change();
 clearRotation();
 
-var urlPathName = window.location.pathname.substring(1);
+if (localStorage["LoadingRotation"]) {
+    loadRotation(JSON.parse(localStorage[localStorage["LoadingRotation"]]));
+    localStorage.removeItem("LoadingRotation");
+}
+
+var pathList = window.location.pathname.split("/");
+var urlPathName = pathList[pathList.length - 1];
 if (urlPathName.length === 4) {
     $.post(`/${urlPathName}`, function(data) {
         loadRotation(data);

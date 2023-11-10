@@ -1,3 +1,5 @@
+var version = "5.0.0";
+
 var express = require("express");
 var bodyParser = require("body-parser");
 var url = require("url");
@@ -15,6 +17,7 @@ db.once("open", function() {
 	var rotationSchema = new mongoose.Schema({
 		id: String,
 		name: String,
+		version: String,
 		dps: Number,
 		length: Number,
 		gcd: Number,
@@ -48,9 +51,22 @@ db.once("open", function() {
 		return newId;
 	}
 
-	function returnFile(req, res) {
+	function sendNotFound(req, res) {
+		var page = decodeURI(url.parse(req.url).pathname);
+		res.setHeader("Content-Type", "text/plain");
+		res.status(404).send("Not found: " + page);
+	}
+
+	function returnImage(req, res) {
 		var page = decodeURI(url.parse(req.url).pathname);
 		res.sendFile(page, { root: __dirname });
+	}
+
+	function returnFile(req, res) {
+		var hasVersion = (req.params.a && req.params.b && req.params.c);
+		var dir = __dirname + (hasVersion ? "" : `/version/${version}`);
+		var page = decodeURI(url.parse(req.url).pathname);
+		res.sendFile(page, { root: dir });
 	}
 
 	function loadRotation(req, res) {
@@ -79,30 +95,60 @@ db.once("open", function() {
 	}
 
 	function sendIndex(req, res) {
-		res.sendFile("index.html", { root: __dirname });
+		var hasVersion = (req.params.a && req.params.b && req.params.c);
+		if (req.params.id) {
+			if (!hasVersion) {
+				Rotation.findOne({ id: req.params.id }).exec(function (err, rot) {
+					if (err) return console.error(err);
+					if (rot == null) {
+						sendNotFound(req, res);
+						return;
+					}
+
+					if (rot.version != version) {
+						res.redirect(`/version/${rot.version}/${req.params.id}`);
+					} else {
+						res.sendFile("index.html", { root: `${__dirname}/version/${version}` });
+					}
+				});
+				return;
+			}
+		} else if (hasVersion && !decodeURI(url.parse(req.url).pathname).endsWith("/")) {
+			res.redirect(`/version/${req.params.a}.${req.params.b}.${req.params.c}/`);
+			return;
+		}
+		var dir = __dirname + "/version/" + (hasVersion ? `${req.params.a}.${req.params.b}.${req.params.c}` : version);
+		res.sendFile("index.html", { root: dir });
 	}
 
 	app.get("/", sendIndex)
-	.get("/images/:x", returnFile)
-	.get("/images/effects/:x", returnFile)
-	.get("/images/group/:x", returnFile)
-	.get("/images/jobs/:x", returnFile)
+	.get("/images/:x", returnImage)
+	.get("/images/effects/:x", returnImage)
+	.get("/images/group/:x", returnImage)
+	.get("/images/jobs/:x", returnImage)
 	.get("/data.js", returnFile)
 	.get("/drg_sim.css", returnFile)
 	.get("/drg_sim.js", returnFile)
 	.get("/lib.js", returnFile)
 	.get("/theme_checkbox.js", returnFile)
 	.get("/jquery.ui.touch-punch.js", returnFile)
+	.get("/version/:a.:b.:c/", sendIndex)
+	.get("/version/:a.:b.:c/data.js", returnFile)
+	.get("/version/:a.:b.:c/drg_sim.css", returnFile)
+	.get("/version/:a.:b.:c/drg_sim.js", returnFile)
+	.get("/version/:a.:b.:c/lib.js", returnFile)
+	.get("/version/:a.:b.:c/theme_checkbox.js", returnFile)
+	.get("/version/:a.:b.:c/jquery.ui.touch-punch.js", returnFile)
 	//.get("/favicon.ico", returnFile)
 	.get("/:id", sendIndex)
+	.get("/version/:a.:b.:c/:id", sendIndex)
 	.post("/:id", loadRotation)
 	.post("/", saveRotation)
 	.use(function(req, res, next) {
 		console.log("Shouldn't be here: " + req.url);
-		var page = decodeURI(url.parse(req.url).pathname);
-		res.setHeader("Content-Type", "text/plain");
-		res.status(404).send("Not found: " + page);
+		sendNotFound(req, res);
 	});
 
 	app.listen(1379, "localhost");
+	console.log("App started");
 });

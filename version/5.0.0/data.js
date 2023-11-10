@@ -1,3 +1,5 @@
+var version = "5.0.0";
+
 var defaultAnimLock = 0.7;
 var longAnimLock = 1.1;
 var scale = 60;
