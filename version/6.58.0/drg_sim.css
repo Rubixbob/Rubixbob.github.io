@@ -1,0 +1,689 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text-color);
+}
+
+:root {
+    --color-bg: #FFFFFF;
+    --text-color: initial;
+    --button-text-color: rgba(0,0,0,.6);
+    --button-bg: #e0e1e2;
+    --button-text-color-hover: rgba(0,0,0,.8);
+    --button-bg-hover: #cacbcd;
+    --button-text-color-active: rgba(0,0,0,.9);
+    --button-bg-active: #babbbc;
+    --panel-bg: #F0F0F0;
+    --main-bg: #CCCCCC;
+    --rotation-bg: #555555;
+    --tooltip-bg: #323232;
+    --tooltip-color: #FFFFFF;
+    --scrollbar-track: #F1F1F1;
+    --scrollbar-thumb: #888888;
+    --scrollbar-hover: #555555;
+    --suggestions-border: #888888;
+    --input-bg: #FFFFFF;
+    --input-focus: rgb(166, 199, 255);
+    --shadow-color: black;
+    --separator-color: black;
+    --number-color: black;
+    --modal-actions-bg: #f9fafb;
+    --modal-border: #22242626;
+    --rotations-first-line: var(--main-bg);
+    --rotations-odd-line: var(--panel-bg);
+    --link-color: #0000ee;
+}
+
+[data-theme="dark"] {
+    --color-bg: #212121;
+    --text-color: white;
+    --button-text-color: var(--text-color);
+    --button-bg: var(--panel-bg);
+    --button-text-color-hover: rgba(255,255,255,.7);
+    --button-bg-hover: var(--main-bg);
+    --button-text-color-active: rgba(255,255,255,.5);
+    --button-bg-active: var(--color-bg);
+    --panel-bg: #424242;
+    --main-bg: #323232;
+    --rotation-bg: #555555;
+    --tooltip-bg: #0f4f8a;
+    --tooltip-color: var(--text-color);
+    --scrollbar-track: #434343;
+    --scrollbar-thumb: #737373;
+    --scrollbar-hover: #808080;
+    --suggestions-border: var(--separator-color);
+    --input-bg: var(--main-bg);
+    --input-focus: var(--separator-color);
+    --shadow-color: black;
+    --separator-color: #80c2ffcc;
+    --number-color: #80c2ff;
+    --modal-actions-bg: #292a2b;
+    --modal-border: #d9dbdd26;
+    --rotations-first-line: var(--rotation-bg);
+    --rotations-odd-line: var(--main-bg);
+    --link-color: var(--number-color);
+}
+
+body {
+    background-color: var(--color-bg);
+}
+
+/* th { */
+    /* text-shadow: 1px 0 0 black, -1px 0 0 black, 0 1px 0 black, 0 -1px 0 black, 1px 1px black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black; */
+    /* color: var(--number-color); */
+/* } */
+
+#themeCheckbox, #topLeftDiv {
+    text-align: right;
+    flex-grow: 1;
+    white-space: nowrap;
+}
+
+#topLeftDiv {
+    width: 111px;
+}
+
+#themeCheckbox .checkbox {
+    vertical-align: middle;
+}
+
+.actionGroup {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+#actions {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: var(--panel-bg);
+    padding-left: 10px;
+    padding-top: 10px;
+    width: 186px;
+    height: fit-content;
+    height: -moz-fit-content;
+    border-radius: 16px;
+    box-shadow: 1px 1px 4px var(--shadow-color);
+}
+
+#rotationHeader {
+    width: 74px;
+}
+
+#botdHeader {
+    width: 25px;
+}
+
+#cdsHeader {
+    width: 44px;
+}
+
+#dpsHeader {
+    width: 5em;
+}
+
+#rotation {
+    background-color: var(--rotation-bg);
+    position: relative;
+    height: auto;
+}
+
+#topDiv {
+    width: 100%;
+    /* justify-content: space-between; */
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
+}
+
+#buttonsDiv {
+    flex-basis: content;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#mainDiv {
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    height: calc(100vh - 16px);
+    overflow: hidden;
+}
+
+#leftDiv, #rightDiv {
+    width: 320px;
+    padding: 10px;
+}
+
+#leftDiv {
+    justify-content: flex-end;
+    display: flex;
+}
+
+#midDiv {
+    position: relative;
+}
+
+#scrollableDiv {
+    overflow-y: scroll;
+    position: relative;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-width: thin;
+}
+
+#leftExpand, #rightExpand {
+    display: none;
+    position: absolute;
+    top: 0px;
+    margin: 0;
+    border: solid 2px black; /*********************************************************************************/
+    border-radius: 0;
+}
+
+#leftExpand {
+    left: 0px;
+    transform: translate(-100%, 0);
+}
+
+#rightExpand {
+    right: 0px;
+    transform: translate(100%, 0);
+}
+
+input {
+    color: var(--text-color);
+    text-align: right;
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    outline: none;
+    border-color: var(--panel-bg);
+}
+
+input:focus {
+    border-color: var(--input-focus);
+}
+
+a {
+    color: var(--link-color);
+}
+
+a:visited {
+    color: var(--link-color);
+}
+
+#timeline * {
+    color: var(--number-color);
+}
+
+.timeSeparator {
+    position: absolute;
+    left: 0px;
+    height: 1px;
+    background-color: var(--separator-color);
+    z-index: 1;
+}
+
+#raidBuffInput {
+    padding: 10px;
+    border: solid 2px black;
+}
+
+#stats, #group {
+    padding: 10px;
+    background-color: var(--panel-bg);
+    box-shadow: 1px 1px 4px var(--shadow-color);
+    border-radius: 16px;
+    width: 100%;
+}
+
+#stats input {
+    max-width: 5em;
+}
+
+#botd, #effects, #groupEffects, #cds, #dps {
+    position: relative;
+}
+
+#cds .action {
+	background-color: black;
+}
+
+#cds .actionImage {
+	opacity: 0.5;
+}
+
+#cds .actionImage:hover {
+    opacity: 1;
+}
+
+.action {
+    margin-left: 2px;
+    margin-right: 2px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    height: 40px;
+    width: 40px;
+    border-radius: 6px;
+    box-shadow: 1px 1px 4px var(--shadow-color);
+    background-color: cyan;
+    cursor: pointer;
+    overflow: hidden;
+	z-index: 2;
+}
+
+.action:hover {
+    box-shadow: 0px 0px 4px white;
+    border: solid 1px white;
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.actionImage {
+    height: 40px;
+    width: 40px;
+    border-radius: 6px;
+}
+
+.effect {
+    position: absolute;
+    margin-top: 2px;
+    z-index: 1;
+}
+
+.effectIcon {
+    position: sticky;
+    margin-left: -4px;
+    margin-top: -3px;
+    margin-bottom: -3px;
+    top: 0px;
+}
+
+.raidBuff {
+    margin-left: 1px;
+    margin-right: 1px;
+    height: 22px;
+    width: 22px;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px var(--shadow-color);
+    cursor: pointer;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.rotation-table {
+    background-color: var(--main-bg);
+    border-spacing: 2px;
+}
+
+.groupEffect {
+    position: absolute;
+    cursor: pointer;
+}
+
+.groupEffectIcon {
+    position: sticky;
+    margin-left: -4px;
+    margin-top: -3px;
+    margin-bottom: -3px;
+    top: 0px;
+}
+
+.groupEffectOverlay {
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    width: 22px;
+    height: 0px;
+    background-color: var(--main-bg);
+    opacity: 0.7;
+}
+
+.dpsSeparator {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    left: 2px;
+    height: 1px;
+    background-color: var(--separator-color);
+    z-index: 2;
+}
+
+.dpsText {
+    margin-top: -8px;
+    height: 16px;
+    color: var(--number-color);
+    background-color: var(--main-bg);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#group th {
+    vertical-align: bottom;
+}
+
+#DPSout {
+    display: inline-block;
+    min-width: 4em;
+    text-align: right;
+}
+
+.checkboxButton, .clearGroupButton {
+    display: block !important;
+    margin: auto !important;
+    background-color: rgb(0, 0, 0, 0) !important;
+}
+
+.checkboxButton {
+    padding: 0px !important;
+}
+
+.clearGroupButton {
+    padding: 3px 4.79px 2px 4.79px !important;
+}
+
+.checkboxButton i, .clearGroupButton i {
+    width: auto !important;
+    height: auto !important;
+}
+
+.checkboxButton input {
+    display: none;
+}
+
+.icon.question.circle.outline {
+    cursor: pointer;
+}
+
+#suggestions {
+    position: absolute;
+    display: flex;
+    color: var(--text-color);
+    background-color: var(--panel-bg);
+    padding: 10px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    z-index: 10;
+    border: initial;
+    border: solid 1px var(--suggestions-border);
+}
+
+#suggestions:hover {
+    cursor: move;
+}
+
+#suggestions .action {
+    position: relative;
+}
+
+#suggestionsTitle {
+    position: absolute;
+    background-color: var(--panel-bg);
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    transform: translate(-11px, calc(-100% - 10px));
+    display: flex;
+    border-top: solid 1px var(--suggestions-border);
+    border-left: solid 1px var(--suggestions-border);
+    border-right: solid 1px var(--suggestions-border);
+}
+
+.suggestionsOverlay {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    background-color: black;
+    opacity: 0.5;
+}
+
+.suggestionsOverlayText {
+    font-size: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-shadow: 1px 0 0 black, -1px 0 0 black, 0 1px 0 black, 0 -1px 0 black, 1px 1px black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black;
+}
+
+#savedRotationsLightbox * {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#savedRotationsTable {
+    border-collapse: collapse;
+}
+
+#savedRotationsTable thead th {
+    text-align: center;
+    padding: 0.5em;
+}
+
+#savedRotationsTable tbody td {
+    text-align: center;
+    border-top: 1px solid var(--separator-color);
+    padding: 1em;
+    /*vertical-align: middle;*/
+}
+
+#savedRotationsTable tbody tr.firstLine {
+    background-color: var(--rotations-first-line);
+}
+
+#savedRotationsTable tbody tr:nth-child(odd):not(.firstLine) {
+    background-color: var(--rotations-odd-line);
+}
+
+#convertRotationLightbox>.content * {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+#pasteImportRotation {
+    text-align: left;
+}
+
+/* #savedRotationsTable tbody tr:nth-child(odd) button { */
+    /* filter: invert(100%); */
+/* } */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-hover);
+}
+
+.tooltip {
+	position: absolute;
+	z-index: 999;
+	color: var(--tooltip-color);
+    background-color: var(--tooltip-bg);
+    border-radius: 4px;
+    max-width: 400px;
+    padding: 4px;
+}
+
+#progress {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#themeCheckbox .ui.toggle.checkbox.checked label:before {
+    background-color: var(--tooltip-bg)!important;
+}
+
+.ui.button {
+    color: var(--button-text-color);
+    background-color: var(--button-bg);
+}
+
+.ui.button:hover, .ui.button:focus {
+    color: var(--button-text-color-hover);
+    background-color: var(--button-bg-hover);
+}
+
+.ui.button:active {
+    color: var(--button-text-color-active);
+    background-color: var(--button-bg-active);
+}
+
+.ui-selectmenu-button.ui-button {
+    width: 10em;
+    color: var(--text-color);
+}
+
+.ui-selectmenu-button.ui-button:not(:active) {
+    background-color: var(--input-bg);
+}
+
+.ui-menu.ui-menu-icons {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+.ui-selectmenu-menu .ui-menu.customicons .ui-menu-item-wrapper {
+    padding: 0.5em 0 0.5em 3em;
+}
+
+.ui-selectmenu-menu .ui-menu.customicons .ui-menu-item .ui-icon {
+    height: 32px;
+    width: 32px;
+}
+
+.ui-selectmenu-button .ui-selectmenu-text {
+    padding: 0.5em 0 0.5em 3em;
+    position: relative;
+}
+
+.ui-selectmenu-button .ui-selectmenu-text .ui-icon {
+    position: absolute;
+    top: 0;
+    left: .2em;
+    margin-top: 0;
+    height: 32px;
+    width: 32px;
+}
+
+.ui-selectmenu-icon.ui-icon {
+    margin-top: 8px;
+}
+
+.ui-icon.war, .ui-button:hover .ui-icon.war, .ui-button:focus .ui-icon.war {
+    background: url("../../images/jobs/Warrior.png") 0 0 no-repeat;
+}
+
+.ui-icon.pld, .ui-button:hover .ui-icon.pld, .ui-button:focus .ui-icon.pld {
+    background: url("../../images/jobs/Paladin.png") 0 0 no-repeat;
+}
+
+.ui-icon.drk, .ui-button:hover .ui-icon.drk, .ui-button:focus .ui-icon.drk {
+    background: url("../../images/jobs/DarkKnight.png") 0 0 no-repeat;
+}
+
+.ui-icon.gnb, .ui-button:hover .ui-icon.gnb, .ui-button:focus .ui-icon.gnb {
+    background: url("../../images/jobs/Gunbreaker.png") 0 0 no-repeat;
+}
+
+.ui-icon.sch, .ui-button:hover .ui-icon.sch, .ui-button:focus .ui-icon.sch {
+    background: url("../../images/jobs/Scholar.png") 0 0 no-repeat;
+}
+
+.ui-icon.ast, .ui-button:hover .ui-icon.ast, .ui-button:focus .ui-icon.ast {
+    background: url("../../images/jobs/Astrologian.png") 0 0 no-repeat;
+}
+
+.ui-icon.whm, .ui-button:hover .ui-icon.whm, .ui-button:focus .ui-icon.whm {
+    background: url("../../images/jobs/WhiteMage.png") 0 0 no-repeat;
+}
+
+.ui-icon.drg, .ui-button:hover .ui-icon.drg, .ui-button:focus .ui-icon.drg {
+    background: url("../../images/jobs/Dragoon.png") 0 0 no-repeat;
+}
+
+.ui-icon.nin, .ui-button:hover .ui-icon.nin, .ui-button:focus .ui-icon.nin {
+    background: url("../../images/jobs/Ninja.png") 0 0 no-repeat;
+}
+
+.ui-icon.mnk, .ui-button:hover .ui-icon.mnk, .ui-button:focus .ui-icon.mnk {
+    background: url("../../images/jobs/Monk.png") 0 0 no-repeat;
+}
+
+.ui-icon.sam, .ui-button:hover .ui-icon.sam, .ui-button:focus .ui-icon.sam {
+    background: url("../../images/jobs/Samurai.png") 0 0 no-repeat;
+}
+
+.ui-icon.brd, .ui-button:hover .ui-icon.brd, .ui-button:focus .ui-icon.brd {
+    background: url("../../images/jobs/Bard.png") 0 0 no-repeat;
+}
+
+.ui-icon.mch, .ui-button:hover .ui-icon.mch, .ui-button:focus .ui-icon.mch {
+    background: url("../../images/jobs/Machinist.png") 0 0 no-repeat;
+}
+
+.ui-icon.dnc, .ui-button:hover .ui-icon.dnc, .ui-button:focus .ui-icon.dnc {
+    background: url("../../images/jobs/Dancer.png") 0 0 no-repeat;
+}
+
+.ui-icon.smn, .ui-button:hover .ui-icon.smn, .ui-button:focus .ui-icon.smn {
+    background: url("../../images/jobs/Summoner.png") 0 0 no-repeat;
+}
+
+.ui-icon.rdm, .ui-button:hover .ui-icon.rdm, .ui-button:focus .ui-icon.rdm {
+    background: url("../../images/jobs/RedMage.png") 0 0 no-repeat;
+}
+
+.ui-icon.blm, .ui-button:hover .ui-icon.blm, .ui-button:focus .ui-icon.blm {
+    background: url("../../images/jobs/BlackMage.png") 0 0 no-repeat;
+}
+
+.ui.modal>.header {
+    color: var(--text-color);
+    background-color: var(--color-bg);
+    border-color: var(--modal-border);
+}
+
+.ui.modal>.content {
+    width: auto;
+    background-color: var(--color-bg);
+}
+
+.ui.modal>.actions {
+    background-color: var(--modal-actions-bg);
+    border-color: var(--modal-border);
+}
+
+@media only screen and (max-width: 991px) {
+    .ui.modal>.close {
+        color: var(--button-text-color);
+    }
+}
+
+#raidBuffLightboxCards img {
+    vertical-align: middle;
+}
