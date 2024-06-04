@@ -662,6 +662,14 @@ a:visited {
     background: url("../../images/jobs/BlackMage.png") 0 0 no-repeat;
 }
 
+.ui-icon.rpr, .ui-button:hover .ui-icon.rpr, .ui-button:focus .ui-icon.rpr {
+    background: url("../../images/jobs/Reaper.png") 0 0 no-repeat;
+}
+
+.ui-icon.sge, .ui-button:hover .ui-icon.sge, .ui-button:focus .ui-icon.sge {
+    background: url("../../images/jobs/Sage.png") 0 0 no-repeat;
+}
+
 .ui.modal>.header {
     color: var(--text-color);
     background-color: var(--color-bg);

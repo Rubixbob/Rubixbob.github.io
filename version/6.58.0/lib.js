@@ -51,8 +51,8 @@ class Stats {
 							this.globalDmgMult *= ef.effect.enhancedValue;
 						else if (ef.royalRoad === "Expanded")
 							this.globalDmgMult *= ef.effect.expandedValue;
-						else if (ef.emboldenStacks > 0)
-							this.globalDmgMult *= (ef.effect.value + ef.emboldenStacks * ef.effect.stackValue);
+						// else if (ef.emboldenStacks > 0)
+						// 	this.globalDmgMult *= (ef.effect.value + ef.emboldenStacks * ef.effect.stackValue);
 						else
 							this.globalDmgMult *= ef.effect.value;
 					}
@@ -317,8 +317,8 @@ function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
         var timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, jobIndex: $(this).attr("jobIndex")};
         if (this.hasAttribute("royalRoad"))
         	timedEffect.royalRoad = $(this).attr("royalRoad");
-        if (this.hasAttribute("emboldenStacks"))
-        	timedEffect.emboldenStacks = Number($(this).attr("emboldenStacks"));
+        // if (this.hasAttribute("emboldenStacks"))
+        // 	timedEffect.emboldenStacks = Number($(this).attr("emboldenStacks"));
         addToActivate(timedEffect, effectsToActivate);
         addToEnd(timedEffect, effectsToEnd);
     });
@@ -363,13 +363,13 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
         if (eType === "effectBegin") {
             timedEffect = effectsToActivate[0];
             // If fresh Embolden application, place low stack first so it will be overwritten by fresh Embolden
-            if (timedEffect.effect.name === "Embolden" && timedEffect.emboldenStacks === effects.find(ef => ef.name === "Embolden").maxStacks) {
-                var emboldenList = effectsToActivate.filter(ef => ef.effect.name === "Embolden" && ef.beginTime === time);
-                if (emboldenList.length > 1) {
-                    effectsToActivate.splice(effectsToActivate.indexOf(emboldenList[1]), 1); // Assumes list order is preserved
-                    effectsToActivate.unshift(emboldenList[1]);
-                }
-            }
+            // if (timedEffect.effect.name === "Embolden" && timedEffect.emboldenStacks === effects.find(ef => ef.name === "Embolden").maxStacks) {
+            //     var emboldenList = effectsToActivate.filter(ef => ef.effect.name === "Embolden" && ef.beginTime === time);
+            //     if (emboldenList.length > 1) {
+            //         effectsToActivate.splice(effectsToActivate.indexOf(emboldenList[1]), 1); // Assumes list order is preserved
+            //         effectsToActivate.unshift(emboldenList[1]);
+            //     }
+            // }
             
             var activeIdx = activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name);
             if (timedEffect.effect.groupAction === "Draw")
@@ -384,15 +384,15 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                     effectsToEnd.unshift(oldTimedEffect);
                 
                     // Embolden : Delete all next stacks toActivate/toEnd
-                    if (timedEffect.effect.name === "Embolden") {
-                        var emboldenEffect = effects.find(ef => ef.name === "Embolden");
-                        var emboldenBeginTime = (oldTimedEffect.beginTime - (emboldenEffect.maxStacks - oldTimedEffect.emboldenStacks) * emboldenEffect.stackDuration).toFixed(3);
-                        for (var currentStacks = oldTimedEffect.emboldenStacks - 1; currentStacks > 0; currentStacks--) {
-                            var currentTime = (Number(emboldenBeginTime) + (emboldenEffect.maxStacks - currentStacks) * emboldenEffect.stackDuration).toFixed(3);
-                            effectsToActivate.splice(effectsToActivate.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime && e.jobIndex === oldTimedEffect.jobIndex && e.emboldenStacks === currentStacks), 1);
-                            effectsToEnd.splice(effectsToEnd.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime && e.jobIndex === oldTimedEffect.jobIndex && e.emboldenStacks === currentStacks), 1);
-                        }
-                    }
+                    // if (timedEffect.effect.name === "Embolden") {
+                    //     var emboldenEffect = effects.find(ef => ef.name === "Embolden");
+                    //     var emboldenBeginTime = (oldTimedEffect.beginTime - (emboldenEffect.maxStacks - oldTimedEffect.emboldenStacks) * emboldenEffect.stackDuration).toFixed(3);
+                    //     for (var currentStacks = oldTimedEffect.emboldenStacks - 1; currentStacks > 0; currentStacks--) {
+                    //         var currentTime = (Number(emboldenBeginTime) + (emboldenEffect.maxStacks - currentStacks) * emboldenEffect.stackDuration).toFixed(3);
+                    //         effectsToActivate.splice(effectsToActivate.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime && e.jobIndex === oldTimedEffect.jobIndex && e.emboldenStacks === currentStacks), 1);
+                    //         effectsToEnd.splice(effectsToEnd.findIndex(e => e.effect.name === "Embolden" && e.beginTime.toFixed(3) === currentTime && e.jobIndex === oldTimedEffect.jobIndex && e.emboldenStacks === currentStacks), 1);
+                    //     }
+                    // }
                 }
             }
         }
@@ -414,14 +414,14 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            			ePot *= BotDEffect.effect.value;
 	            		break;
 	            	case "Fang and Claw":
-	            		var FCEffect = activeEffects.find(ef => ef.effect.name === "Sharper Fang and Claw");
+	            		var FCEffect = activeEffects.find(ef => ef.effect.name === "Fang and Claw Bared");
 	            		if (FCEffect)
 	            			ePot += FCEffect.effect.value;
 	            		else
 	            			ePot = 0;
 	            		break;
 	            	case "Wheeling Thrust":
-	            		var WTEffect = activeEffects.find(ef => ef.effect.name === "Enhanced Wheeling Thrust");
+	            		var WTEffect = activeEffects.find(ef => ef.effect.name === "Wheel in Motion");
 	            		if (WTEffect)
 	            			ePot += WTEffect.effect.value;
 	            		else
@@ -446,22 +446,22 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 				getEffects(eName).forEach(ef => {
                     // Lance Mastery
                     if (eName === "Fang and Claw") {
-                    	var FCEffect = activeEffects.find(ef => ef.effect.name === "Sharper Fang and Claw");
-                    	if (ef.name === "Enhanced Wheeling Thrust") {
+                    	var FCEffect = activeEffects.find(ef => ef.effect.name === "Fang and Claw Bared");
+                    	if (ef.name === "Wheel in Motion") {
 	                    	if (FCEffect && FCEffect.effect.value)
 	                        	return;
 	                        else
-	                        	ef.value = 110;
-	                    } else if (ef.name === "Raiden Thrust Ready" && !(FCEffect && FCEffect.effect.value))
+	                        	ef.value = 100;
+	                    } else if (ef.name === "Draconian Fire" && !(FCEffect && FCEffect.effect.value))
 	                    	return;
                     } else if (eName === "Wheeling Thrust") {
-                    	var WTEffect = activeEffects.find(ef => ef.effect.name === "Enhanced Wheeling Thrust");
-                    	if (ef.name === "Sharper Fang and Claw") {
+                    	var WTEffect = activeEffects.find(ef => ef.effect.name === "Wheel in Motion");
+                    	if (ef.name === "Fang and Claw Bared") {
 	                    	if (WTEffect && WTEffect.effect.value)
 	                        	return;
 	                        else
-	                        	ef.value = 110;
-	                    } else if (ef.name === "Raiden Thrust Ready" && !(WTEffect && WTEffect.effect.value))
+	                        	ef.value = 100;
+	                    } else if (ef.name === "Draconian Fire" && !(WTEffect && WTEffect.effect.value))
 	                    	return;
                     }
 
@@ -577,8 +577,8 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             	eName = timedEffect.effect.name;
             	timedEffect.endTime = time;
             	switch(eName) {
-	            	case "Enhanced Wheeling Thrust":
-	            	case "Sharper Fang and Claw":
+	            	case "Wheel in Motion":
+	            	case "Fang and Claw Bared":
 	            		timedEffect.effect.value = 0;
 	            		break;
 	            	case "Blood of the Dragon":
@@ -719,9 +719,17 @@ function getRecastTime(actionName) {
     var action = actions.find(ac => actionName === ac.name);
     if (action.hasOwnProperty("recast"))
         recast = action.recast;
-    else if (action.hasOwnProperty("chargeTime"))
-        recast = action.chargeTime;
+    // else if (action.hasOwnProperty("chargeTime"))
+    //     recast = action.chargeTime;
 	return Number(recast);
+}
+
+function getCharges(actionName) {
+	var charges = 1;
+    var action = actions.find(ac => actionName === ac.name);
+    if (action.hasOwnProperty("charges"))
+        charges = action.charges;
+	return Number(charges);
 }
 
 function getPotency(actionName) {
@@ -803,9 +811,9 @@ function getGroupJob(actionName) {
 function getGroupRecastTime(actionName, use) {
     var recast = 0;
     var groupAction = groupActions.find(ac => actionName === ac.name);
-    if ((actionName === "The Wanderer's Minuet" || actionName === "Foe Requiem" || actionName === "Disembowel") && use !== undefined && groupAction.hasOwnProperty("usePattern"))
+    /*if ((actionName === "The Wanderer's Minuet" || actionName === "Foe Requiem" || actionName === "Disembowel") && use !== undefined && groupAction.hasOwnProperty("usePattern"))
         recast = groupAction.usePattern[use % groupAction.usePattern.length];
-    else if (groupAction.hasOwnProperty("recast"))
+    else*/ if (groupAction.hasOwnProperty("recast"))
         recast = groupAction.recast;
     return Number(recast);
 }
