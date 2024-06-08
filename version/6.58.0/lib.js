@@ -338,6 +338,8 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	var effectsToActivate = [];
 	var effectsToEnd = [];
 
+	effects.find(ef => ef.name === "Life of the Dragon").eyes = 0;
+
 	var eType = "action";
     
     initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd);
@@ -406,13 +408,13 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 
 				// Potency modifiers
 				switch(eName) {
-	            	case "Jump":
-	            	case "High Jump":
-	            	case "Spineshatter Dive":
-	            		var BotDEffect = activeEffects.find(ef => ef.effect.name === "Blood of the Dragon") || activeEffects.find(ef => ef.effect.name === "Life of the Dragon");
-	            		if (BotDEffect)
-	            			ePot *= BotDEffect.effect.value;
-	            		break;
+	            	// case "Jump":
+	            	// case "High Jump":
+	            	// case "Spineshatter Dive":
+	            	// 	var BotDEffect = activeEffects.find(ef => ef.effect.name === "Blood of the Dragon") || activeEffects.find(ef => ef.effect.name === "Life of the Dragon");
+	            	// 	if (BotDEffect)
+	            	// 		ePot *= BotDEffect.effect.value;
+	            	// 	break;
 	            	case "Fang and Claw":
 	            		var FCEffect = activeEffects.find(ef => ef.effect.name === "Fang and Claw Bared");
 	            		if (FCEffect)
@@ -466,15 +468,23 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                     }
 
                     // Re-use BotD
-                    if (ef.name === "Blood of the Dragon") {
-	            		var BotDIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Blood of the Dragon");
-	            		if (BotDIdx >= 0) {
-	            			if (!effectsToEnd[BotDIdx].effect.life) {
-		            			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
-		            			BotDEffect.endTime = time + 30;
-                                addToEnd(BotDEffect, effectsToEnd);
-				            }
-				            return;
+                    // if (ef.name === "Blood of the Dragon") {
+	            	// 	var BotDIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Blood of the Dragon");
+	            	// 	if (BotDIdx >= 0) {
+	            	// 		if (!effectsToEnd[BotDIdx].effect.life) {
+		            // 			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
+		            // 			BotDEffect.endTime = time + 30;
+                    //             addToEnd(BotDEffect, effectsToEnd);
+				    //         }
+				    //         return;
+	            	// 	}
+                    // }
+
+                    // LotD
+                    if (ef.name === "Life of the Dragon") {
+	            		var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
+	            		if (LotDEffect && LotDEffect.eyes < 2) {
+	            			return;
 	            		}
                     }
 
@@ -531,30 +541,26 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 
 				// BotD interactions
 				switch(eName) {
-	            	case "Fang and Claw":
-	            	case "Wheeling Thrust":
-	            	case "Sonic Thrust":
-	            	case "Coerthan Torment":
-	            		var BotDIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Blood of the Dragon");
-	            		if (BotDIdx >= 0 && !effectsToEnd[BotDIdx].effect.life) {
-	            			var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
-	            			BotDEffect.endTime = Math.min(BotDEffect.endTime + 10, time + 30);
-                            addToEnd(BotDEffect, effectsToEnd);
-	            		}
-	            		break;
+	            	// case "Fang and Claw":
+	            	// case "Wheeling Thrust":
+	            	// case "Sonic Thrust":
+	            	// case "Coerthan Torment":
+	            	// 	var BotDIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Blood of the Dragon");
+	            	// 	if (BotDIdx >= 0 && !effectsToEnd[BotDIdx].effect.life) {
+	            	// 		var BotDEffect = effectsToEnd.splice(BotDIdx, 1)[0];
+	            	// 		BotDEffect.endTime = Math.min(BotDEffect.endTime + 10, time + 30);
+                    //         addToEnd(BotDEffect, effectsToEnd);
+	            	// 	}
+	            	// 	break;
 	            	case "Mirage Dive":
-	            		var BotDEffect = effectsToEnd.find(ef => ef.effect.name === "Blood of the Dragon");
-	            		if (BotDEffect)
-	            			BotDEffect.effect.eyes = Math.min(BotDEffect.effect.eyes + 1, 2);
+	            		var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
+	            		if (LotDEffect)
+	            			LotDEffect.eyes = Math.min(LotDEffect.eyes + 1, 2);
 	            		break;
 	            	case "Geirskogul":
-	            		var BotDEffect = effectsToEnd.find(ef => ef.effect.name === "Blood of the Dragon");
-	            		if (BotDEffect && BotDEffect.effect.eyes === 2) {
-	            			BotDEffect.effect.eyes = 0;
-	            			BotDEffect.effect.life = true;
-            				effectsToEnd.splice(effectsToEnd.indexOf(BotDEffect), 1);
-	            			BotDEffect.endTime = time + 30;
-                            addToEnd(BotDEffect, effectsToEnd);
+	            		var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
+	            		if (LotDEffect && LotDEffect.eyes === 2) {
+	            			LotDEffect.eyes = 0;
 	            		}
 	            		break;
             		default:
@@ -581,17 +587,17 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            	case "Fang and Claw Bared":
 	            		timedEffect.effect.value = 0;
 	            		break;
-	            	case "Blood of the Dragon":
-	            		if (timedEffect.effect.life) {
-	            			timedEffect.effect.life = false;
-	            			timedEffect.endTime = time + 30;
-                            addToEnd(timedEffect, effectsToEnd);
-			            	activeEffects.push(timedEffect);
-			            	stats.updateEffects(timedEffect);
-	            		} else {
-	            			timedEffect.effect.eyes = 0;
-	            		}
-	            		break;
+	            	// case "Blood of the Dragon":
+	            	// 	if (timedEffect.effect.life) {
+	            	// 		timedEffect.effect.life = false;
+	            	// 		timedEffect.endTime = time + 30;
+                    //         addToEnd(timedEffect, effectsToEnd);
+			        //     	activeEffects.push(timedEffect);
+			        //     	stats.updateEffects(timedEffect);
+	            	// 	} else {
+	            	// 		timedEffect.effect.eyes = 0;
+	            	// 	}
+	            	// 	break;
             		default:
             			break;
             	}

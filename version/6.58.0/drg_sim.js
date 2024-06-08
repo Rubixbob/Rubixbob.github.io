@@ -938,7 +938,7 @@ function drawBotd(type, botdObject, eTime) {
     var posLeft = ($("#botd").get(0).getBoundingClientRect().width - posWidth) / 2;
     var zIndex = 1;
     var beginTime, backgroundColor;
-    var effect = effects.find(ef => "Blood of the Dragon" === ef.name);
+    var effect = effects.find(ef => "Life of the Dragon" === ef.name);
     
     var botdDiv = function(name, beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex) {
         return $("<div></div>").attr({"name": name, "time": `${beginTime.toFixed(3)}`, "endTime": `${eTime.toFixed(3)}`})
@@ -986,7 +986,7 @@ function drawBotd(type, botdObject, eTime) {
             return;
     }
 
-    addTimeUntil(eTime + 5);
+    // addTimeUntil(eTime + 5);
 }
 
 function deleteEffect(name, beginTime) {
@@ -1028,7 +1028,7 @@ function removeDpsAfter(beginTime) {
 
 function updateDps() {
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
-    var botdObject = {bloodStart: 0, eyeTime: [], lifeStart: 0, eyeCount: -1};
+    var botdObject = {bloodStart: RotationHistory[0].time, eyeTime: [], lifeStart: 0, eyeCount: 0};
     var dpsWidth = $("#dps").get(0).getBoundingClientRect().width;
     RotationHistory.forEach(e => {
         if (e.type === "action") {
@@ -1046,19 +1046,25 @@ function updateDps() {
             }
         }
         switch(e.name) {
-            case "Blood of the Dragon":
-                if (e.type === "effectBegin") { // Blood start
+            // case "Blood of the Dragon":
+            //     if (e.type === "effectBegin") { // Blood start
+            //         botdObject.bloodStart = e.time;
+            //         botdObject.eyeCount = 0;
+            //     } else if (e.type === "effectEnd") {
+            //         if (e.timedEffect.endTime === e.time) { // Blood end
+            //             drawBotd("blood", botdObject, e.time);
+            //             drawBotd("eye", botdObject, e.time);
+            //             botdObject.eyeCount = -1;
+            //         } else { // Life end
+            //             drawBotd("life", botdObject, e.time);
+            //             botdObject.bloodStart = e.time;
+            //         }
+            //     }
+            //     break;
+            case "Life of the Dragon":
+                if (e.type === "effectEnd") { // Life end
+                    drawBotd("life", botdObject, e.time);
                     botdObject.bloodStart = e.time;
-                    botdObject.eyeCount = 0;
-                } else if (e.type === "effectEnd") {
-                    if (e.timedEffect.endTime === e.time) { // Blood end
-                        drawBotd("blood", botdObject, e.time);
-                        drawBotd("eye", botdObject, e.time);
-                        botdObject.eyeCount = -1;
-                    } else { // Life end
-                        drawBotd("life", botdObject, e.time);
-                        botdObject.bloodStart = e.time;
-                    }
                 }
                 break;
             case "Geirskogul":
@@ -1070,15 +1076,17 @@ function updateDps() {
                 }
                 break;
             case "Mirage Dive":
-                if (botdObject.eyeCount >= 0) { // When blood/life up
+                // if (botdObject.eyeCount >= 0) { // When blood/life up
                     botdObject.eyeTime[botdObject.eyeCount] = e.time;
                     botdObject.eyeCount = Math.min(botdObject.eyeCount + 1, 2);
-                }
+                // }
                 break;
             default:
                 break;
         }
     });
+    drawBotd("blood", botdObject, Number($("#timeline").children().last().attr("time")) + 1);
+    drawBotd("eye", botdObject, Number($("#timeline").children().last().attr("time")) + 1);
     hideDpsOverlap();
     var lastDps = $("#dps").children().last();
     $("#DPSout").val(lastDps.children().html()).attr({"gcdDps": lastDps.attr("gcdDps"), "oGcdDps": lastDps.attr("oGcdDps"), "dotDps": lastDps.attr("dotDps"), "aaDps": lastDps.attr("aaDps")});
