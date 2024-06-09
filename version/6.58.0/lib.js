@@ -339,6 +339,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	var effectsToEnd = [];
 
 	effects.find(ef => ef.name === "Life of the Dragon").eyes = 0;
+	effects.find(ef => ef.name === "Firstminds' Focus").scales = 0;
 
 	var eType = "action";
     
@@ -566,6 +567,25 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             		default:
             			break;
 	            }
+
+	            // Firstminds' Focus
+	            switch(eName) {
+	            	case "Raiden Thrust":
+	            	case "Draconian Fury":
+	            		var FiFoEffect = effects.find(ef => ef.name === "Firstminds' Focus");
+	            		if (FiFoEffect)
+	            			FiFoEffect.scales = Math.min(FiFoEffect.scales + 1, 2);
+	            		break;
+	            	case "Wyrmwind Thrust":
+	            		var FiFoEffect = effects.find(ef => ef.name === "Firstminds' Focus");
+	            		if (FiFoEffect && FiFoEffect.scales === 2) {
+	            			FiFoEffect.scales = 0;
+	            		}
+	            		break;
+            		default:
+            			break;
+	        	}
+
 	            break;
             case "effectBegin":
             	timedEffect = effectsToActivate.shift();

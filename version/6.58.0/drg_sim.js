@@ -989,6 +989,46 @@ function drawBotd(type, botdObject, eTime) {
     // addTimeUntil(eTime + 5);
 }
 
+function drawFifo(type, fifoObject, eTime) {
+    console.log("drawFifo called", type, fifoObject, eTime);
+    var posWidth = 25;
+    var posLeft = ($("#fifo").get(0).getBoundingClientRect().width - posWidth) / 2;
+    var zIndex = 1;
+    var beginTime, backgroundColor;
+    var effect = effects.find(ef => "Firstminds' Focus" === ef.name);
+    
+    var fifoDiv = function(name, beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex) {
+        return $("<div></div>").attr({"name": name, "time": `${beginTime.toFixed(3)}`, "endTime": `${eTime.toFixed(3)}`})
+        .css({"position": "absolute", "left": `${posLeft}px`, "top": `${posTop}px`, "height": `${posHeight}px`, "width": `${posWidth}px`, "background-color": `${backgroundColor}`, "z-index": `${zIndex}`});
+    };
+    
+    switch (type) {
+        case "fifo":
+            beginTime = fifoObject.fifoStart;
+            backgroundColor = effect.backgroundColor;
+            var posTop = Math.round((beginTime - startTime) * scale + 1);
+            var posBot = Math.round((eTime - startTime) * scale + 1);
+            var posHeight = posBot - posTop;
+            $("#fifo").append(fifoDiv(type, beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex));
+            break;
+        case "scale":
+            for (var i = 0; i < fifoObject.scaleCount; i++) {
+                posLeftScale = 11 * i + 3 + posLeft;
+                posWidth = 8;
+                beginTime = fifoObject.scaleTime[i];
+                backgroundColor = effect.scaleColor;
+                zIndex = 2;
+                var posTop = Math.round((beginTime - startTime) * scale + 1);
+                var posBot = Math.round((eTime - startTime) * scale + 1);
+                var posHeight = posBot - posTop;
+                $("#fifo").append(fifoDiv(type + (i + 1), beginTime, eTime, posLeftScale, posTop, posHeight, posWidth, backgroundColor, zIndex).css("border-radius", "3px"));
+            }
+            break;
+        default:
+            return;
+    }
+}
+
 function deleteEffect(name, beginTime) {
 	$("#effects").children().filter(function(index) {return $(this).attr("name") === name && Number($(this).attr("time")) === beginTime;}).remove();
 }
@@ -1029,6 +1069,7 @@ function removeDpsAfter(beginTime) {
 function updateDps() {
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
     var botdObject = {bloodStart: RotationHistory[0].time, eyeTime: [], lifeStart: 0, eyeCount: 0};
+    var fifoObject = {fifoStart: RotationHistory[0].time, scaleTime: [], scaleCount: 0};
     var dpsWidth = $("#dps").get(0).getBoundingClientRect().width;
     RotationHistory.forEach(e => {
         if (e.type === "action") {
@@ -1084,9 +1125,28 @@ function updateDps() {
             default:
                 break;
         }
+
+        switch(e.name) {
+            case "Raiden Thrust":
+            case "Draconian Fury":
+                fifoObject.scaleTime[fifoObject.scaleCount] = e.time;
+                fifoObject.scaleCount = Math.min(fifoObject.scaleCount + 1, 2);
+                break;
+            case "Wyrmwind Thrust":
+                console.log("Wyrmwind Thrust used", fifoObject.scaleCount);
+                if (fifoObject.scaleCount === 2) {
+                    drawFifo("scale", fifoObject, e.time);
+                    fifoObject.scaleCount = 0;
+                }
+                break;
+            default:
+                break;
+        }
     });
     drawBotd("blood", botdObject, Number($("#timeline").children().last().attr("time")) + 1);
     drawBotd("eye", botdObject, Number($("#timeline").children().last().attr("time")) + 1);
+    drawFifo("fifo", fifoObject, Number($("#timeline").children().last().attr("time")) + 1);
+    drawFifo("scale", fifoObject, Number($("#timeline").children().last().attr("time")) + 1);
     hideDpsOverlap();
     var lastDps = $("#dps").children().last();
     $("#DPSout").val(lastDps.children().html()).attr({"gcdDps": lastDps.attr("gcdDps"), "oGcdDps": lastDps.attr("oGcdDps"), "dotDps": lastDps.attr("dotDps"), "aaDps": lastDps.attr("aaDps")});
@@ -1095,6 +1155,7 @@ function updateDps() {
 
 function resetDps() {
     $("#botd").empty();
+    $("#fifo").empty();
     $("#effects").empty();
     $("#dps").empty();
     RotationHistory = [];
@@ -1599,6 +1660,19 @@ window.addEventListener("wheel", function(event) // TODO: ctrl + +/-, 2 point sl
             })
         });
 
+        $("#fifo").children().each(function(index) {
+            var beginTime = $(this).attr("time");
+            var endTime = $(this).attr("endTime");
+            var posTop = (beginTime - startTime) * scale + 1;
+            var posHeight = (endTime - beginTime) * scale;
+            $(this).css({"top": `${posTop}px`, "height": `${posHeight}px`});
+            $(this).children().each(function(index) {
+                var eTime = $(this).attr("time");
+                var posTop = Math.round((eTime - beginTime) * scale);
+                $(this).css("top", `${posTop}px`);
+            })
+        });
+
         $("#effects").children().each(function(index) {
             var beginTime = $(this).attr("time");
             var endTime = $(this).attr("endTime");
@@ -1998,6 +2072,12 @@ function isBotDUpAt(type, time) {
     return botDRemainingAt(type, time) > 0;
 }
 
+function isWwtReadyAt(time) {
+    var result = false;
+    $("#fifo").children(`[name="scale2"]`).each((idx,elt) => { if (Number($(elt).attr("endTime")) > time && Number($(elt).attr("time")) <= time) result = true;});
+    return result;
+}
+
 function cdAt(name, time) {
     var result = 0;
 
@@ -2105,13 +2185,15 @@ function updateSuggestions() {
         addSuggestion("True Thrust");
     }
 
-    ["Mirage Dive", "Nastrond", "Stardiver", "Battle Litany", "Dragon Sight", "Lance Charge", "High Jump", "Geirskogul", "Spineshatter Dive", "Dragonfire Dive", "Life Surge", "Potion"].forEach(elt => {
+    ["Mirage Dive", "Nastrond", "Stardiver", "Battle Litany", "Dragon Sight", "Lance Charge", "High Jump", "Geirskogul", "Spineshatter Dive", "Dragonfire Dive", "Wyrmwind Thrust", "Life Surge", "Potion"].forEach(elt => {
         var latestTime = nextGcdTime - getAnimationLock(elt);
         var cdAtCurrentTime = cdAt(elt, currentTime);
         var displayCD = 5;
         if (elt === "Battle Litany" || elt === "Dragon Sight" || elt === "Lance Charge" || elt === "Potion")
             displayCD = 20;
         if (((elt === "Nastrond" || elt === "Stardiver") && !isBotDUpAt("life", cdAtCurrentTime + currentTime)) || (elt === "Mirage Dive" && !isEffectUpAt("Dive Ready", currentTime)))
+            return;
+        if (elt === "Wyrmwind Thrust" && !isWwtReadyAt(cdAtCurrentTime + currentTime))
             return;
         if (isOffCdAt(elt, latestTime)) { // Available in this GCD
             var remainingTime;
