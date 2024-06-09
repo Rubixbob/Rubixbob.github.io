@@ -30,10 +30,16 @@ class Stats {
         // this.lvlModDiv = 2170;
         
         // Lvl 80
-        this.lvlModAP = 165;
-        this.lvlModMain = 340;
-        this.lvlModSub = 380;
-        this.lvlModDiv = 3300;
+        // this.lvlModAP = 165;
+        // this.lvlModMain = 340;
+        // this.lvlModSub = 380;
+        // this.lvlModDiv = 3300;
+        
+        // Lvl 90
+        this.lvlModAP = 195;
+        this.lvlModMain = 390;
+        this.lvlModSub = 400;
+        this.lvlModDiv = 1900;
 	}
 
 	copy() {
@@ -185,8 +191,12 @@ class Stats {
 		return 1 + this.critRate() * (this.critDamage() - 1);
 	}
 
+	autoCritMod() {
+		return 1 + this.critRateBonus * (this.critDamage() - 1);
+	}
+
 	detMod() {
-		return Math.floor(1000 + (this.det - this.lvlModMain) * 130 / this.lvlModDiv) / 1000;
+		return Math.floor(1000 + (this.det - this.lvlModMain) * 140 / this.lvlModDiv) / 1000;
 	}
 
 	sksMod() {
@@ -213,7 +223,7 @@ class Stats {
 	}
 
 	actionDamageLS(potency) {
-		return potency / 100 * this.wdMod() * this.strMod() * this.detMod() * this.dhMod() * this.critDamage() * this.globalDmgMult * this.piercingDmgMult;
+		return potency / 100 * this.wdMod() * this.strMod() * this.detMod() * this.dhMod() * this.critDamage() * this.globalDmgMult * this.piercingDmgMult * this.autoCritMod();
 	}
 
 	aaDamage() {

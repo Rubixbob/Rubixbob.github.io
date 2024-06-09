@@ -990,7 +990,6 @@ function drawBotd(type, botdObject, eTime) {
 }
 
 function drawFifo(type, fifoObject, eTime) {
-    console.log("drawFifo called", type, fifoObject, eTime);
     var posWidth = 25;
     var posLeft = ($("#fifo").get(0).getBoundingClientRect().width - posWidth) / 2;
     var zIndex = 1;
@@ -1133,7 +1132,6 @@ function updateDps() {
                 fifoObject.scaleCount = Math.min(fifoObject.scaleCount + 1, 2);
                 break;
             case "Wyrmwind Thrust":
-                console.log("Wyrmwind Thrust used", fifoObject.scaleCount);
                 if (fifoObject.scaleCount === 2) {
                     drawFifo("scale", fifoObject, e.time);
                     fifoObject.scaleCount = 0;
@@ -1421,9 +1419,9 @@ function loadRotation(rotation) {
     $("#SKSin").change();
     rotation.actions.forEach(ac => {
         if (ac.hasOwnProperty("d"))
-            openerAddAction(actions[ac.i].name, (ac.d === "1" ? "true" : "false"));
+            openerAddAction(actions.find(a => a.id === ac.i).name, (ac.d === "1" ? "true" : "false"));
         else
-            openerAddAction(actions[ac.i].name);
+            openerAddAction(actions.find(a => a.id === ac.i).name);
     });
 
     autoFillRaidBuffs(false);

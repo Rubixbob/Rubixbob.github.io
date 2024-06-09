@@ -248,7 +248,7 @@ var actions = [
 	  group: "ogcd"},
 	{ name: "Wyrmwind Thrust",
 	  shortName: "WWT",
-	  id: 34,
+	  id: 37,
 	  description: "Delivers an attack to all enemies in a straight line before you with a potency of 420 for the first enemy, and 50% less for all remaining enemies.<br/>Firstminds' Focus Cost: 2",
 	  potency: 420,
 	  recast: 10,
