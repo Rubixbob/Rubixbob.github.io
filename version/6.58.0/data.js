@@ -1,4 +1,4 @@
-var version = "5.0.0";
+var version = "6.58.0";
 
 var defaultAnimLock = 0.6;
 var jumpAnimLock = 0.8;

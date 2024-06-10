@@ -87,14 +87,12 @@ effects.forEach(function (ef) {
             checkBox.change();
         });
         checkBox.change(function() {
-            if (checkBox.css("display") === "none") {
-                effect.prop("hidden", !$(checkBox).prop("checked"));
-                var savedEffects = {};
-                if (localStorage["effects"])
-                    savedEffects = JSON.parse(localStorage["effects"]);
-                savedEffects[ef.name] = $(checkBox).prop("checked");
-                localStorage["effects"] = JSON.stringify(savedEffects);
-            }
+            effect.prop("hidden", !$(checkBox).prop("checked"));
+            var savedEffects = {};
+            if (localStorage["effects"])
+                savedEffects = JSON.parse(localStorage["effects"]);
+            savedEffects[ef.name] = $(checkBox).prop("checked");
+            localStorage["effects"] = JSON.stringify(savedEffects);
             fitColumns();
         });
     }
@@ -629,7 +627,8 @@ function addActionAtIndex(element, idx, checkDelay = true) {
 			nextUsage = $(element.cloneNode(true));
 			dndHandler.applyActionsEvents(nextUsage.get(0), "cd");
 		}
-		$(nextUsage).attr("time", `${offCdTime.toFixed(3)}`).attr("abilityTime", `${time.toFixed(3)}`).css({"position": "absolute", "top": `${offCdPosition}px`, "left": "", "height": ""});
+        var leftPosition = $("#cds").children().filter(function(index) {return this.getAttribute("time") === offCdTime.toFixed(3) && Number(this.getAttribute("abilityTime")) < time;}).length * 5;
+		$(nextUsage).attr("time", `${offCdTime.toFixed(3)}`).attr("abilityTime", `${time.toFixed(3)}`).css({"position": "absolute", "top": `${offCdPosition}px`, "left": `${leftPosition}px`, "height": "", "z-index": "3"});
 		$("#cds").append(nextUsage);
 		addTimeUntil(offCdTime + 5);
 	}
@@ -1256,10 +1255,15 @@ function loadRotationRow(rotName, rots, body, saving) {
     var savedLabel = $("<strong><label>Rotation saved!</label></strong>").css({"display": "none"});
     var sharedLabel = $("<strong><label>Name updated with the URL!</label></strong>").css({"display": "none"});
     openButton.click(function() {
+        // Set version to 5.0.0 when undefined and save again
+        if (rot.version == undefined) {
+            rot.version = "5.0.0";
+            localStorage[rotName] = JSON.stringify(rot);
+        }
         // Check version of rot and redirect if needed
         if (rot.version != version) {
             localStorage["LoadingRotation"] = rot.name;
-            window.location.href = `version/${rot.version}`;
+            window.location.href = `/version/${rot.version}`;
         }
         loadRotation(rot);
         $("#savedRotationsLightbox").modal("hide");
@@ -1419,9 +1423,9 @@ function loadRotation(rotation) {
     $("#SKSin").change();
     rotation.actions.forEach(ac => {
         if (ac.hasOwnProperty("d"))
-            openerAddAction(actions.find(a => a.id === ac.i).name, (ac.d === "1" ? "true" : "false"));
+            openerAddAction(actions.find(a => a.id == ac.i).name, (ac.d === "1" ? "true" : "false"));
         else
-            openerAddAction(actions.find(a => a.id === ac.i).name);
+            openerAddAction(actions.find(a => a.id == ac.i).name);
     });
 
     autoFillRaidBuffs(false);

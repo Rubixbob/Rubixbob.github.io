@@ -1176,10 +1176,15 @@ function loadRotationRow(rotName, rots, body, saving) {
     var savedLabel = $("<strong><label>Rotation saved!</label></strong>").css({"display": "none"});
     var sharedLabel = $("<strong><label>Name updated with the URL!</label></strong>").css({"display": "none"});
     openButton.click(function() {
+        // Set version to 5.0.0 when undefined and save again
+        if (rot.version == undefined) {
+            rot.version = "5.0.0";
+            localStorage[rotName] = JSON.stringify(rot);
+        }
         // Check version of rot and redirect if needed
         if (rot.version != version) {
             localStorage["LoadingRotation"] = rot.name;
-            window.location.href = `version/${rot.version}`;
+            window.location.href = `/version/${rot.version}`;
         }
         loadRotation(rot);
         $("#savedRotationsLightbox").modal("hide");
