@@ -1193,27 +1193,30 @@ function openerAddAction(actionName, delayed) {
 
 $("#opener").click(function(){
     clearRotation();
-    openerAddAction("Blood of the Dragon");
-    openerAddAction("Potion");
     openerAddAction("True Thrust");
-    openerAddAction("Dragon Sight");
+    openerAddAction("Potion");
     openerAddAction("Disembowel");
-    openerAddAction("Battle Litany");
     openerAddAction("Lance Charge");
-    openerAddAction("Chaos Thrust");
+    openerAddAction("Dragon Sight");
+    openerAddAction("Chaotic Spring");
+    openerAddAction("Battle Litany");
     openerAddAction("Wheeling Thrust");
-    openerAddAction("Fang and Claw");
-    openerAddAction("Geirskogul", true);
-    openerAddAction("Raiden Thrust");
-    openerAddAction("High Jump");
-    openerAddAction("Vorpal Thrust");
+    openerAddAction("Geirskogul");
     openerAddAction("Life Surge");
-    openerAddAction("Mirage Dive");
-    openerAddAction("Full Thrust");
-    openerAddAction("Spineshatter Dive");
     openerAddAction("Fang and Claw");
+    openerAddAction("High Jump");
+    openerAddAction("Mirage Dive");
+    openerAddAction("Raiden Thrust");
     openerAddAction("Dragonfire Dive");
+    openerAddAction("Spineshatter Dive");
+    openerAddAction("Vorpal Thrust");
+    openerAddAction("Spineshatter Dive");
+    openerAddAction("Life Surge");
+    openerAddAction("Heavens' Thrust");
+    openerAddAction("Fang and Claw");
     openerAddAction("Wheeling Thrust");
+    openerAddAction("Raiden Thrust");
+    openerAddAction("Wyrmwind Thrust");
 
     autoFillRaidBuffs(false);
     updateDps();
@@ -2205,7 +2208,7 @@ function updateSuggestions() {
         addSuggestion("True Thrust");
     }
 
-    ["Mirage Dive", "Nastrond", "Stardiver", "Battle Litany", "Dragon Sight", "Lance Charge", "High Jump", "Geirskogul", "Spineshatter Dive", "Dragonfire Dive", "Wyrmwind Thrust", "Life Surge", "Potion"].forEach(elt => {
+    ["Mirage Dive", "Nastrond", "Stardiver", "Lance Charge", "Dragon Sight", "Battle Litany", "Geirskogul", "High Jump", "Dragonfire Dive", "Spineshatter Dive", "Wyrmwind Thrust", "Life Surge", "Potion"].forEach(elt => {
         var latestTime = nextGcdTime - getAnimationLock(elt);
         var cdAtCurrentTime = cdAt(elt, currentTime);
         var displayCD = 5;
