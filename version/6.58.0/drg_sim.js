@@ -754,7 +754,7 @@ function drawEffect(name, beginTime, endTime) {
     }
 }
 
-function drawGroupEffect(name, jobIndex, beginTime, endTime, royalRoad, celestialOpposition, timeDilation/*, emboldenStacks*/) {
+function drawGroupEffect(name, jobIndex, beginTime, endTime, coda/*, royalRoad, celestialOpposition, timeDilation, emboldenStacks*/) {
     var effect = effects.find(ef => name === ef.name);
     var columnName = effect.groupAction;
     
@@ -772,12 +772,14 @@ function drawGroupEffect(name, jobIndex, beginTime, endTime, royalRoad, celestia
     
     var wrapper = $("<div></div>");
     wrapper.attr({"class": "effect", "name": name, "jobIndex": jobIndex, "time": `${beginTime.toFixed(3)}`, "endTime": `${endTime.toFixed(3)}`});
-    if (royalRoad)
-        wrapper.attr("royalRoad", royalRoad);
-    if (celestialOpposition)
-        wrapper.attr("celestialOpposition", celestialOpposition);
-    if (timeDilation)
-        wrapper.attr("timeDilation", timeDilation);
+    if (coda)
+        wrapper.attr("coda", coda);
+    // if (royalRoad)
+    //     wrapper.attr("royalRoad", royalRoad);
+    // if (celestialOpposition)
+    //     wrapper.attr("celestialOpposition", celestialOpposition);
+    // if (timeDilation)
+    //     wrapper.attr("timeDilation", timeDilation);
     // if (emboldenStacks)
     //     wrapper.attr("emboldenStacks", emboldenStacks);
     wrapper.addClass("groupEffect");
@@ -1833,6 +1835,9 @@ function setUpRaidBuffLightbox(name, jobIndex, element) {
             // $("#raidBuffLightboxDurationInput").val((Number($(element).attr("endTime")) * 1000 - Number($(element).attr("time")) * 1000) / 1000);
             $("#raidBuffLightboxDuration").val((Number($(element).attr("endTime")) * 1000 - Number($(element).attr("time")) * 1000) / 1000);
         // }
+        if (name === "Radiant Finale") {
+            $("#raidBuffLightboxCoda").val($(element).attr("coda"));
+        }
     } else {
         $("#raidBuffLightboxTitleMode").val("Add");
         var previousEffects = $("#groupEffects").children(`[name="${name}"][jobIndex="${jobIndex}"]`);
@@ -1850,6 +1855,15 @@ function setUpRaidBuffLightbox(name, jobIndex, element) {
         $("#raidBuffLightboxStartTimeInput").val(useTime);
         // $("#raidBuffLightboxDurationInput").val(getEffectDuration(name, useNumber));
         $("#raidBuffLightboxDuration").val(getEffectDuration(name, useNumber));
+
+        if (name === "Radiant Finale") {
+            $("#raidBuffLightboxCoda").val(useNumber == 0 ? 1 : 3);
+        }
+    }
+    if (name === "Radiant Finale") {
+        $("#raidBuffLightboxCodaRow").prop("hidden", false);
+    } else {
+        $("#raidBuffLightboxCodaRow").prop("hidden", true);
     }
     // switch(name) {
     //     case "Hypercharge":
@@ -1965,9 +1979,13 @@ $("#raidBuffLightboxConfirm").click(function() {
     if (raidBuffLightboxEditMode)
         deleteGroupEffect(raidBuffLightboxEditElement);
     var title = $("#raidBuffLightboxTitle").val();
-    var royalRoad;
-    var celestialOpposition;
-    var timeDilation;
+    var coda;
+    if (title === "Radiant Finale") {
+        coda = Math.round(Number($("#raidBuffLightboxCoda").val()));
+    }
+    // var royalRoad;
+    // var celestialOpposition;
+    // var timeDilation;
     // var emboldenStacks;
     // if ($("#raidBuffLightboxExpanded").prop("checked"))
     //     royalRoad = "Expanded";
@@ -1991,7 +2009,7 @@ $("#raidBuffLightboxConfirm").click(function() {
     //         emboldenStacks--;
     //     }
     // } else
-        drawGroupEffect(title, raidBuffLightboxJobIndex, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDuration").val()), royalRoad, celestialOpposition, timeDilation/*, emboldenStacks*/);
+        drawGroupEffect(title, raidBuffLightboxJobIndex, Number($("#raidBuffLightboxStartTimeInput").val()), Number($("#raidBuffLightboxStartTimeInput").val()) + Number($("#raidBuffLightboxDuration").val()), coda/*, royalRoad, celestialOpposition, timeDilation, emboldenStacks*/);
     // if (title === "The Balance" || title === "The Spear" || title === "The Arrow" || title === "Fey Wind") {
     //     updateGcdTimeline();
     //     updateRotationAfterIndex(0);
@@ -2250,9 +2268,10 @@ function autoFillSingleRaidBuff(name, jobIndex) {
     //     emboldenEffect = effects.find(ef => ef.name === "Embolden");
     
     while (true) {
-        var royalRoad;
-        var celestialOpposition;
-        var timeDilation;
+        var coda;
+        // var royalRoad;
+        // var celestialOpposition;
+        // var timeDilation;
         // var emboldenStacks;
         var previousEffects = $("#groupEffects").children(`[name="${effectName}"][jobIndex="${jobIndex}"]`);
         // if (name === "Embolden")
@@ -2276,6 +2295,9 @@ function autoFillSingleRaidBuff(name, jobIndex) {
         //     timeDilation = false;
         // }
         
+        if (name === "Radiant Finale") {
+            coda = (useNumber == 0 ? 1 : 3);
+        }
         // if (name === "Embolden") {
         //     var beginTime = useTime;
         //     emboldenStacks = emboldenEffect.maxStacks;
@@ -2285,7 +2307,7 @@ function autoFillSingleRaidBuff(name, jobIndex) {
         //         emboldenStacks--;
         //     }
         // } else
-            drawGroupEffect(effectName, jobIndex, useTime, useTime + duration, royalRoad, celestialOpposition, timeDilation/*, emboldenStacks*/);
+            drawGroupEffect(effectName, jobIndex, useTime, useTime + duration, coda/*, royalRoad, celestialOpposition, timeDilation, emboldenStacks*/);
         loopCount++;
     }
     

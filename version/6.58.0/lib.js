@@ -57,6 +57,8 @@ class Stats {
 							this.globalDmgMult *= ef.effect.enhancedValue;
 						else if (ef.royalRoad === "Expanded")
 							this.globalDmgMult *= ef.effect.expandedValue;
+						else if (ef.coda > 0)
+							this.globalDmgMult *= 1 + (ef.effect.value - 1) * ef.coda;
 						// else if (ef.emboldenStacks > 0)
 						// 	this.globalDmgMult *= (ef.effect.value + ef.emboldenStacks * ef.effect.stackValue);
 						else
@@ -329,6 +331,8 @@ function initGroupEffects(groupEffectsDom, effectsToActivate, effectsToEnd) {
         	timedEffect.royalRoad = $(this).attr("royalRoad");
         // if (this.hasAttribute("emboldenStacks"))
         // 	timedEffect.emboldenStacks = Number($(this).attr("emboldenStacks"));
+        if (this.hasAttribute("coda"))
+        	timedEffect.coda = Number($(this).attr("coda"));
         addToActivate(timedEffect, effectsToActivate);
         addToEnd(timedEffect, effectsToEnd);
     });
@@ -387,6 +391,8 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             var activeIdx = activeEffects.findIndex(ef => ef.effect.name === timedEffect.effect.name);
             if (timedEffect.effect.groupAction === "Draw")
                 activeIdx = activeEffects.findIndex(ef => ef.effect.groupAction === "Draw");
+            if (timedEffect.effect.groupAction === "The Wanderer's Minuet" || timedEffect.effect.groupAction === "Mage's Ballad" || timedEffect.effect.groupAction === "Army's Paeon")
+                activeIdx = activeEffects.findIndex(ef => ef.effect.groupAction === "The Wanderer's Minuet" || ef.effect.groupAction === "Mage's Ballad" || ef.effect.groupAction === "Army's Paeon");
             if (activeIdx >= 0 && !timedEffect.effect.stackable) {
                 eType = "effectEnd";
                 
@@ -847,9 +853,9 @@ function getGroupJob(actionName) {
 function getGroupRecastTime(actionName, use) {
     var recast = 0;
     var groupAction = groupActions.find(ac => actionName === ac.name);
-    /*if ((actionName === "The Wanderer's Minuet" || actionName === "Foe Requiem" || actionName === "Disembowel") && use !== undefined && groupAction.hasOwnProperty("usePattern"))
+    if (use !== undefined && groupAction.hasOwnProperty("usePattern"))
         recast = groupAction.usePattern[use % groupAction.usePattern.length];
-    else*/ if (groupAction.hasOwnProperty("recast"))
+    else if (groupAction.hasOwnProperty("recast"))
         recast = groupAction.recast;
     return Number(recast);
 }
