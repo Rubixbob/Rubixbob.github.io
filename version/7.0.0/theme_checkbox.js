@@ -1,0 +1,1 @@
+document.body.setAttribute("data-theme", (!localStorage["theme"] || localStorage["theme"] === "dark") ? "dark" : "");
