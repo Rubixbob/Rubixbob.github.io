@@ -997,7 +997,7 @@ var effects = [
 	  shortName: "RF",
 	  description: "Damage dealt is increased.",
 	  value: 1.02,
-	  duration: 15,
+	  duration: 20,
       stackable: false,
       backgroundColor: "rgb(89, 151, 181)",
       borderColor: "rgb(15, 44, 89)",
