@@ -718,7 +718,7 @@ function addTimeUntil(time) {
     }
 }
 
-function drawEffect(name, beginTime, endTime) {
+function drawEffect(name, beginTime, endTime, nastrondStacks) {
     var effectHeader = $("#effectsHeader").children(`[name="${name}"]`);
     if (effectHeader.length > 0) {
         var headerWidth = 24;
@@ -745,7 +745,11 @@ function drawEffect(name, beginTime, endTime) {
                      "border": `solid ${borderWidth}px ${borderColor}`});
         wrapper.prop("hidden", hide);
         
-        var icon = $("<img></img>").attr("src", `../../images/effects/${name}.png`).addClass("effectIcon");
+        var imgName = `${name}.png`;
+        if (name === "Nastrond Ready") {
+            imgName = `${name}${nastrondStacks}.png`;
+        }
+        var icon = $("<img></img>").attr("src", `../../images/effects/${imgName}`).addClass("effectIcon");
         wrapper.append(icon);
         
         $("#effects").append(wrapper);
@@ -963,11 +967,11 @@ function drawBotd(type, botdObject, eTime) {
             var posHeight = posBot - posTop;
             var lifeDiv = botdDiv(type, beginTime, eTime, posLeft, posTop, posHeight, posWidth, backgroundColor, zIndex);
             
-            for (var i = 1; i <= 2; i++) {
-            var posTop = Math.round((eTime - 10 * i - beginTime) * scale);
-                lifeDiv.prepend($("<div></div>").attr("time", `${(eTime - 10 * i).toFixed(3)}`)
-                    .css({"position": "absolute", "top": `${posTop}px`, "height": "2px", "width": `${posWidth}px`, "background-color": "orange", "z-index": "3"}));
-            }
+            // for (var i = 1; i <= 2; i++) {
+            //     var posTop = Math.round((eTime - 10 * i - beginTime) * scale);
+            //     lifeDiv.prepend($("<div></div>").attr("time", `${(eTime - 10 * i).toFixed(3)}`)
+            //         .css({"position": "absolute", "top": `${posTop}px`, "height": "2px", "width": `${posWidth}px`, "background-color": "orange", "z-index": "3"}));
+            // }
             $("#botd").append(lifeDiv);
             break;
         case "eye":
@@ -1077,7 +1081,7 @@ function updateDps() {
             $("#rotation").children(`[time='${e.time.toFixed(3)}']`).attr("damage", Math.round(e.actionDamage));
         } else if (e.type === "effectBegin") {
             if (e.timedEffect.displaySelf) {
-                drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime);
+                drawEffect(e.name, e.timedEffect.beginTime, e.timedEffect.endTime, e.timedEffect.nastrondStacks);
             } else if (e.timedEffect.hasOwnProperty("jobIndex")) {
                 // Update group effect with overlay
                 // var emboldenStacks;
@@ -1103,25 +1107,29 @@ function updateDps() {
             //     }
             //     break;
             case "Life of the Dragon":
-                if (e.type === "effectEnd") { // Life end
+                if (e.type === "effectBegin") {
+                    drawBotd("blood", botdObject, e.time);
+                    botdObject.lifeStart = e.time;
+                }
+                if (e.type === "effectEnd") {
                     drawBotd("life", botdObject, e.time);
                     botdObject.bloodStart = e.time;
                 }
                 break;
-            case "Geirskogul":
-                if (botdObject.eyeCount === 2) { // Blood end | Life start
-                    drawBotd("blood", botdObject, e.time);
-                    drawBotd("eye", botdObject, e.time);
-                    botdObject.eyeCount = 0;
-                    botdObject.lifeStart = e.time;
-                }
-                break;
-            case "Mirage Dive":
-                // if (botdObject.eyeCount >= 0) { // When blood/life up
-                    botdObject.eyeTime[botdObject.eyeCount] = e.time;
-                    botdObject.eyeCount = Math.min(botdObject.eyeCount + 1, 2);
+            // case "Geirskogul":
+                // if (botdObject.eyeCount === 2) { // Blood end | Life start
+                    // drawBotd("blood", botdObject, e.time);
+                //     drawBotd("eye", botdObject, e.time);
+                //     botdObject.eyeCount = 0;
+                    // botdObject.lifeStart = e.time;
                 // }
-                break;
+                // break;
+            // case "Mirage Dive":
+            //     // if (botdObject.eyeCount >= 0) { // When blood/life up
+            //         botdObject.eyeTime[botdObject.eyeCount] = e.time;
+            //         botdObject.eyeCount = Math.min(botdObject.eyeCount + 1, 2);
+            //     // }
+            //     break;
             default:
                 break;
         }
@@ -1143,7 +1151,7 @@ function updateDps() {
         }
     });
     drawBotd("blood", botdObject, Number($("#timeline").children().last().attr("time")) + 1);
-    drawBotd("eye", botdObject, Number($("#timeline").children().last().attr("time")) + 1);
+    // drawBotd("eye", botdObject, Number($("#timeline").children().last().attr("time")) + 1);
     drawFifo("fifo", fifoObject, Number($("#timeline").children().last().attr("time")) + 1);
     drawFifo("scale", fifoObject, Number($("#timeline").children().last().attr("time")) + 1);
     hideDpsOverlap();
@@ -1195,26 +1203,29 @@ $("#opener").click(function(){
     clearRotation();
     openerAddAction("True Thrust");
     openerAddAction("Potion");
-    openerAddAction("Disembowel");
+    openerAddAction("Spiral Blow");
     openerAddAction("Lance Charge");
-    openerAddAction("Dragon Sight");
     openerAddAction("Chaotic Spring");
     openerAddAction("Battle Litany");
-    openerAddAction("Wheeling Thrust");
     openerAddAction("Geirskogul");
-    openerAddAction("Life Surge");
-    openerAddAction("Fang and Claw");
-    openerAddAction("High Jump");
-    openerAddAction("Mirage Dive");
-    openerAddAction("Raiden Thrust");
-    openerAddAction("Dragonfire Dive");
-    openerAddAction("Spineshatter Dive");
-    openerAddAction("Vorpal Thrust");
-    openerAddAction("Spineshatter Dive");
-    openerAddAction("Life Surge");
-    openerAddAction("Heavens' Thrust");
-    openerAddAction("Fang and Claw");
     openerAddAction("Wheeling Thrust");
+    openerAddAction("High Jump");
+    openerAddAction("Life Surge");
+    openerAddAction("Drakesbane");
+    openerAddAction("Dragonfire Dive");
+    openerAddAction("Nastrond");
+    openerAddAction("Raiden Thrust");
+    openerAddAction("Stardiver");
+    openerAddAction("Lance Barrage");
+    openerAddAction("Life Surge");
+    openerAddAction("Mirage Dive");
+    openerAddAction("Heavens' Thrust");
+    openerAddAction("Starcross");
+    openerAddAction("Nastrond");
+    openerAddAction("Fang and Claw");
+    openerAddAction("Rise of the Dragon");
+    openerAddAction("Nastrond");
+    openerAddAction("Drakesbane");
     openerAddAction("Raiden Thrust");
     openerAddAction("Wyrmwind Thrust");
 
@@ -2189,47 +2200,63 @@ function updateSuggestions() {
         nextGcdTime = Math.max(currentTime, (lastWsTime * 1000 + gcdAt(lastWsTime) * 1000) / 1000);
         if (isEffectUpAt("Draconian Fire", nextGcdTime))
             addSuggestion("Raiden Thrust");
-        else if (isEffectUpAt("Wheel in Motion", nextGcdTime))
+        else if (lastWs.attr("name") === "Wheeling Thrust" || lastWs.attr("name") === "Fang and Claw")
+            addSuggestion("Drakesbane");
+        else if (lastWs.attr("name") === "Chaotic Spring")
             addSuggestion("Wheeling Thrust");
-        else if (isEffectUpAt("Fang and Claw Bared", nextGcdTime))
+        else if (lastWs.attr("name") === "Heavens' Thrust")
             addSuggestion("Fang and Claw");
-        else if (lastWs.attr("name") === "Disembowel")
+        else if (lastWs.attr("name") === "Spiral Blow")
             addSuggestion("Chaotic Spring");
-        else if (lastWs.attr("name") === "Vorpal Thrust")
+        else if (lastWs.attr("name") === "Lance Barrage")
             addSuggestion("Heavens' Thrust");
         else if (lastWs.attr("name") === "True Thrust" || lastWs.attr("name") === "Raiden Thrust") {
             if (isEffectUpAt("Power Surge", nextGcdTime + 4 * gcdAt(nextGcdTime)))
-                addSuggestion("Vorpal Thrust");
+                addSuggestion("Lance Barrage");
             else
-                addSuggestion("Disembowel");
+                addSuggestion("Spiral Blow");
         } else
             addSuggestion("True Thrust");
     } else {
         addSuggestion("True Thrust");
     }
 
-    ["Mirage Dive", "Nastrond", "Stardiver", "Lance Charge", "Dragon Sight", "Battle Litany", "Geirskogul", "High Jump", "Dragonfire Dive", "Spineshatter Dive", "Wyrmwind Thrust", "Life Surge", "Potion"].forEach(elt => {
+    ["Lance Charge", "Battle Litany", "Geirskogul", "Nastrond", "Stardiver", "Starcross", "High Jump", "Mirage Dive", "Dragonfire Dive", "Rise of the Dragon", "Wyrmwind Thrust", "Life Surge", "Potion"].forEach(elt => {
         var latestTime = nextGcdTime - getAnimationLock(elt);
         var cdAtCurrentTime = cdAt(elt, currentTime);
         var displayCD = 5;
-        if (elt === "Battle Litany" || elt === "Dragon Sight" || elt === "Lance Charge" || elt === "Potion")
+        if (elt === "Battle Litany" || elt === "Geirskogul" || elt === "Lance Charge" || elt === "Potion")
             displayCD = 20;
-        if (((elt === "Nastrond" || elt === "Stardiver") && !isBotDUpAt("life", cdAtCurrentTime + currentTime)) || (elt === "Mirage Dive" && !isEffectUpAt("Dive Ready", currentTime)))
+        if (elt === "Stardiver" && !isBotDUpAt("life", cdAtCurrentTime + currentTime))
+            return;
+        if (elt === "Nastrond" && !isEffectUpAt("Nastrond Ready", currentTime))
+            return;
+        if (elt === "Mirage Dive" && !isEffectUpAt("Dive Ready", currentTime))
+            return;
+        if (elt === "Rise of the Dragon" && !isEffectUpAt("Dragon's Flight", currentTime))
+            return;
+        if (elt === "Starcross" && !isEffectUpAt("Starcross Ready", currentTime))
             return;
         if (elt === "Wyrmwind Thrust" && !isWwtReadyAt(cdAtCurrentTime + currentTime))
             return;
         if (isOffCdAt(elt, latestTime)) { // Available in this GCD
             var remainingTime;
-            if (elt === "Life Surge" && $("#suggestions").children(`[name="Heavens' Thrust"], [name="Fang and Claw"], [name="Wheeling Thrust"]`).length === 0)
+            if (elt === "Life Surge" && $("#suggestions").children(`[name="Heavens' Thrust"], [name="Drakesbane"]`).length === 0)
                 return;
-            if (elt === "Nastrond" || elt === "Stardiver")
+            if (elt === "Stardiver")
                 remainingTime = botDRemainingAt("life", currentTime);
+            else if (elt === "Nastrond")
+                remainingTime = effectRemainingAt("Nastrond Ready", currentTime);
             else if (elt === "Mirage Dive")
                 remainingTime = effectRemainingAt("Dive Ready", currentTime);
+            else if (elt === "Rise of the Dragon")
+                remainingTime = effectRemainingAt("Dragon's Flight", currentTime);
+            else if (elt === "Starcross")
+                remainingTime = effectRemainingAt("Starcross Ready", currentTime);
             if (isOffCdAt(elt, currentTime)) { // Available now
                 if (remainingTime < longAnimLock) // Active buff ends very soon
                         addSuggestion(elt, "activeEnd", remainingTime);
-                else if ((latestTime >= currentTime || currentTime === 0) && (elt != "Mirage Dive" || !isBotDUpAt("eye2", currentTime))) { // No clipping (time and eyes)
+                else if (latestTime >= currentTime || currentTime === 0) { // No clipping (time and eyes)
                     if (remainingTime < 5) // Active buff ends soon
                         addSuggestion(elt, "active", remainingTime);
                     else
@@ -2603,27 +2630,30 @@ function generateSksValues(gcdMin, gcdMax) { // Use correct str value, impacted 
 function getAdjustedDpsAt(cutTime) {
 
     var avgGcdDps = stats.actionDamage(actions.find(ac => "Raiden Thrust" === ac.name).potency
-                                     + actions.find(ac => "Disembowel" === ac.name).potency
-                                     + actions.find(ac => "Chaos Thrust" === ac.name).potency
+                                     + actions.find(ac => "Spiral Blow" === ac.name).potency
+                                     + actions.find(ac => "Chaotic Spring" === ac.name).potency
                                      + actions.find(ac => "Wheeling Thrust" === ac.name).potency
-                                     + actions.find(ac => "Fang and Claw" === ac.name).potency + 110
+                                     + actions.find(ac => "Drakesbane" === ac.name).potency
                                      + actions.find(ac => "Raiden Thrust" === ac.name).potency
-                                     + actions.find(ac => "Vorpal Thrust" === ac.name).potency
-                                     + actions.find(ac => "Full Thrust" === ac.name).potency
+                                     + actions.find(ac => "Lance Barrage" === ac.name).potency
+                                     + actions.find(ac => "Heavens' Thrust" === ac.name).potency
                                      + actions.find(ac => "Fang and Claw" === ac.name).potency
-                                     + actions.find(ac => "Wheeling Thrust" === ac.name).potency + 110)
-                    * effects.find(ef => "Disembowel" === ef.name).value / (10 * stats.gcd());
+                                     + actions.find(ac => "Drakesbane" === ac.name).potency)
+                    * effects.find(ef => "Power Surge" === ef.name).value / (10 * stats.gcd());
     
     // Damage from buffs
     var LCEffect = effects.find(ef => ef.name === "Lance Charge");
     var LCValue = LCEffect.value;
-    var DSEffect = effects.find(ef => ef.name === "Right Eye");
-    var DSValue = DSEffect.value;
+    var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
+    var LotDValue = LotDEffect.value;
+    // var DSEffect = effects.find(ef => ef.name === "Right Eye");
+    // var DSValue = DSEffect.value;
     var BLEffect = effects.find(ef => ef.name === "Battle Litany");
     var BLValue = BLEffect.value;
     // Without
     LCEffect.value = 1;
-    DSEffect.value = 1;
+    LotDEffect.value = 1;
+    // DSEffect.value = 1;
     BLEffect.value = 0;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
@@ -2634,7 +2664,8 @@ function getAdjustedDpsAt(cutTime) {
     var unbuffedDamage = RotationHistory[RotationHistory.length - 1].cumulDamage;
     // LC
     LCEffect.value = LCValue;
-    DSEffect.value = 1;
+    LotDEffect.value = 1;
+    // DSEffect.value = 1;
     BLEffect.value = 0;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
@@ -2643,20 +2674,33 @@ function getAdjustedDpsAt(cutTime) {
     var LCDotGain = RotationHistory[RotationHistory.length - 1].dotDps * RotationHistory[RotationHistory.length - 1].time - unbuffedDotDamage;
     var LCAaGain = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time - unbuffedAaDamage;
     var LCGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Lance Charge']").length;
-    // DS
+    // LotD
     LCEffect.value = 1;
-    DSEffect.value = DSValue;
+    LotDEffect.value = LotDValue;
+    // DSEffect.value = 1;
     BLEffect.value = 0;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
-    var DSGcdGain = RotationHistory[RotationHistory.length - 1].gcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedGcdDamage;
-    var DSOgcdGain = RotationHistory[RotationHistory.length - 1].oGcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedOgcdDamage;
-    var DSDotGain = RotationHistory[RotationHistory.length - 1].dotDps * RotationHistory[RotationHistory.length - 1].time - unbuffedDotDamage;
-    var DSAaGain = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time - unbuffedAaDamage;
-    var DSGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Dragon Sight']").length;
+    var LotDGcdGain = RotationHistory[RotationHistory.length - 1].gcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedGcdDamage;
+    var LotDOgcdGain = RotationHistory[RotationHistory.length - 1].oGcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedOgcdDamage;
+    var LotDDotGain = RotationHistory[RotationHistory.length - 1].dotDps * RotationHistory[RotationHistory.length - 1].time - unbuffedDotDamage;
+    var LotDAaGain = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time - unbuffedAaDamage;
+    var LotDGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Geirskogul']").length;
+    // DS
+    // LCEffect.value = 1;
+    // DSEffect.value = DSValue;
+    // BLEffect.value = 0;
+    // RotationHistory = [];
+    // generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
+    // var DSGcdGain = RotationHistory[RotationHistory.length - 1].gcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedGcdDamage;
+    // var DSOgcdGain = RotationHistory[RotationHistory.length - 1].oGcdDps * RotationHistory[RotationHistory.length - 1].time - unbuffedOgcdDamage;
+    // var DSDotGain = RotationHistory[RotationHistory.length - 1].dotDps * RotationHistory[RotationHistory.length - 1].time - unbuffedDotDamage;
+    // var DSAaGain = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time - unbuffedAaDamage;
+    // var DSGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Dragon Sight']").length;
     // BL
     LCEffect.value = 1;
-    DSEffect.value = 1;
+    LotDEffect.value = 1;
+    // DSEffect.value = 1;
     BLEffect.value = BLValue;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
@@ -2667,7 +2711,8 @@ function getAdjustedDpsAt(cutTime) {
     var BLGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage; // / $("#rotation").children("[name='Battle Litany']").length;
     // All
     LCEffect.value = LCValue;
-    DSEffect.value = DSValue;
+    LotDEffect.value = LotDValue;
+    // DSEffect.value = DSValue;
     BLEffect.value = BLValue;
     RotationHistory = [];
     generateHistory($("#rotation").children(), RotationHistory, stats, $("#groupEffects").children());
@@ -2677,23 +2722,29 @@ function getAdjustedDpsAt(cutTime) {
     var allBuffsAaGain = RotationHistory[RotationHistory.length - 1].aaDps * RotationHistory[RotationHistory.length - 1].time - unbuffedAaDamage;
     var allBuffsGain = RotationHistory[RotationHistory.length - 1].cumulDamage - unbuffedDamage;
 
-    var LCGcdDamage = (LCGcdGain + LCGcdGain / (LCGcdGain + DSGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + DSGcdGain + BLGcdGain))) / $("#rotation").children("[name='Lance Charge']").length;
-    var LCOgcdDamage = (LCOgcdGain + LCOgcdGain / (LCOgcdGain + DSOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + DSOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Lance Charge']").length;
-    var LCDotDamage = (LCDotGain + LCDotGain / (LCDotGain + DSDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + DSDotGain + BLDotGain))) / $("#rotation").children("[name='Lance Charge']").length;
-    var LCAaDamage = (LCAaGain + LCAaGain / (LCAaGain + DSAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + DSAaGain + BLAaGain))) / $("#rotation").children("[name='Lance Charge']").length;
-    var LCDamage = (LCGain + LCGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    var LCGcdDamage = (LCGcdGain + LCGcdGain / (LCGcdGain + LotDGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + LotDGcdGain + BLGcdGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    var LCOgcdDamage = (LCOgcdGain + LCOgcdGain / (LCOgcdGain + LotDOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + LotDOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    var LCDotDamage = (LCDotGain + LCDotGain / (LCDotGain + LotDDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + LotDDotGain + BLDotGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    var LCAaDamage = (LCAaGain + LCAaGain / (LCAaGain + LotDAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + LotDAaGain + BLAaGain))) / $("#rotation").children("[name='Lance Charge']").length;
+    var LCDamage = (LCGain + LCGain / (LCGain + LotDGain + BLGain) * (allBuffsGain - (LCGain + LotDGain + BLGain))) / $("#rotation").children("[name='Lance Charge']").length;
+
+    var LotDGcdDamage = (LotDGcdGain + LotDGcdGain / (LCGcdGain + LotDGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + LotDGcdGain + BLGcdGain))) / $("#rotation").children("[name='Geirskogul']").length;
+    var LotDOgcdDamage = (LotDOgcdGain + LotDOgcdGain / (LCOgcdGain + LotDOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + LotDOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Geirskogul']").length;
+    var LotDDotDamage = (LCDotGain + LCDotGain / (LCDotGain + LotDDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + LotDDotGain + BLDotGain))) / $("#rotation").children("[name='Geirskogul']").length;
+    var LotDAaDamage = (LotDAaGain + LotDAaGain / (LCAaGain + LotDAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + LotDAaGain + BLAaGain))) / $("#rotation").children("[name='Geirskogul']").length;
+    var LotDDamage = (LotDGain + LotDGain / (LCGain + LotDGain + BLGain) * (allBuffsGain - (LCGain + LotDGain + BLGain))) / $("#rotation").children("[name='Geirskogul']").length;
     
-    var DSGcdDamage = (DSGcdGain + DSGcdGain / (LCGcdGain + DSGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + DSGcdGain + BLGcdGain))) / $("#rotation").children("[name='Dragon Sight']").length;
-    var DSOgcdDamage = (DSOgcdGain + DSOgcdGain / (LCOgcdGain + DSOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + DSOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Dragon Sight']").length;
-    var DSDotDamage = (DSDotGain + DSDotGain / (LCDotGain + DSDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + DSDotGain + BLDotGain))) / $("#rotation").children("[name='Dragon Sight']").length;
-    var DSAaDamage = (DSAaGain + DSAaGain / (LCAaGain + DSAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + DSAaGain + BLAaGain))) / $("#rotation").children("[name='Dragon Sight']").length;
-    var DSDamage = (DSGain + DSGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    // var DSGcdDamage = (DSGcdGain + DSGcdGain / (LCGcdGain + DSGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + DSGcdGain + BLGcdGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    // var DSOgcdDamage = (DSOgcdGain + DSOgcdGain / (LCOgcdGain + DSOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + DSOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    // var DSDotDamage = (DSDotGain + DSDotGain / (LCDotGain + DSDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + DSDotGain + BLDotGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    // var DSAaDamage = (DSAaGain + DSAaGain / (LCAaGain + DSAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + DSAaGain + BLAaGain))) / $("#rotation").children("[name='Dragon Sight']").length;
+    // var DSDamage = (DSGain + DSGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Dragon Sight']").length;
     
-    var BLGcdDamage = (BLGcdGain + BLGcdGain / (LCGcdGain + DSGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + DSGcdGain + BLGcdGain))) / $("#rotation").children("[name='Battle Litany']").length;
-    var BLOgcdDamage = (BLOgcdGain + BLOgcdGain / (LCOgcdGain + DSOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + DSOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Battle Litany']").length;
-    var BLDotDamage = (BLDotGain + BLDotGain / (LCDotGain + DSDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + DSDotGain + BLDotGain))) / $("#rotation").children("[name='Battle Litany']").length;
-    var BLAaDamage = (BLAaGain + BLAaGain / (LCAaGain + DSAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + DSAaGain + BLAaGain))) / $("#rotation").children("[name='Battle Litany']").length;
-    var BLDamage = (BLGain + BLGain / (LCGain + DSGain + BLGain) * (allBuffsGain - (LCGain + DSGain + BLGain))) / $("#rotation").children("[name='Battle Litany']").length;
+    var BLGcdDamage = (BLGcdGain + BLGcdGain / (LCGcdGain + LotDGcdGain + BLGcdGain) * (allBuffsGcdGain - (LCGcdGain + LotDGcdGain + BLGcdGain))) / $("#rotation").children("[name='Battle Litany']").length;
+    var BLOgcdDamage = (BLOgcdGain + BLOgcdGain / (LCOgcdGain + LotDOgcdGain + BLOgcdGain) * (allBuffsOgcdGain - (LCOgcdGain + LotDOgcdGain + BLOgcdGain))) / $("#rotation").children("[name='Battle Litany']").length;
+    var BLDotDamage = (BLDotGain + BLDotGain / (LCDotGain + LotDDotGain + BLDotGain) * (allBuffsDotGain - (LCDotGain + LotDDotGain + BLDotGain))) / $("#rotation").children("[name='Battle Litany']").length;
+    var BLAaDamage = (BLAaGain + BLAaGain / (LCAaGain + LotDAaGain + BLAaGain) * (allBuffsAaGain - (LCAaGain + LotDAaGain + BLAaGain))) / $("#rotation").children("[name='Battle Litany']").length;
+    var BLDamage = (BLGain + BLGain / (LCGain + LotDGain + BLGain) * (allBuffsGain - (LCGain + LotDGain + BLGain))) / $("#rotation").children("[name='Battle Litany']").length;
 
     var damageToRemove = 0;
     var remove = false;
@@ -2705,7 +2756,7 @@ function getAdjustedDpsAt(cutTime) {
     lastGcds.forEach((ac, idx) => {
         if (remove)
             damageToRemove += ac.actionDamage;
-        else if (ac.name === "Wheeling Thrust" && (idx > 0 && lastGcds[idx - 1].name === "Fang and Claw" || lastGcds[idx + 1].name === "Raiden Thrust")) {
+        else if (ac.name === "Drakesbane" && (idx > 0 && lastGcds[idx - 1].name === "Fang and Claw" || lastGcds[idx + 2].name === "Spiral Blow")) {
             remove = true;
             removeTime = ac.time + stats.gcd();
         }
@@ -2720,7 +2771,7 @@ function getAdjustedDpsAt(cutTime) {
                        + (cutTime - lastAc.time) * (lastAc.aaTick / stats.wDelay + lastAc.dotTick / 3);
 
     // Abilities penalties
-    var abilitiesToCheck = ["High Jump", "Spineshatter Dive", "Dragonfire Dive", "Geirskogul", "Lance Charge", "Dragon Sight", "Battle Litany"];
+    var abilitiesToCheck = ["High Jump", "Dragonfire Dive", "Geirskogul", "Lance Charge", "Battle Litany"];
     // var onCdAbilities = $("#cds").children().filter((idx, ac) => { return Number($(ac).attr("time")) > cutTime; });
     var onCdAbilities = [];
     abilitiesToCheck.forEach((ab, idx) => {
@@ -2737,30 +2788,49 @@ function getAdjustedDpsAt(cutTime) {
         switch(acName) {
             case "High Jump":
                 var MDdmg = 0;
-                var NASdmg = 0;
-                var SDdmg = 0;
                 $("#rotation").children(`[name="${acName}"]`).each(function(idx) { ACdmg += Number($(this).attr("damage")); });
                 ACdmg /= $("#rotation").children(`[name="${acName}"]`).length;
                 $("#rotation").children("[name='Mirage Dive']").each(function(idx) { MDdmg += Number($(this).attr("damage")); });
                 MDdmg /= $("#rotation").children("[name='Mirage Dive']").length;
+
+                damagePenalty = (ACdmg + MDdmg) * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+
+                ogcdDamagePenalty = damagePenalty;
+                break;
+            // case "Spineshatter Dive":
+            case "Dragonfire Dive":
+                var RotDdmg = 0;
+                $("#rotation").children(`[name="${acName}"]`).each(function(idx) { ACdmg += Number($(this).attr("damage")); });
+                ACdmg /= $("#rotation").children(`[name="${acName}"]`).length;
+                $("#rotation").children("[name='Rise of the Dragon']").each(function(idx) { RotDdmg += Number($(this).attr("damage")); });
+                RotDdmg /= $("#rotation").children("[name='Rise of the Dragon']").length;
+
+                damagePenalty = (ACdmg + RotDdmg) * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                
+                ogcdDamagePenalty = damagePenalty;
+                break;
+            case "Geirskogul":
+                var NASdmg = 0;
+                var SDdmg = 0;
+                var SCdmg = 0;
+                $("#rotation").children(`[name="${acName}"]`).each(function(idx) { ACdmg += Number($(this).attr("damage")); });
+                ACdmg /= $("#rotation").children(`[name="${acName}"]`).length;
                 $("#rotation").children("[name='Nastrond']").each(function(idx) { NASdmg += Number($(this).attr("damage")); });
                 NASdmg /= $("#rotation").children("[name='Nastrond']").length;
                 $("#rotation").children("[name='Stardiver']").each(function(idx) { SDdmg += Number($(this).attr("damage")); });
                 SDdmg /= $("#rotation").children("[name='Stardiver']").length;
+                $("#rotation").children("[name='Starcross']").each(function(idx) { SCdmg += Number($(this).attr("damage")); });
+                SCdmg /= $("#rotation").children("[name='Starcross']").length;
 
-                damagePenalty = (ACdmg + MDdmg + NASdmg * 3 / 2 + SDdmg * 1 / 2) * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
-
-                ogcdDamagePenalty = damagePenalty;
-                break;
-            case "Spineshatter Dive":
-            case "Dragonfire Dive":
-            case "Geirskogul":
-                $("#rotation").children(`[name="${acName}"]`).each(function(idx) { ACdmg += Number($(this).attr("damage")); });
-                ACdmg /= $("#rotation").children(`[name="${acName}"]`).length;
-
-                damagePenalty = ACdmg * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                damagePenalty = (ACdmg + NASdmg * 3 + SDdmg + SCdmg) * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
                 
                 ogcdDamagePenalty = damagePenalty;
+
+                gcdDamagePenalty = LotDGcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                ogcdDamagePenalty += LotDOgcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                dotDamagePenalty = LotDDotDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                aaDamagePenalty = LotDAaDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                damagePenalty = LotDDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
                 break;
             case "Lance Charge":
                 gcdDamagePenalty = LCGcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
@@ -2768,12 +2838,13 @@ function getAdjustedDpsAt(cutTime) {
                 dotDamagePenalty = LCDotDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
                 aaDamagePenalty = LCAaDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
                 damagePenalty = LCDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
-            case "Dragon Sight":
-                gcdDamagePenalty = DSGcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
-                ogcdDamagePenalty = DSOgcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
-                dotDamagePenalty = DSDotDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
-                aaDamagePenalty = DSAaDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
-                damagePenalty = DSDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+                break;
+            // case "Dragon Sight":
+            //     gcdDamagePenalty = DSGcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+            //     ogcdDamagePenalty = DSOgcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+            //     dotDamagePenalty = DSDotDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+            //     aaDamagePenalty = DSAaDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
+            //     damagePenalty = DSDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
             case "Battle Litany":
                 gcdDamagePenalty = BLGcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);
                 ogcdDamagePenalty = BLOgcdDamage * (Number($(ac).attr("time")) - cutTime) / getRecastTime(acName);

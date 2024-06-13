@@ -156,7 +156,7 @@ var actions = [
 	{ name: "Life Surge",
 	  shortName: "LS",
 	  id: 15,
-	  description: "Ensures critical damage for first weaponskill used while Life Surge is active.<br/>Duration: 5s<br/>ncreases damage dealt when under an effect that raises critical hit rate.<br/>Effect cannot be applied to damage over time.<br/>Additional Effect: Absorbs a portion of damage dealt as HP<br/>Maximum Charges: 2",
+	  description: "Ensures critical damage for first weaponskill used while Life Surge is active.<br/>Duration: 5s<br/>Increases damage dealt when under an effect that raises critical hit rate.<br/>Effect cannot be applied to damage over time.<br/>Additional Effect: Absorbs a portion of damage dealt as HP<br/>Maximum Charges: 2",
 	  recast: 40,
 	  charges: 2,
 	  effects: ["Life Surge"],

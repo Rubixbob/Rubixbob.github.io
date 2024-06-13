@@ -75,7 +75,7 @@ class Stats {
 				});
 				break;
 			case "DoT":
-				if (effect.name === "Chaos Thrust") {
+				if (effect.name === "Chaotic Spring") {
 					if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0) {
 						this.CTDamage = timedEffect.dotDamage;
 					} else {
@@ -123,23 +123,23 @@ class Stats {
 				break;
 			case "Speed":
 				switch (effect.name) {
-                    case "The Arrow":
-                        if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0) {
-							if (timedEffect.royalRoad === "Enhanced")
-								this.arrow = effect.enhancedValue;
-							else if (timedEffect.royalRoad === "Expanded")
-								this.arrow = effect.expandedValue;
-							else
-								this.arrow = effect.value;
-                        } else
-                            this.arrow = 0;
-                        break;
-                    case "Fey Wind":
-                        if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0)
-                            this.feyWind = effect.value;
-                        else
-                            this.feyWind = 0;
-                        break;
+                    // case "The Arrow":
+                    //     if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0) {
+					// 		if (timedEffect.royalRoad === "Enhanced")
+					// 			this.arrow = effect.enhancedValue;
+					// 		else if (timedEffect.royalRoad === "Expanded")
+					// 			this.arrow = effect.expandedValue;
+					// 		else
+					// 			this.arrow = effect.value;
+                    //     } else
+                    //         this.arrow = 0;
+                    //     break;
+                    // case "Fey Wind":
+                    //     if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0)
+                    //         this.feyWind = effect.value;
+                    //     else
+                    //         this.feyWind = 0;
+                    //     break;
                     default:
                         console.log("Effect " + effect.name + " needs to be implemented");
                         break;
@@ -229,7 +229,7 @@ class Stats {
 	}
 
 	aaDamage() {
-		return 110 / 100 * this.aaMod() * this.strMod() * this.detMod() * this.sksMod() * this.dhMod() * this.critMod() * this.globalDmgMult * this.piercingDmgMult;
+		return 90 / 100 * this.aaMod() * this.strMod() * this.detMod() * this.sksMod() * this.dhMod() * this.critMod() * this.globalDmgMult * this.piercingDmgMult;
 	}
 
 	dotDamage(potency) {
@@ -352,7 +352,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	var effectsToActivate = [];
 	var effectsToEnd = [];
 
-	effects.find(ef => ef.name === "Life of the Dragon").eyes = 0;
+	// effects.find(ef => ef.name === "Life of the Dragon").eyes = 0;
 	effects.find(ef => ef.name === "Firstminds' Focus").scales = 0;
 
 	var eType = "action";
@@ -432,20 +432,20 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            	// 	if (BotDEffect)
 	            	// 		ePot *= BotDEffect.effect.value;
 	            	// 	break;
-	            	case "Fang and Claw":
-	            		var FCEffect = activeEffects.find(ef => ef.effect.name === "Fang and Claw Bared");
-	            		if (FCEffect)
-	            			ePot += FCEffect.effect.value;
-	            		else
-	            			ePot = 0;
-	            		break;
-	            	case "Wheeling Thrust":
-	            		var WTEffect = activeEffects.find(ef => ef.effect.name === "Wheel in Motion");
-	            		if (WTEffect)
-	            			ePot += WTEffect.effect.value;
-	            		else
-	            			ePot = 0;
-	            		break;
+	            	// case "Fang and Claw":
+	            	// 	var FCEffect = activeEffects.find(ef => ef.effect.name === "Fang and Claw Bared");
+	            	// 	if (FCEffect)
+	            	// 		ePot += FCEffect.effect.value;
+	            	// 	else
+	            	// 		ePot = 0;
+	            	// 	break;
+	            	// case "Wheeling Thrust":
+	            	// 	var WTEffect = activeEffects.find(ef => ef.effect.name === "Wheel in Motion");
+	            	// 	if (WTEffect)
+	            	// 		ePot += WTEffect.effect.value;
+	            	// 	else
+	            	// 		ePot = 0;
+	            	// 	break;
             		default:
             			break;
 	            }
@@ -464,25 +464,25 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                 // Activating effects
 				getEffects(eName).forEach(ef => {
                     // Lance Mastery
-                    if (eName === "Fang and Claw") {
-                    	var FCEffect = activeEffects.find(ef => ef.effect.name === "Fang and Claw Bared");
-                    	if (ef.name === "Wheel in Motion") {
-	                    	if (FCEffect && FCEffect.effect.value)
-	                        	return;
-	                        else
-	                        	ef.value = 100;
-	                    } else if (ef.name === "Draconian Fire" && !(FCEffect && FCEffect.effect.value))
-	                    	return;
-                    } else if (eName === "Wheeling Thrust") {
-                    	var WTEffect = activeEffects.find(ef => ef.effect.name === "Wheel in Motion");
-                    	if (ef.name === "Fang and Claw Bared") {
-	                    	if (WTEffect && WTEffect.effect.value)
-	                        	return;
-	                        else
-	                        	ef.value = 100;
-	                    } else if (ef.name === "Draconian Fire" && !(WTEffect && WTEffect.effect.value))
-	                    	return;
-                    }
+                    // if (eName === "Fang and Claw") {
+                    // 	var FCEffect = activeEffects.find(ef => ef.effect.name === "Fang and Claw Bared");
+                    // 	if (ef.name === "Wheel in Motion") {
+	                //     	if (FCEffect && FCEffect.effect.value)
+	                //         	return;
+	                //         else
+	                //         	ef.value = 100;
+	                //     } else if (ef.name === "Draconian Fire" && !(FCEffect && FCEffect.effect.value))
+	                //     	return;
+                    // } else if (eName === "Wheeling Thrust") {
+                    // 	var WTEffect = activeEffects.find(ef => ef.effect.name === "Wheel in Motion");
+                    // 	if (ef.name === "Fang and Claw Bared") {
+	                //     	if (WTEffect && WTEffect.effect.value)
+	                //         	return;
+	                //         else
+	                //         	ef.value = 100;
+	                //     } else if (ef.name === "Draconian Fire" && !(WTEffect && WTEffect.effect.value))
+	                //     	return;
+                    // }
 
                     // Re-use BotD
                     // if (ef.name === "Blood of the Dragon") {
@@ -498,17 +498,21 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                     // }
 
                     // LotD
-                    if (ef.name === "Life of the Dragon") {
-	            		var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
-	            		if (LotDEffect && LotDEffect.eyes < 2) {
-	            			return;
-	            		}
-                    }
+                    // if (ef.name === "Life of the Dragon") {
+	            	// 	var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
+	            	// 	if (LotDEffect && LotDEffect.eyes < 2) {
+	            	// 		return;
+	            	// 	}
+                    // }
 
 	                var activationTime = ef.activationTime === undefined ? 0 : ef.activationTime;
 	                var beginTime = Number((time + activationTime).toFixed(3));
 	                var endTime = Number((beginTime + ef.duration).toFixed(3));
 	                timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, displaySelf: true};
+	                // Nastrond ready stacks
+	                if (eName === "Geirskogul" && ef.name === "Nastrond Ready") {
+	                	timedEffect.nastrondStacks = 3;
+	                }
                     addToActivate(timedEffect, effectsToActivate);
 
 	                var oldTimedEffect = effectsToEnd.find(e => e.effect.name === ef.name);
@@ -520,17 +524,24 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                     addToEnd(timedEffect, effectsToEnd);
                     
                     // Compute CT DoT damage
-                    if (ef.name === "Chaos Thrust") {
+                    if (ef.name === "Chaotic Spring") {
                         timedEffect.dotDamage = stats.dotDamage(ef.value);
                     }
 	            });
                 
                 // Consuming effects
-                if (getRequiredEffect(eName)) {
-                    var REIdx = effectsToEnd.findIndex(ef => ef.effect.name === getRequiredEffect(eName));
+                var REName = getRequiredEffect(eName);
+                if (REName) {
+                    var REIdx = effectsToEnd.findIndex(ef => ef.effect.name === REName);
                     if (REIdx >= 0) {
                         var REEffect = effectsToEnd.splice(REIdx, 1)[0];
                         if (REEffect) {
+                        	// Next stack of nastrond ready
+		                    if (REName === "Nastrond Ready" && REEffect.nastrondStacks > 1) {
+		                    	timedEffect = {effect: REEffect.effect, beginTime: time, endTime: REEffect.endTime, displaySelf: true, nastrondStacks: REEffect.nastrondStacks - 1};
+		                    	addToActivate(timedEffect, effectsToActivate);
+		                    	addToEnd(timedEffect, effectsToEnd);
+		                    }
                             REEffect.endTime = time;
                             effectsToEnd.unshift(REEffect);
                         }
@@ -542,7 +553,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                 
                 // Cancel SFC, EWT and RTR when using another Weaponskill
                 if (getType(eName) === "Weaponskill") {
-                    ["Fang and Claw", "Wheeling Thrust", "Raiden Thrust"].forEach(elt => {
+                    ["Raiden Thrust"].forEach(elt => {
                         if (eName !== elt) {
                             var REIdx = effectsToEnd.findIndex(ef => ef.effect.name === getRequiredEffect(elt));
                             if (REIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === getRequiredEffect(elt)) >= 0) {
@@ -569,17 +580,17 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                     //         addToEnd(BotDEffect, effectsToEnd);
 	            	// 	}
 	            	// 	break;
-	            	case "Mirage Dive":
-	            		var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
-	            		if (LotDEffect)
-	            			LotDEffect.eyes = Math.min(LotDEffect.eyes + 1, 2);
-	            		break;
-	            	case "Geirskogul":
-	            		var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
-	            		if (LotDEffect && LotDEffect.eyes === 2) {
-	            			LotDEffect.eyes = 0;
-	            		}
-	            		break;
+	            	// case "Mirage Dive":
+	            	// 	var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
+	            	// 	if (LotDEffect)
+	            	// 		LotDEffect.eyes = Math.min(LotDEffect.eyes + 1, 2);
+	            	// 	break;
+	            	// case "Geirskogul":
+	            	// 	var LotDEffect = effects.find(ef => ef.name === "Life of the Dragon");
+	            	// 	if (LotDEffect && LotDEffect.eyes === 2) {
+	            	// 		LotDEffect.eyes = 0;
+	            	// 	}
+	            	// 	break;
             		default:
             			break;
 	            }
@@ -618,25 +629,25 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             	stats.updateEffects(timedEffect);
             	eName = timedEffect.effect.name;
             	timedEffect.endTime = time;
-            	switch(eName) {
-	            	case "Wheel in Motion":
-	            	case "Fang and Claw Bared":
-	            		timedEffect.effect.value = 0;
-	            		break;
-	            	// case "Blood of the Dragon":
-	            	// 	if (timedEffect.effect.life) {
-	            	// 		timedEffect.effect.life = false;
-	            	// 		timedEffect.endTime = time + 30;
-                    //         addToEnd(timedEffect, effectsToEnd);
-			        //     	activeEffects.push(timedEffect);
-			        //     	stats.updateEffects(timedEffect);
-	            	// 	} else {
-	            	// 		timedEffect.effect.eyes = 0;
-	            	// 	}
-	            	// 	break;
-            		default:
-            			break;
-            	}
+            	// switch(eName) {
+	            // 	case "Wheel in Motion":
+	            // 	case "Fang and Claw Bared":
+	            // 		timedEffect.effect.value = 0;
+	            // 		break;
+	            // 	// case "Blood of the Dragon":
+	            // 	// 	if (timedEffect.effect.life) {
+	            // 	// 		timedEffect.effect.life = false;
+	            // 	// 		timedEffect.endTime = time + 30;
+                //     //         addToEnd(timedEffect, effectsToEnd);
+			    //     //     	activeEffects.push(timedEffect);
+			    //     //     	stats.updateEffects(timedEffect);
+	            // 	// 	} else {
+	            // 	// 		timedEffect.effect.eyes = 0;
+	            // 	// 	}
+	            // 	// 	break;
+            	// 	default:
+            	// 		break;
+            	// }
             	break;
             default:
 		}

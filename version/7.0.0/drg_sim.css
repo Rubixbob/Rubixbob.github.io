@@ -670,6 +670,14 @@ a:visited {
     background: url("../../images/jobs/Sage.png") 0 0 no-repeat;
 }
 
+.ui-icon.vpr, .ui-button:hover .ui-icon.vpr, .ui-button:focus .ui-icon.vpr {
+    background: url("../../images/jobs/Viper.png") 0 0 no-repeat;
+}
+
+.ui-icon.pct, .ui-button:hover .ui-icon.pct, .ui-button:focus .ui-icon.pct {
+    background: url("../../images/jobs/Pictomancer.png") 0 0 no-repeat;
+}
+
 .ui.modal>.header {
     color: var(--text-color);
     background-color: var(--color-bg);

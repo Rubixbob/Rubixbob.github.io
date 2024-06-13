@@ -75,7 +75,7 @@ class Stats {
 				});
 				break;
 			case "DoT":
-				if (effect.name === "Chaos Thrust") {
+				if (effect.name === "Chaotic Spring") {
 					if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0) {
 						this.CTDamage = timedEffect.dotDamage;
 					} else {
@@ -123,23 +123,23 @@ class Stats {
 				break;
 			case "Speed":
 				switch (effect.name) {
-                    case "The Arrow":
-                        if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0) {
-							if (timedEffect.royalRoad === "Enhanced")
-								this.arrow = effect.enhancedValue;
-							else if (timedEffect.royalRoad === "Expanded")
-								this.arrow = effect.expandedValue;
-							else
-								this.arrow = effect.value;
-                        } else
-                            this.arrow = 0;
-                        break;
-                    case "Fey Wind":
-                        if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0)
-                            this.feyWind = effect.value;
-                        else
-                            this.feyWind = 0;
-                        break;
+                    // case "The Arrow":
+                    //     if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0) {
+					// 		if (timedEffect.royalRoad === "Enhanced")
+					// 			this.arrow = effect.enhancedValue;
+					// 		else if (timedEffect.royalRoad === "Expanded")
+					// 			this.arrow = effect.expandedValue;
+					// 		else
+					// 			this.arrow = effect.value;
+                    //     } else
+                    //         this.arrow = 0;
+                    //     break;
+                    // case "Fey Wind":
+                    //     if (this.activeEffects.findIndex(ef => ef.effect.name === effect.name) >= 0)
+                    //         this.feyWind = effect.value;
+                    //     else
+                    //         this.feyWind = 0;
+                    //     break;
                     default:
                         console.log("Effect " + effect.name + " needs to be implemented");
                         break;
@@ -520,7 +520,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
                     addToEnd(timedEffect, effectsToEnd);
                     
                     // Compute CT DoT damage
-                    if (ef.name === "Chaos Thrust") {
+                    if (ef.name === "Chaotic Spring") {
                         timedEffect.dotDamage = stats.dotDamage(ef.value);
                     }
 	            });
