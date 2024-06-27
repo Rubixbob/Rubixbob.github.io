@@ -1160,7 +1160,7 @@ function loadRotationRow(rotName, rots, body, saving) {
     var row = $("<tr></tr>");
     var nameCell = $("<td></td>");
     if(rot.id)
-        nameCell.append(`<a href="${rot.id}">${rot.name}</a>`);
+        nameCell.append(`<a href="/${rot.id}">${rot.name}</a>`);
     else
         nameCell.append(rot.name);
     row.append(nameCell);
