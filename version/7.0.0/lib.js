@@ -36,10 +36,16 @@ class Stats {
         // this.lvlModDiv = 3300;
         
         // Lvl 90
-        this.lvlModAP = 195;
-        this.lvlModMain = 390;
-        this.lvlModSub = 400;
-        this.lvlModDiv = 1900;
+        // this.lvlModAP = 195;
+        // this.lvlModMain = 390;
+        // this.lvlModSub = 400;
+        // this.lvlModDiv = 1900;
+        
+        // Lvl 100
+        this.lvlModAP = 237;
+        this.lvlModMain = 440;
+        this.lvlModSub = 420;
+        this.lvlModDiv = 2780;
 	}
 
 	copy() {
@@ -629,6 +635,17 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
             	stats.updateEffects(timedEffect);
             	eName = timedEffect.effect.name;
             	timedEffect.endTime = time;
+            	if (eName == "Life of the Dragon") {
+            		// End Starcross Ready if it's up
+                    var SRIdx = effectsToEnd.findIndex(ef => ef.effect.name === "Starcross Ready");
+                    if (SRIdx >= 0 && activeEffects.findIndex(ef => ef.effect.name === "Starcross Ready") >= 0) {
+                        var SREffect = effectsToEnd.splice(SRIdx, 1)[0];
+                        if (SREffect) {
+                            SREffect.endTime = time;
+                            effectsToEnd.unshift(SREffect);
+                        }
+                    }
+            	}
             	// switch(eName) {
 	            // 	case "Wheel in Motion":
 	            // 	case "Fang and Claw Bared":
