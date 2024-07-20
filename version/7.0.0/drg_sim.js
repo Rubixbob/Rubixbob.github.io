@@ -1524,6 +1524,19 @@ $("#exportRotation").click(function() {
     $("#exportRotationConfirm").prop("hidden", false);
 });
 
+$("#exportRotationTimed").click(function() {
+    var rotation = [];
+    $("#rotation").children().each(function(index) {
+        rotation.push($(this).attr("time") + "," + $(this).attr("name"));
+    });
+    $("#exportRotationText").prop("hidden", false);
+    $("#exportRotationText").val(rotation.join("\r\n"));
+    $("#exportRotationText").get(0).select();
+    document.execCommand("copy");
+    $("#exportRotationText").prop("hidden", true);
+    $("#exportRotationConfirm").prop("hidden", false);
+});
+
 $("#themeCheckbox .checkbox").checkbox({
     onChange : function() {
         $("body").attr("data-theme", $(this.parentNode).checkbox("is checked") ? "dark" : "");
