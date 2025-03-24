@@ -452,6 +452,15 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	            	// 	else
 	            	// 		ePot = 0;
 	            	// 	break;
+					case "Piercing Talon":
+	            		var EPTEffect = activeEffects.find(ef => ef.effect.name === "Enhanced Piercing Talon");
+	            		if (EPTEffect) {
+	            			ePot += EPTEffect.effect.value;
+		                    var EPTToEnd = effectsToEnd.splice(effectsToEnd.findIndex(ef => ef.effect.name === "Enhanced Piercing Talon"), 1)[0];
+		                    EPTToEnd.endTime = time;
+		                    effectsToEnd.unshift(EPTToEnd);
+	            		}
+						break;
             		default:
             			break;
 	            }
@@ -517,7 +526,7 @@ function generateHistory(rotationDom, rotationHistory, stats, groupEffectsDom) {
 	                timedEffect = {effect: ef, beginTime: beginTime, endTime: endTime, displaySelf: true};
 	                // Nastrond ready stacks
 	                if (eName === "Geirskogul" && ef.name === "Nastrond Ready") {
-	                	timedEffect.nastrondStacks = 3;
+	                	timedEffect.nastrondStacks = 1;
 	                }
                     addToActivate(timedEffect, effectsToActivate);
 
