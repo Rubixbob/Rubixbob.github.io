@@ -1,4 +1,4 @@
-var version = "7.0.0";
+var version = "7.2.0";
 
 var express = require("express");
 var bodyParser = require("body-parser");

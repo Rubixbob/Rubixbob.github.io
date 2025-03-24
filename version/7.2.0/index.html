@@ -1,0 +1,488 @@
+<!doctype html>
+<html>
+
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E3MPDEEGGQ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-E3MPDEEGGQ');
+    </script>
+
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/button.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/checkbox.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/transition.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/dimmer.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/components/modal.min.css">
+    <link rel="stylesheet" href="./drg_sim.css">
+    <link rel="shortcut icon" href="./../../images/favicon.ico" />
+    <title>XIV DRG Sim</title>
+</head>
+
+<body>
+    <script src="./theme_checkbox.js"></script>
+    <div id="mainDiv">
+        <div id="topDiv">
+            <div id="themeCheckbox">
+                <i class="icon sun outline"></i>
+                <div class="ui fitted toggle checkbox">
+                    <input type="checkbox" name="theme">
+                    <label></label>
+                </div>
+                <span><i class="icon moon outline"></i></span>
+            </div>
+            <div id="buttonsDiv">
+                <button class="mini ui icon button" id="clearRotation"><i class="icon close"></i>Clear Rotation</button>
+                <button class="mini ui button" id="opener">Opener</button>
+                <button class="mini ui button" id="sixMinRotation">6 min rotation</button>
+                <button class="mini ui button" id="manageRotations">Rotations...</button>
+                <button class="mini ui button" id="hideEffectsButton">Show/Hide Effects</button>
+                <button class="mini ui icon button" id="convertRotation"><i class="icon sync"></i>Convert...</button>
+                <strong>
+                    <output id="DPSout"></output>
+                    <label for="DPSout">DPS</label>
+                </strong>
+            </div>
+            <div id="topLeftDiv">
+            </div>
+        </div>
+        <div id="leftDiv">
+            <div id="actions">
+                <div id="combo1" class="actionGroup">
+                </div>
+                <div id="combo2" class="actionGroup">
+                </div>
+                <div id="miscgcd" class="actionGroup">
+                </div>
+                <div id="buff" class="actionGroup">
+                </div>
+                <div id="ogcd" class="actionGroup">
+                </div>
+                <div id="crossrole" class="actionGroup">
+                </div>
+                <div id="other" class="actionGroup">
+                </div>
+            </div>
+        </div>
+        <div id="suggestions" class="ui-widget-content">
+            <div id="suggestionsTitle">
+                <i class="small icon arrows alternate"></i> Suggestions
+            </div>
+        </div>
+        <div id="midDiv">
+            <table class="rotation-table">
+                <tr id="headers">
+                    <th>Time</th>
+                    <th id="rotationHeader">Actions</th>
+                    <th id="botdHeader">BotD</th>
+                    <th id="fifoHeader">FiFo</th>
+                    <th id="effectsHeader" nowrap></th>
+                    <th id="groupEffectsHeader" nowrap></th>
+                    <th id="cdsHeader">CDs</th>
+                    <th id="dpsHeader">DPS</th>
+                </tr>
+            </table>
+            <div id="scrollableDiv">
+                <table class="rotation-table">
+                    <tr id="columns">
+                        <td id="timeline"></td>
+                        <td id="rotation" class="dropper"></td>
+                        <td id="botd"></td>
+                        <td id="fifo"></td>
+                        <td id="effects"></td>
+                        <td id="groupEffects"></td>
+                        <td id="cds"></td>
+                        <td id="dps"></td>
+                    </tr>
+                </table>
+            </div>
+            <button id="leftExpand" class="ui icon button" expanded="false">
+                <strong>
+                    A<br/>
+                    C<br/>
+                    T<br/>
+                    I<br/>
+                    O<br/>
+                    N<br/>
+                    S<br/>
+                </strong>
+                <br/><br/>
+                <i id="leftExpandIcon" class="icon angle double right"></i>
+            </button>
+            <button id="rightExpand" class="ui icon button" expanded="false">
+                <strong>
+                    G<br/>
+                    R<br/>
+                    O<br/>
+                    U<br/>
+                    P<br/>
+                    <br/><br/>
+                    &<br/>
+                    <br/><br/>
+                    S<br/>
+                    T<br/>
+                    A<br/>
+                    T<br/>
+                    S<br/>
+                </strong>
+                <br/><br/>
+                <i id="rightExpandIcon" class="icon angle double left"></i>
+            </button>
+        </div>
+        <div id="rightDiv">
+            <table id="group">
+                <tr>
+                    <th>Raid group</th>
+                    <th>
+                        <button id="raidBuffAuto" class="mini ui icon button checkboxButton" checkCount="7">
+                            <input type="checkbox" checked />
+                            <i class="big icon square outline check"></i>
+                        </button>
+                        <label for="raidBuffAuto">Auto</label>
+                    </th>
+                    <th>
+                        <button id="raidBuffClear" class="big circular ui icon button clearGroupButton"><i class="icon close"></i></button>
+                        Clear
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <select>
+                            <optgroup label="DPS">
+                                <option value="drg" data-class="drg">Dragoon</option>
+                                <option value="nin" data-class="nin">Ninja</option>
+                                <option value="mnk" data-class="mnk">Monk</option>
+                                <option value="sam" data-class="sam">Samurai</option>
+                                <option value="rpr" data-class="rpr">Reaper</option>
+                                <option value="vpr" data-class="vpr">Viper</option>
+                                <option value="brd" data-class="brd">Bard</option>
+                                <option value="mch" data-class="mch">Machinist</option>
+                                <option value="dnc" data-class="dnc">Dancer</option>
+                                <option value="smn" data-class="smn">Summoner</option>
+                                <option value="rdm" data-class="rdm">Red Mage</option>
+                                <option value="blm" data-class="blm">Black Mage</option>
+                                <option value="pct" data-class="pct">Pictomancer</option>
+                            </optgroup>
+                            <optgroup label="Healers">
+                                <option value="sch" data-class="sch">Scholar</option>
+                                <option value="ast" data-class="ast">Astrologian</option>
+                                <option value="whm" data-class="whm">White Mage</option>
+                                <option value="sge" data-class="sge">Sage</option>
+                            </optgroup>
+                            <optgroup label="Tanks">
+                                <option value="war" data-class="war">Warrior</option>
+                                <option value="pld" data-class="pld">Paladin</option>
+                                <option value="drk" data-class="drk">Dark Knight</option>
+                                <option value="gnb" data-class="gnb">Gunbreaker</option>
+                            </optgroup>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="mini ui icon button checkboxButton">
+                            <input type="checkbox" checked />
+                            <i class="big icon square outline check"></i>
+                        </button>
+                    </td>
+                    <td><button class="big circular ui icon button clearGroupButton"><i class="icon close"></i></button></td>
+                </tr>
+            </table>
+            <br />
+            <table id="stats">
+                <tr>
+                    <th colspan="3">Stats</th>
+                </tr>
+                <tr>
+                    <td><label for="WDin">Weapon Damage</label></td>
+                    <td>
+                        <input id="WDin" type="number" value="141" min="0" max="9999"></input>
+                        <output id="WDout" hidden></output>
+                        <output id="WDoutAa" hidden></output>
+                    </td>
+                    <td><i id="WDtooltip" class="icon question circle outline"></i></td>
+                </tr>
+                <tr>
+                    <td><label for="STRin">Strength</label></td>
+                    <td>
+                        <input id="STRin" type="number" value="4483" min="440" max="9999"></input>
+                        <output id="STRout" hidden></output>
+                    </td>
+                    <td><i id="STRtooltip" class="icon question circle outline"></i></td>
+                </tr>
+                <tr>
+                    <td><label for="DHin">Direct Hit Rate</label></td>
+                    <td>
+                        <input id="DHin" type="number" value="2341" min="420" max="9999"></input>
+                        <output id="DHout" hidden></output>
+                        <output id="DHoutRate" hidden></output>
+                    </td>
+                    <td><i id="DHtooltip" class="icon question circle outline"></i></td>
+                </tr>
+                <tr>
+                    <td><label for="CRITin">Critical Hit Rate</label></td>
+                    <td>
+                        <input id="CRITin" type="number" value="1992" min="420" max="9999"></input>
+                        <output id="CRITout" hidden></output>
+                        <output id="CRIToutRate" hidden></output>
+                        <output id="CRIToutDmg" hidden></output>
+                    </td>
+                    <td><i id="CRITtooltip" class="icon question circle outline"></i></td>
+                </tr>
+                <tr>
+                    <td><label for="DETin">Determination</label></td>
+                    <td>
+                        <input id="DETin" type="number" value="2430" min="440" max="9999"></input>
+                        <output id="DETout" hidden></output>
+                    </td>
+                    <td><i id="DETtooltip" class="icon question circle outline"></i></td>
+                </tr>
+                <tr>
+                    <td><label for="SKSin">Skill Speed</label></td>
+                    <td>
+                        <input id="SKSin" type="number" value="420" min="420" max="9999"></input>
+                        <output id="SKSout" hidden></output>
+                        <output id="SKSoutGCD" hidden></output>
+                    </td>
+                    <td><i id="SKStooltip" class="icon question circle outline"></i></td>
+                </tr>
+                <tr>
+                    <td><label for="Latency">Latency</label></td>
+                    <td><input id="Latency" type="number" value="20" min="0" max="9999"></input></td>
+                    <td><i id="Latencytooltip" class="icon question circle outline"></i></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!-- <div id="progress">
+        <div>
+            <strong>DONE:</strong>
+            <ul>
+    <br/>
+                <li>Automatic read of actions from data.js + add to "action group"</li>
+                <li>Clear rotation button</li>
+                <li>Time extends when needed</li>
+                <li>Animation lock + GCD vs anim lock priority</li>
+                <li>Offset oGCDs a bit to the right</li>
+                <li>Option to delay oGCDs<strike>, will be reworked later</strike></li>
+                <li>Animation lock indicator</li>
+                <li>Delete actions</li>
+                <li>Move actions</li>
+                <li>Recommended opener button</li>
+                <li>Auto scroll</li>
+                <li>Variable GCD and latency</li>
+                <li>Delay reworked, works through drag and drop now<br/>
+                    The "Delay" action will be used later to simulate downtime</li>
+                <li>Pre-pull actions</li>
+                <li>Add vertical time grid + precise time of actions</li>
+                <li>Cooldowns condition</li>
+				<li>Auto delay buffs</li>
+                <li>Action info on mouseover + rework time tooltip</li>
+                <li>Effects list + activation time</li>
+                <li>Cooldowns display</li>
+                <li>Effects display</li>
+                <li>Lib (Actual DPS calculator, too much to do, will be detailed later)</li>
+                <li>Stats input</li>
+                <li>Adjust display depending on zoom level</li>
+                <li>Show/Hide columns/buffs/cds</li>
+                <li>Actions suggestions</li>
+                <li>Combo and CD indicator in hotbar based on current end time</li>
+            </ul>
+        </div>
+        <div>
+            <strong>TODO:</strong>
+            <ul>
+                <li>Save rotations (can't go public before that)</li>
+                <li>Raid buffs + speed buffs</li>
+                <li>Downtime manager</li>
+                <li>Make it work on phone</li>
+                <li>See if it's possible to restrict actions usage if a buff is up</li>
+                <li>Auto fill GCDs checkbox</li>
+                <li>Clipping indicator</li>
+                <li>When downtime > 10 secs, tip to optimize last GCDs because combo will break</li>
+                <li>Should work on making the website look pretty around this time<br/>
+                    (JQuery UI animations, cursor: pointer; cursor: hand; cursor: move; cursor: n-resize)</li>
+                <li>Damage and DPS preview of an action when moving it</li>
+                <li>Rotation comparator</li>
+            </ul>
+        </div>
+    </div> -->
+    
+    <div id="raidBuffLightbox" class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            <output id="raidBuffLightboxTitleMode"></output> <output id="raidBuffLightboxTitle"></output>
+        </div>
+        <div class="image content">
+            <div class="ui medium image">
+                <img id="raidBuffLightboxImg">
+            </div>
+            <div class="description">
+                <div id="raidBuffInput">
+                    <table>
+                        <tr>
+                            <td><label>Start time</label></td>
+                            <td><input id="raidBuffLightboxStartTimeInput" type="number" step="any"></input></td>
+                        </tr>
+                        <tr>
+                            <td><label>Duration</label></td>
+                            <td>
+                                <!-- <input id="raidBuffLightboxDurationInput" type="number" min="0"></input> -->
+                                <output id="raidBuffLightboxDuration"></output>
+                            </td>
+                        </tr>
+                        <tr id="raidBuffLightboxCodaRow">
+                            <td><label>Coda</label></td>
+                            <td>
+                                <input id="raidBuffLightboxCoda" type="number" min="1" max="3"></input>
+                            </td>
+                        </tr>
+                    </table>
+                    <table id="raidBuffLightboxCards">
+                        <tr>
+                            <!-- <td>
+                                <input type="radio" id="raidBuffLightboxLord" name="card" value="Lord of Crowns" checked/>
+                                <label for="raidBuffLightboxLord"><img src="../../images/effects/Lord of Crowns.png">Lord of Crowns</label>
+                            </td> -->
+                            <td>
+                                <input type="radio" id="raidBuffLightboxBalance" name="card" value="The Balance"/>
+                                <label for="raidBuffLightboxBalance"><img src="../../images/effects/The Balance.png">The Balance</label>
+                            </td>
+                            <!-- <td>
+                                <input type="radio" id="raidBuffLightboxArrow" name="card" value="The Arrow"/>
+                                <label for="raidBuffLightboxArrow"><img src="../../images/effects/The Arrow.png">The Arrow</label>
+                            </td> -->
+                            <td>
+                                <input type="radio" id="raidBuffLightboxSpear" name="card" value="The Spear"/>
+                                <label for="raidBuffLightboxSpear"><img src="../../images/effects/The Spear.png">The Spear</label>
+                            </td>
+                        </tr>
+                        <!-- <tr>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxLady" name="card" value="Lady of Crowns"/>
+                                <label for="raidBuffLightboxLady"><img src="../../images/effects/Lady of Crowns.png">Lady of Crowns</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxBole" name="card" value="The Bole"/>
+                                <label for="raidBuffLightboxBole"><img src="../../images/effects/The Bole.png">The Bole</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxEwer" name="card" value="The Ewer"/>
+                                <label for="raidBuffLightboxEwer"><img src="../../images/effects/The Ewer.png">The Ewer</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="raidBuffLightboxSpire" name="card" value="The Spire"/>
+                                <label for="raidBuffLightboxSpire"><img src="../../images/effects/The Spire.png">The Spire</label>
+                            </td>
+                        </tr> -->
+                    </table>
+                </div>
+                    <!-- <tr id="raidBuffLightboxRoadRow">
+                        <td colspan="2">
+                            <input type="radio" id="raidBuffLightboxNoEffect" name="royalRoad" value="noeffect"/>
+                            <label for="raidBuffLightboxNoEffect">No Effect</label>
+                            <input type="radio" id="raidBuffLightboxExpanded" name="royalRoad" value="expanded" checked/>
+                            <label for="raidBuffLightboxExpanded"><img src="images/effects/Expanded Royal Road.png">Expanded</label>
+                            <input type="radio" id="raidBuffLightboxExtended" name="royalRoad" value="extended"/>
+                            <label for="raidBuffLightboxExtended"><img src="images/effects/Extended Royal Road.png">Extended</label>
+                            <input type="radio" id="raidBuffLightboxEnhanced" name="royalRoad" value="enhanced"/>
+                            <label for="raidBuffLightboxEnhanced"><img src="images/effects/Enhanced Royal Road.png">Enhanced</label>
+                        </td>
+                    </tr>
+                    <tr id="raidBuffLightboxAstRow">
+                        <td colspan="2">
+                            <input type="checkbox" id="raidBuffLightboxCelestialOpposition" name="celestialOpposition" checked/>
+                            <label for="raidBuffLightboxCelestialOpposition"><img src="images/group/Celestial Opposition.png" width="32">Celestial Opposition (+10 secs)</label>
+                            <input type="checkbox" id="raidBuffLightboxTimeDilation" name="timeDilation" checked/>
+                            <label for="raidBuffLightboxTimeDilation"><img src="images/group/Time Dilation.png" width="32">Time Dilation (+15 secs)</label>
+                        </td>
+                    </tr> -->
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui black cancel button">
+                Cancel
+            </div>
+            <div id="raidBuffLightboxConfirm" class="ui positive right labeled icon button">
+                OK
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div id="savedRotationsLightbox" class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            <span>Rotations</span>
+            <i id="savedRotationstooltip" class="icon question circle outline"></i>
+        </div>
+        <div class="scrolling content">
+            <div class="description">
+                <table id="savedRotationsTable">
+                    <thead>
+                        <tr>
+                            <th><label>Name</label></th>
+                            <th><label>DPS</label></th>
+                            <th><label>Length</label></th>
+                            <th><label>GCD</label></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div id="convertRotationLightbox" class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            <span>Convert a rotation from/to Excel</span>
+        </div>
+        <div class="content">
+            <div class="description">
+                <table>
+                    <body>
+                        <tr>
+                            <td>
+                                <label for="pasteImportRotation">Import a rotation</label>
+                                <input placeholder="Paste here" id="pasteImportRotation"></input>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                OR
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button class="mini ui icon button" id="exportRotation"><i class="icon upload"></i>Export to clipboard</button>
+                                <button class="mini ui icon button" id="exportRotationTimed"><i class="icon upload"></i>Export to clipboard with time codes</button>
+                                <label id="exportRotationConfirm" hidden><strong>Rotation copied to clipboard!</strong></label>
+                                <textarea id="exportRotationText" hidden></textarea>
+                            </td>
+                        </tr>
+                    </body>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="./jquery.ui.touch-punch.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/checkbox.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/transition.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/dimmer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/modal.min.js"></script>
+    <script src="./data.js"></script>
+    <script src="./lib.js"></script>
+    <script src="./drg_sim.js"></script>
+</body>
+
+</html>
